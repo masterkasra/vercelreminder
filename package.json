@@ -1,0 +1,10 @@
+{
+  "name": "telegram-reminder-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node api/reminders.js"
+  },
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  }
+}
