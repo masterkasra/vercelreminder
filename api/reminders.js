@@ -12,13 +12,15 @@ export default async function handler(req, res) {
 
     const key = `reminders:${chat_id}`;
 
+    // خواندن یادآورها
     if (req.method === 'GET') {
       const data = await client.get(key);
       return res.status(200).json(data ? JSON.parse(data) : []);
     }
 
+    // ذخیره، ویرایش و حذف
     if (req.method === 'POST') {
-      const { action, id, title, datetime, priority, desc, advanceNotice } = req.body;
+      const { action, id, title, datetime, priority, desc, advanceNotice, recurring } = req.body;
       const data = await client.get(key);
       let reminders = data ? JSON.parse(data) : [];
 
@@ -28,23 +30,33 @@ export default async function handler(req, res) {
         const index = reminders.findIndex(r => r.id === id);
         if (index > -1) reminders[index].completed = !reminders[index].completed;
       } else if (action === 'edit') {
-        // منطق جدید ویرایش
         const index = reminders.findIndex(r => r.id === id);
         if (index > -1) {
           reminders[index] = {
             ...reminders[index],
-            title, datetime, priority, desc,
+            title, 
+            datetime, 
+            priority, 
+            desc,
             advanceNotice: advanceNotice || 0,
-            sent: false, // ریست کردن وضعیت ارسال در صورت تغییر تاریخ
+            recurring: recurring || 'none',
+            sent: false, 
             advanceSent: false 
           };
         }
       } else {
         // ایجاد یادآور جدید
         reminders.push({ 
-          id: Date.now(), title, datetime, priority, desc, 
-          advanceNotice: advanceNotice || 0, 
-          completed: false, sent: false, advanceSent: false 
+          id: Date.now(), 
+          title, 
+          datetime, 
+          priority, 
+          desc, 
+          advanceNotice: advanceNotice || 0,
+          recurring: recurring || 'none',
+          completed: false, 
+          sent: false, 
+          advanceSent: false 
         });
       }
 
