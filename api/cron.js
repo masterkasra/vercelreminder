@@ -21,17 +21,34 @@ export default async function handler(req, res) {
       let dbChanged = false;
 
       for (let r of reminders) {
+        if (r.completed) continue; // اگر انجام شده، عبور کن
+
         const targetTime = new Date(r.datetime).getTime();
-        if (!r.sent && !r.completed && targetTime <= now) {
-          const priorityEmoji = r.priority === 'high' ? '🔴 فوری' : r.priority === 'medium' ? '🟡 متوسط' : '🟢 عادی';
-          const msg = `⏰ *یادآور رسید!*\n\n📌 عنوان: ${r.title}\n📝 توضیحات: ${r.desc || '-'}\n📊 اولویت: ${priorityEmoji}`;
-          
+        const advanceDays = r.advanceNotice || 0;
+        
+        // محاسبه زمان پیش‌هشدار (کسر کردن تعداد روز از زمان اصلی)
+        const advanceTime = targetTime - (advanceDays * 24 * 60 * 60 * 1000);
+
+        // ۱. بررسی یادآوری زودهنگام
+        if (advanceDays > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
+          const msg = `⏳ *هشدار زودهنگام (${advanceDays} روز مانده)*\n\n📌 عنوان: ${r.title}\n📝 توضیحات: ${r.desc || '-'}`;
           await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
           });
+          r.advanceSent = true;
+          dbChanged = true;
+          messagesSent++;
+        }
 
+        // ۲. بررسی یادآوری زمان اصلی
+        if (!r.sent && targetTime <= now) {
+          const priorityEmoji = r.priority === 'high' ? '🔴 فوری' : r.priority === 'medium' ? '🟡 متوسط' : '🟢 عادی';
+          const msg = `⏰ *سررسید یادآور!*\n\n📌 عنوان: ${r.title}\n📝 توضیحات: ${r.desc || '-'}\n📊 اولویت: ${priorityEmoji}`;
+          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+          });
           r.sent = true;
           dbChanged = true;
           messagesSent++;
