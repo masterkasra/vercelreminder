@@ -3,179 +3,404 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#10b981" />
+  <meta name="theme-color" content="#050505" />
   <link rel="manifest" href="/manifest.json" />
-  <title>یادآور هوشمند ابری</title>
+  <title>دستیار هوشمند ابری | Nirvana</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
   <style>
-    body { font-family: 'Vazirmatn', sans-serif; background-color: #050505; color: #f8fafc; overflow-x: hidden; }
-    .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
-    .input-premium { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; }
-    .input-premium:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); outline: none; }
-    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 40px -10px rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); }
-    
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    
-    .loader { border-top-color: #10b981; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
-    @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    /* انیمیشن قلب تپنده */
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.25); }
-    }
-    .animate-heartbeat {
-      display: inline-block;
-      animation: heartbeat 1.2s ease-in-out infinite;
-    }
+    body { font-family: 'Vazirmatn', sans-serif; background-color: #030712; color: #f8fafc; overflow-x: hidden; }
+    .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+    .input-premium:focus { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); outline: none; }
+    .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+    .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
+    .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center selection:bg-emerald-500/30">
+<body class="min-h-screen flex flex-col items-center selection:bg-emerald-500/30 pb-24">
 
-  <!-- افکت نوری پس‌زمینه -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[400px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none -z-10"></div>
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-900/20 blur-[150px] rounded-full pointer-events-none -z-10"></div>
 
-  <!-- صفحه لاگین -->
-  <div id="login-screen" class="w-full max-w-md mt-24 p-6 hidden">
-    <div class="glass-panel p-10 rounded-[2rem] shadow-2xl text-center relative overflow-hidden group">
-      <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/30 rotate-3 transition-transform group-hover:rotate-0 duration-500">
-        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-      </div>
-      <h2 class="text-3xl font-black text-white mb-3 tracking-tight">ورود امن</h2>
-      <p class="text-sm text-slate-400 mb-8 font-light">شناسه تلگرام خود را برای اتصال به فضای ابری وارد کنید</p>
-      <input id="chat-id-input" type="number" placeholder="مثال: 123456789" class="w-full text-center input-premium rounded-xl px-5 py-4 mb-6 text-white placeholder-slate-600 text-lg tracking-widest" />
-      <button onclick="login()" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-xl transition-all transform hover:-translate-y-1 hover:shadow-xl hover:shadow-white/10 active:scale-95">اتصال به سرور</button>
+  <!-- تور راهنمای تعاملی (Onboarding Modal) -->
+  <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content">
+      <!-- محتوای تور با جاوااسکریپت پر می‌شود -->
     </div>
   </div>
 
-  <!-- صفحه اصلی اپلیکیشن -->
-  <div id="app-screen" class="w-full max-w-3xl hidden px-4 sm:px-6 flex-grow">
+  <!-- صفحه ورود -->
+  <div id="login-screen" class="w-full max-w-md mt-24 p-6 hidden">
+    <div class="glass-panel p-10 rounded-[2.5rem] shadow-2xl text-center relative overflow-hidden group">
+      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+      </div>
+      <h2 class="text-3xl font-black text-white mb-3">شروع کار</h2>
+      <p class="text-sm text-slate-400 mb-8">برای همگام‌سازی، شناسه تلگرام خود را وارد کنید.</p>
+      <input id="chat-id-input" type="number" placeholder="Chat ID" class="w-full text-center input-premium rounded-xl px-5 py-4 mb-6 text-white text-xl tracking-widest" />
+      <button onclick="login()" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-xl transition-all hover:-translate-y-1">ورود به پنل کاربری</button>
+      <button onclick="startTour(true)" class="w-full mt-4 text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-4">شناسه تلگرام چیست؟ (راهنمای تصویری)</button>
+    </div>
+  </div>
+
+  <!-- داشبورد اصلی -->
+  <div id="app-screen" class="w-full max-w-4xl hidden px-4 sm:px-6 flex-grow">
     
-    <header class="flex justify-between items-center py-8 mb-4">
+    <!-- هدر و وضعیت اتصال -->
+    <header class="flex justify-between items-center py-8">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-white tracking-tight">یادآور ابری</h1>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span class="text-xs text-slate-400 font-medium">متصل به تلگرام</span>
+          <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">یادآور ابری هوشمند</h1>
+          <div class="flex items-center gap-2 mt-1" id="sync-status">
+            <span class="flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse" id="sync-dot"></span>
+            <span class="text-xs text-slate-400 font-medium" id="sync-text">متصل و همگام</span>
           </div>
         </div>
       </div>
-      <div class="flex gap-2">
-        <button id="install-btn" class="hidden text-xs bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 px-4 py-2.5 rounded-xl border border-emerald-500/20 transition-all font-medium">نصب اپلیکیشن</button>
-        <button onclick="logout()" class="text-xs glass-panel hover:bg-white/10 px-4 py-2.5 rounded-xl text-slate-300 transition-all font-medium">خروج</button>
-      </div>
+      <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-white/10 text-rose-400 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
     </header>
 
-    <div class="glass-panel rounded-3xl p-6 sm:p-8 mb-10 relative z-10 border-t border-white/10">
-      <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute -top-4 -right-4 bg-rose-500 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-      
-      <form onsubmit="saveReminder(event)" class="space-y-6">
-        <div>
-          <input id="title" type="text" required placeholder="موضوع یادآور را بنویسید..." class="w-full bg-transparent border-b-2 border-white/10 focus:border-emerald-500 px-2 py-3 text-2xl text-white placeholder-slate-600 focus:outline-none transition-colors font-bold" />
+    <!-- داشبورد گیمیفیکیشن (Productivity Analytics) -->
+    <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 border-emerald-500/20">
+      <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+        <span class="text-2xl" id="level-emoji">🌱</span>
+      </div>
+      <div class="w-full flex-grow">
+        <div class="flex justify-between items-end mb-2">
+          <div>
+            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">سطح بهره‌وری شما</p>
+            <h3 class="text-lg font-bold text-emerald-400" id="level-title">شروع مسیر</h3>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl font-black text-white" id="tasks-done">0</span>
+            <span class="text-sm text-slate-500">/ <span id="tasks-total">0</span> انجام شده</span>
+          </div>
         </div>
+        <div class="w-full h-2 bg-black/40 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- پنل ثبت و ویرایش -->
+    <div class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
+      <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors">لغو ویرایش ✖</button>
+      
+      <!-- تب‌های هوش مصنوعی / دستی -->
+      <div class="flex gap-2 mb-6 bg-black/30 p-1 rounded-xl w-fit">
+        <button id="tab-manual" onclick="switchTab('manual')" class="px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow">ثبت دستی</button>
+        <button id="tab-ai" onclick="switchTab('ai')" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5 transition-all">
+          <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"></path></svg> هوش مصنوعی (AI)
+        </button>
+      </div>
+
+      <!-- فرم هوش مصنوعی -->
+      <div id="ai-form" class="hidden space-y-4">
+        <div class="relative">
+          <textarea id="ai-input" rows="3" placeholder="مثال: فردا ساعت ۵ عصر به مدیرم ایمیل بزنم (خیلی مهمه)" class="w-full input-premium rounded-2xl px-5 py-4 text-lg text-white placeholder-slate-500 resize-none"></textarea>
+          <div class="absolute bottom-4 left-4 flex gap-2">
+            <button class="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 transition-colors" title="دستیار صوتی (به زودی)"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg></button>
+          </div>
+        </div>
+        <button onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-lg transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> استخراج و ثبت خودکار
+        </button>
+      </div>
+
+      <!-- فرم دستی استاندارد -->
+      <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
+        <input id="title" type="text" required placeholder="عنوان وظیفه..." class="w-full bg-transparent border-b border-white/10 focus:border-emerald-500 px-2 py-3 text-xl text-white placeholder-slate-600 focus:outline-none transition-colors font-bold" />
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div class="lg:col-span-2 glass-panel p-4 rounded-2xl flex flex-col justify-center">
-            <label class="text-xs font-semibold text-emerald-400 mb-3 uppercase tracking-wider">زمان سررسید</label>
+        <!-- Smart Tags -->
+        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <label class="text-xs self-center text-slate-400 ml-2">دسته‌بندی:</label>
+          <label class="cursor-pointer"><input type="radio" name="tag" value="💼 کاری" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-300 peer-checked:border-blue-500/50 text-slate-400 transition-all">💼 کاری</span></label>
+          <label class="cursor-pointer"><input type="radio" name="tag" value="🏠 شخصی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-300 peer-checked:border-orange-500/50 text-slate-400 transition-all">🏠 شخصی</span></label>
+          <label class="cursor-pointer"><input type="radio" name="tag" value="💳 مالی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300 peer-checked:border-emerald-500/50 text-slate-400 transition-all">💳 مالی</span></label>
+          <label class="cursor-pointer"><input type="radio" name="tag" value="📚 توسعه" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-300 peer-checked:border-purple-500/50 text-slate-400 transition-all">📚 توسعه</span></label>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="lg:col-span-2 bg-black/20 p-3 rounded-2xl flex flex-col justify-center border border-white/5">
             <div class="flex flex-wrap gap-2">
               <select id="j-day" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
               <select id="j-month" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
               <select id="j-year" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <span class="text-slate-500 self-center font-bold">|</span>
+              <span class="text-slate-500 self-center">|</span>
               <select id="j-hour" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
-              <span class="text-slate-500 self-center font-bold">:</span>
+              <span class="text-slate-500 self-center">:</span>
               <select id="j-minute" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
             </div>
           </div>
           
-          <div class="glass-panel p-4 rounded-2xl flex flex-col justify-center">
-            <label class="text-xs font-semibold text-emerald-400 mb-3 uppercase tracking-wider">پیش‌هشدار تلگرام</label>
-            <select id="advance" class="w-full input-premium rounded-lg px-3 py-2 text-sm appearance-none">
-              <option value="0" selected>فقط سر وقت</option>
-              <option value="1">یک روز قبل</option>
-              <option value="3">سه روز قبل</option>
-              <option value="7">یک هفته قبل</option>
-            </select>
-          </div>
-          
-          <div class="flex flex-col gap-3">
-             <select id="recurring" class="w-full glass-panel border border-white/5 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none appearance-none">
-                <option value="none" selected>بدون تکرار 🔄</option>
-                <option value="daily">تکرار روزانه</option>
-                <option value="weekly">تکرار هفتگی</option>
-                <option value="monthly">تکرار ماهانه</option>
-             </select>
-             <select id="priority" class="w-full glass-panel border border-white/5 rounded-xl px-3 py-2.5 text-sm text-slate-300 focus:outline-none appearance-none">
-                <option value="low">اولویت عادی 🟢</option>
-                <option value="medium" selected>اولویت متوسط 🟡</option>
-                <option value="high">اولویت فوری 🔴</option>
-             </select>
-          </div>
+          <select id="advance" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none text-slate-300">
+            <option value="0" selected>بدون پیش‌هشدار</option><option value="1">۱ روز قبل</option><option value="3">۳ روز قبل</option>
+          </select>
+          <select id="priority" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none text-slate-300">
+            <option value="low">اولویت عادی</option><option value="medium" selected>اولویت متوسط</option><option value="high">اولویت فوری</option>
+          </select>
         </div>
-
-        <div>
-          <textarea id="desc" rows="1" placeholder="توضیحات تکمیلی (اختیاری)" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 resize-none"></textarea>
-        </div>
-
-        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-          <span id="submit-text">ایجاد وظیفه جدید</span>
-        </button>
+        <textarea id="desc" rows="1" placeholder="توضیحات تکمیلی..." class="w-full input-premium rounded-xl px-4 py-3 text-sm text-white resize-none"></textarea>
+        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all">ایجاد وظیفه جدید</button>
       </form>
     </div>
+    
+    <!-- Smart Tags Filters -->
+    <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide" id="filter-bar">
+      <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-white/20 text-white border border-white/20">همه وظایف</button>
+      <button onclick="setFilter('💼 کاری')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">💼 کاری</button>
+      <button onclick="setFilter('🏠 شخصی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">🏠 شخصی</button>
+      <button onclick="setFilter('💳 مالی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">💳 مالی</button>
+      <button onclick="setFilter('📚 توسعه')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">📚 توسعه</button>
+    </div>
 
-    <div id="loading" class="flex justify-center items-center py-10 hidden">
-      <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-10 w-10"></div>
-    </div>
-    
-    <div class="flex justify-between items-end mb-4 px-2">
-      <h2 class="text-xl font-bold text-white">وظایف پیش‌رو</h2>
-      <span id="task-counter" class="text-xs bg-white/10 px-3 py-1 rounded-full text-slate-300 font-mono">0 وظیفه</span>
-    </div>
-    
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
   </div>
 
-  <!-- فوتر (امضای سازنده) -->
   <footer class="mt-auto py-8 text-center relative z-10 w-full">
-    <p class="text-sm text-slate-400 font-medium">
+    <p class="text-sm text-slate-400 font-medium tracking-wide">
       طراحی با <span class="animate-heartbeat text-rose-500 mx-1">❤️</span> توسط 
-      <!-- لینک سایت خود را در ویژگی href زیر قرار دهید -->
-      <a href="#" target="_blank" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 transition-all cursor-pointer">
-        Nirvana.DEV
-      </a>
+      <a href="#" target="_blank" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 hover:opacity-80 transition-opacity">Nirvana.DEV</a>
     </p>
   </footer>
 
   <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault(); deferredPrompt = e;
-      document.getElementById('install-btn').classList.remove('hidden');
-    });
-    document.getElementById('install-btn').addEventListener('click', async () => {
-      if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { document.getElementById('install-btn').classList.add('hidden'); } deferredPrompt = null; }
-    });
-
-    const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-    const recurringLabels = { none: '', daily: 'روزانه', weekly: 'هفتگی', monthly: 'ماهانه' };
+    // ---------------------------------------------------
+    // 1. PWA & Native Notifications
+    // ---------------------------------------------------
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
     
-    let currentChatId = localStorage.getItem('user_chat_id');
-    let editingId = null; 
-    let currentData = [];
+    async function requestPushPermission() {
+      if (!("Notification" in window)) return;
+      if (Notification.permission !== "granted") await Notification.requestPermission();
+    }
 
+    // ---------------------------------------------------
+    // 2. Offline-First Sync Engine (موتور همگام‌سازی آفلاین)
+    // ---------------------------------------------------
+    let currentChatId = localStorage.getItem('user_chat_id');
+    let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
+    let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
+    let currentFilter = 'all';
+
+    function updateConnectionStatus() {
+      const dot = document.getElementById('sync-dot');
+      const text = document.getElementById('sync-text');
+      if (navigator.onLine) {
+        dot.className = 'flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
+        text.innerText = 'متصل و همگام';
+        processSyncQueue();
+      } else {
+        dot.className = 'flex w-2 h-2 bg-rose-500 rounded-full';
+        text.innerText = 'آفلاین (ذخیره محلی)';
+      }
+    }
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+
+    async function processSyncQueue() {
+      if (offlineQueue.length === 0 || !navigator.onLine) {
+        // Fetch fresh data if queue is empty
+        if (navigator.onLine && currentChatId) fetchRemindersFromServer();
+        return;
+      }
+      
+      const item = offlineQueue[0];
+      try {
+        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.body ? JSON.stringify(item.body) : null });
+        if (res.ok) {
+          offlineQueue.shift(); // Remove successful item
+          localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue));
+          processSyncQueue(); // Process next
+        }
+      } catch (e) { console.warn('Sync delayed:', e); }
+    }
+
+    // ---------------------------------------------------
+    // 3. UI Logic & Gamification
+    // ---------------------------------------------------
+    function updateGamification() {
+      const total = currentData.length;
+      const done = currentData.filter(r => r.completed).length;
+      document.getElementById('tasks-total').innerText = total;
+      document.getElementById('tasks-done').innerText = done;
+      
+      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+
+      let title = "شروع مسیر", emoji = "🌱";
+      if (percent === 100 && total > 0) { title = "استاد مدیریت زمان"; emoji = "👑"; }
+      else if (percent >= 70) { title = "فوق‌العاده فعال"; emoji = "🔥"; }
+      else if (percent >= 40) { title = "در مسیر پیشرفت"; emoji = "🚀"; }
+      
+      document.getElementById('level-title').innerText = title;
+      document.getElementById('level-emoji').innerText = emoji;
+    }
+
+    function renderList() {
+      const container = document.getElementById('reminders-list'); container.innerHTML = '';
+      let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
+      
+      updateGamification();
+      localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+
+      if (filtered.length === 0) {
+        container.classList.remove('grid');
+        return container.innerHTML = '<div class="w-full text-center py-16 border border-dashed border-white/10 rounded-[2rem] text-slate-500"><p>وظیفه‌ای در این بخش وجود ندارد.</p></div>';
+      }
+      
+      container.classList.add('grid');
+      const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
+
+      filtered.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
+        const d = new Date(r.datetime); const j = jalaali.toJalaali(d);
+        const dateStr = `${String(j.jd).padStart(2, '0')} ${monthNames[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        
+        container.innerHTML += `
+          <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded-md text-slate-300">${r.tag || '🎯 عمومی'}</span>
+                <span class="text-xs font-mono text-slate-400 bg-black/30 px-2 py-1 rounded">${dateStr}</span>
+              </div>
+              <h3 class="text-lg font-bold text-white leading-tight mb-2 ${r.completed ? 'line-through' : ''}">${r.title}</h3>
+              ${r.desc ? `<p class="text-sm text-slate-400 font-light mb-4 line-clamp-1">${r.desc}</p>` : ''}
+            </div>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-white/5">
+              <button onclick="toggleCompleteLocally(${r.id})" class="flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}">${r.completed ? 'بازگردانی' : 'انجام شد ✓'}</button>
+              <button onclick="deleteLocally(${r.id})" class="p-2 rounded-xl bg-rose-500/10 text-rose-400"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
+            </div>
+          </div>`;
+      });
+    }
+
+    function setFilter(tag) {
+      currentFilter = tag;
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('active', 'bg-white/20', 'text-white');
+        b.classList.add('bg-white/5', 'text-slate-400');
+        if (b.innerText.includes(tag) || (tag === 'all' && b.innerText === 'همه وظایف')) {
+          b.classList.add('bg-white/20', 'text-white');
+          b.classList.remove('bg-white/5', 'text-slate-400');
+        }
+      });
+      renderList();
+    }
+
+    // ---------------------------------------------------
+    // 4. Data Operations (Optimistic UI)
+    // ---------------------------------------------------
+    function pushToQueue(method, payload) {
+      offlineQueue.push({ method, body: payload, timestamp: Date.now() });
+      localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue));
+      processSyncQueue(); // Try to sync immediately
+    }
+
+    function saveReminder(e) {
+      e.preventDefault();
+      const targetDate = new Date(jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gy, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gm - 1, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gd, parseInt(document.getElementById('j-hour').value), parseInt(document.getElementById('j-minute').value));
+      const tag = document.querySelector('input[name="tag"]:checked').value;
+
+      const payload = { action: 'add', id: Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: parseInt(document.getElementById('advance').value), tag: tag, desc: document.getElementById('desc').value, completed: false };
+      
+      currentData.push(payload);
+      renderList();
+      pushToQueue('POST', payload);
+      document.getElementById('manual-form').reset();
+      initDatePicker();
+    }
+
+    function toggleCompleteLocally(id) {
+      const idx = currentData.findIndex(r => r.id === id);
+      if (idx > -1) {
+        currentData[idx].completed = !currentData[idx].completed;
+        renderList();
+        pushToQueue('POST', { action: 'complete', id });
+      }
+    }
+
+    function deleteLocally(id) {
+      currentData = currentData.filter(r => r.id !== id);
+      renderList();
+      pushToQueue('POST', { action: 'delete', id });
+    }
+
+    async function fetchRemindersFromServer() {
+      try {
+        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          currentData = data;
+          renderList();
+        }
+      } catch (e) { console.log('Offline mode active'); }
+    }
+
+    // ---------------------------------------------------
+    // 5. Interactive Onboarding Tour
+    // ---------------------------------------------------
+    const tourSteps = [
+      { title: "خوش آمدید! 👋", text: "به سیستم مدیریت زمان Nirvana خوش آمدید. ما اینجا هستیم تا هیچ کاری را فراموش نکنید.", btn: "مرحله بعد" },
+      { title: "🤖 ربات تلگرام", text: "برای دریافت نوتیفیکیشن‌ها، ابتدا در تلگرام ربات <b>@userinfobot</b> را استارت بزنید تا یک شناسه عددی (Id) به شما بدهد.", btn: "فهمیدم، مرحله بعد" },
+      { title: "🔒 ورود امن", text: "آن شناسه عددی را در کادر صفحه بعد وارد کنید تا وارد سیستم شوید. هیچکس جز شما به اطلاعاتتان دسترسی نخواهد داشت.", btn: "شروع کار با سیستم" }
+    ];
+    let currentStep = 0;
+
+    function startTour(force = false) {
+      if (!force && localStorage.getItem('tour_done')) return;
+      currentStep = 0;
+      document.getElementById('tour-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('tour-modal').classList.remove('opacity-0'), 50);
+      showTourStep();
+    }
+
+    function showTourStep() {
+      const step = tourSteps[currentStep];
+      document.getElementById('tour-content').innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-emerald-400">${step.title}</h3>
+          <span class="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">${currentStep + 1} از 3</span>
+        </div>
+        <p class="text-slate-300 leading-relaxed mb-8">${step.text}</p>
+        <button onclick="nextTourStep()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl">${step.btn}</button>
+      `;
+    }
+
+    function nextTourStep() {
+      currentStep++;
+      if (currentStep >= tourSteps.length) {
+        document.getElementById('tour-modal').classList.add('opacity-0');
+        setTimeout(() => document.getElementById('tour-modal').classList.add('hidden'), 300);
+        localStorage.setItem('tour_done', 'true');
+        requestPushPermission(); // درخواست نوتیفیکیشن بومی در پایان تور
+      } else { showTourStep(); }
+    }
+
+    // ---------------------------------------------------
+    // 6. AI NLP Foundation
+    // ---------------------------------------------------
+    function switchTab(tab) {
+      if(tab === 'ai') { document.getElementById('manual-form').classList.add('hidden'); document.getElementById('ai-form').classList.remove('hidden'); document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow flex items-center gap-1.5"; document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white"; }
+      else { document.getElementById('ai-form').classList.add('hidden'); document.getElementById('manual-form').classList.remove('hidden'); document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow"; document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5"; }
+    }
+
+    function processAI() {
+      const text = document.getElementById('ai-input').value;
+      if (!text) return alert('لطفاً متن وظیفه را بنویسید.');
+      alert('این بخش آماده اتصال به API هوش مصنوعی (مانند OpenRouter) است. به محض ارسال API توسط شما، این بخش متن را پردازش کرده و مستقیماً وارد دیتابیس می‌کند.');
+    }
+
+    // ---------------------------------------------------
+    // Init
+    // ---------------------------------------------------
+    const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
     function initDatePicker(d = new Date()) {
       const j = jalaali.toJalaali(d);
       document.getElementById('j-day').innerHTML = Array.from({length: 31}, (_, i) => `<option value="${i+1}" ${i+1 === j.jd ? 'selected' : ''}>${i+1}</option>`).join('');
@@ -186,137 +411,27 @@
     }
 
     if (currentChatId) { 
-      initDatePicker(); 
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('app-screen').classList.remove('hidden');
-      fetchReminders();
+      initDatePicker(); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
+      renderList(); updateConnectionStatus(); processSyncQueue();
     } else {
-      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-screen').classList.remove('hidden'); startTour();
     }
 
-    function login() {
-      const input = document.getElementById('chat-id-input').value.trim();
-      if (!input) return alert('شناسه را وارد کنید');
-      currentChatId = input; localStorage.setItem('user_chat_id', currentChatId); window.location.reload();
-    }
-    
-    function logout() { localStorage.removeItem('user_chat_id'); window.location.reload(); }
+    function login() { const input = document.getElementById('chat-id-input').value.trim(); if (!input) return alert('شناسه را وارد کنید'); localStorage.setItem('user_chat_id', input); window.location.reload(); }
+    function logout() { localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
 
-    async function apiCall(method, body = null) {
-      document.getElementById('loading').classList.remove('hidden');
-      document.getElementById('reminders-list').classList.add('opacity-50');
-      try {
-        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : null });
-        document.getElementById('loading').classList.add('hidden');
-        document.getElementById('reminders-list').classList.remove('opacity-50');
-        return await res.json();
-      } catch (err) {
-        document.getElementById('loading').classList.add('hidden'); 
-        document.getElementById('reminders-list').classList.remove('opacity-50');
-        return null;
-      }
-    }
-
-    async function fetchReminders() {
-      const reminders = await apiCall('GET');
-      if(reminders) { currentData = reminders; render(reminders); }
-    }
-
-    async function saveReminder(e) {
-      e.preventDefault();
-      const btnText = document.getElementById('submit-text');
-      const originalText = btnText.innerText;
-      btnText.innerText = 'درحال همگام‌سازی...';
-      
-      const targetDate = new Date(jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gy, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gm - 1, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gd, parseInt(document.getElementById('j-hour').value), parseInt(document.getElementById('j-minute').value));
-
-      const res = await apiCall('POST', { action: editingId ? 'edit' : 'add', id: editingId, title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: parseInt(document.getElementById('advance').value), recurring: document.getElementById('recurring').value, desc: document.getElementById('desc').value });
-      
-      if (res && res.success) { currentData = res.reminders; render(currentData); cancelEdit(); } 
-      else { btnText.innerText = originalText; }
-    }
-
-    function editReminder(id) {
-      const r = currentData.find(x => x.id === id); if(!r) return;
-      editingId = id;
-      document.getElementById('title').value = r.title;
-      document.getElementById('desc').value = r.desc || '';
-      document.getElementById('priority').value = r.priority || 'medium';
-      document.getElementById('advance').value = r.advanceNotice || 0;
-      document.getElementById('recurring').value = r.recurring || 'none';
-      initDatePicker(new Date(r.datetime)); 
-
-      const btn = document.getElementById('submit-btn');
-      document.getElementById('submit-text').innerText = 'ذخیره تغییرات';
-      btn.classList.replace('bg-emerald-500', 'bg-blue-500');
-      btn.classList.replace('hover:bg-emerald-400', 'hover:bg-blue-400');
-      btn.classList.replace('shadow-[0_0_20px_rgba(16,185,129,0.3)]', 'shadow-[0_0_20px_rgba(59,130,246,0.3)]');
-      document.getElementById('cancel-edit-btn').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function cancelEdit() {
-      editingId = null;
-      document.getElementById('title').value = ''; document.getElementById('desc').value = ''; document.getElementById('advance').value = '0'; document.getElementById('recurring').value = 'none'; document.getElementById('priority').value = 'medium';
-      initDatePicker(); 
-      const btn = document.getElementById('submit-btn');
-      document.getElementById('submit-text').innerText = 'ایجاد وظیفه جدید';
-      btn.classList.replace('bg-blue-500', 'bg-emerald-500');
-      btn.classList.replace('hover:bg-blue-400', 'hover:bg-emerald-400');
-      btn.classList.replace('shadow-[0_0_20px_rgba(59,130,246,0.3)]', 'shadow-[0_0_20px_rgba(16,185,129,0.3)]');
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
-    }
-
-    async function toggleComplete(id) { const res = await apiCall('POST', { action: 'complete', id }); if(res) { currentData = res.reminders; render(currentData); } }
-    async function deleteReminder(id) { if(confirm('مورد انتخاب شده برای همیشه حذف شود؟')) { const res = await apiCall('POST', { action: 'delete', id }); if(res) { currentData = res.reminders; render(currentData); } } }
-
-    function render(reminders) {
-      const container = document.getElementById('reminders-list'); container.innerHTML = '';
-      document.getElementById('task-counter').innerText = `${reminders.length} وظیفه`;
-      
-      if (reminders.length === 0) {
-        container.classList.remove('grid', 'md:grid-cols-2');
-        return container.innerHTML = '<div class="w-full text-center py-20 border border-dashed border-white/10 rounded-[2rem] text-slate-500"><svg class="w-16 h-16 mx-auto mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg><p class="text-lg">در حال حاضر وظیفه‌ای ندارید.</p></div>';
-      }
-      
-      container.classList.add('grid', 'md:grid-cols-2');
-      const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
-      const dotColors = { high: 'bg-rose-500', medium: 'bg-amber-500', low: 'bg-emerald-500' };
-
-      reminders.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
-        const d = new Date(r.datetime); const j = jalaali.toJalaali(d);
-        const dateStr = `${String(j.jd).padStart(2, '0')} ${monthNames[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-        
-        let tags = '';
-        if (r.sent) tags += '<span class="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-emerald-400">تلگرام ✓</span>';
-        if (r.advanceNotice > 0) tags += `<span class="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-blue-400">هشدار ${r.advanceNotice} روز قبل</span>`;
-        if (r.recurring && r.recurring !== 'none') tags += `<span class="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-purple-400">تکرار ${recurringLabels[r.recurring]}</span>`;
-
-        container.innerHTML += `
-          <div class="glass-panel card-hover rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all duration-300 relative overflow-hidden ${r.completed ? 'opacity-40 grayscale' : ''}">
-            ${r.completed ? '<div class="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>' : ''}
-            <div class="relative z-10">
-              <div class="flex justify-between items-start mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full ${dotColors[r.priority]} shadow-[0_0_8px_currentColor]"></span>
-                  <span class="text-xs font-mono text-slate-300">${dateStr}</span>
-                </div>
-                <div class="flex gap-1 flex-wrap justify-end">${tags}</div>
-              </div>
-              <h3 class="text-lg font-bold text-white leading-tight mt-1 mb-2 ${r.completed ? 'line-through' : ''}">${r.title}</h3>
-              ${r.desc ? `<p class="text-sm text-slate-400 font-light mb-4 line-clamp-2">${r.desc}</p>` : '<div class="h-4"></div>'}
-            </div>
-            <div class="flex gap-2 relative z-10 mt-auto pt-4 border-t border-white/5">
-              <button onclick="toggleComplete(${r.id})" class="flex-1 flex justify-center items-center gap-1.5 py-2 rounded-xl text-xs font-medium transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${r.completed ? 'M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6' : 'M5 13l4 4L19 7'}"></path></svg>
-                ${r.completed ? 'بازگردانی' : 'انجام شد'}
-              </button>
-              <button onclick="editReminder(${r.id})" class="flex-1 flex justify-center items-center gap-1.5 py-2 rounded-xl text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>ویرایش</button>
-              <button onclick="deleteReminder(${r.id})" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-            </div>
-          </div>`;
+    // بررسی دوره‌ای برای ارسال نوتیفیکیشن بومی روی سیستم
+    setInterval(() => {
+      if (Notification.permission !== "granted") return;
+      const now = new Date().getTime();
+      currentData.forEach(r => {
+        const target = new Date(r.datetime).getTime();
+        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
+          new Notification("⏰ یادآور Nirvana", { body: r.title, icon: "/icon.png" });
+          r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+        }
       });
-    }
+    }, 30000);
   </script>
 </body>
 </html>
