@@ -18,8 +18,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      // ساب‌تسک‌ها (subtasks) به بدنه درخواست اضافه شد
-      const { action, id, title, datetime, priority, desc, advanceNotice, recurring, tag, subtasks } = req.body;
+      const { action, id, title, datetime, priority, desc, advanceNotice, recurring, tag, subtasks, isEncrypted, attachment } = req.body;
       const data = await client.get(key);
       let reminders = data ? JSON.parse(data) : [];
 
@@ -37,7 +36,9 @@ export default async function handler(req, res) {
             advanceNotice: advanceNotice || 0,
             recurring: recurring || 'none',
             tag: tag || 'general',
-            subtasks: subtasks || [], // ذخیره ساب‌تسک‌های ویرایش شده
+            subtasks: subtasks || [],
+            isEncrypted: isEncrypted || false,
+            attachment: attachment || null,
             sent: false, advanceSent: false 
           };
         }
@@ -47,7 +48,9 @@ export default async function handler(req, res) {
           advanceNotice: advanceNotice || 0,
           recurring: recurring || 'none',
           tag: tag || 'general',
-          subtasks: subtasks || [], // ذخیره ساب‌تسک‌های جدید
+          subtasks: subtasks || [],
+          isEncrypted: isEncrypted || false,
+          attachment: attachment || null,
           completed: false, sent: false, advanceSent: false 
         });
       }
@@ -56,7 +59,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, reminders });
     }
   } catch (error) {
-    console.error(">>> Error:", error);
     return res.status(500).json({ error: error.message });
   }
 }
