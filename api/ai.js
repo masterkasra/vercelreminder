@@ -1,21 +1,21 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
   
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API key is missing in Vercel' });
+  // خواندن کلید گوگل که در ورسل ثبت کردید
+  const apiKey = process.env.Google_API;
+  if (!apiKey) return res.status(500).json({ error: 'Google API key is missing in Vercel' });
 
   const { prompt } = req.body;
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    // اتصال مستقیم به موتور قدرتمند Gemini 1.5 Flash گوگل
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-1.5",
-        messages: [{ role: "user", content: prompt }]
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
     
