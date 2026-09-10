@@ -1,192 +1,380 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#050505" />
+  <meta name="theme-color" content="#030712" id="meta-theme-color" />
   <link rel="manifest" href="/manifest.json" />
-  <title>دستیار هوشمند ابری | Nirvana</title>
+  <title>Nirvana | Smart Cloud Assistant</title>
+  
+  <!-- Tailwind & Config for Dark/Light Mode -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    }
+  </script>
+  
+  <!-- Fonts & Calendar -->
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
+  
   <style>
-    body { font-family: 'Vazirmatn', sans-serif; background-color: #030712; color: #f8fafc; overflow-x: hidden; }
-    .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-    .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
-    .input-premium:focus { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); outline: none; }
+    body { font-family: 'Vazirmatn', system-ui, sans-serif; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
+    
+    /* Glassmorphism Styles for Dark/Light */
+    .glass-panel { transition: all 0.4s ease; }
+    .dark .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+    
+    .dark .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; }
+    .input-premium { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1); color: #0f172a; transition: all 0.3s ease; }
+    .input-premium:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); outline: none; }
+    
     .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; border: none; }
     @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    
+    ::-webkit-scrollbar { width: 5px; } 
+    ::-webkit-scrollbar-track { background: transparent; } 
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center selection:bg-emerald-500/30 pb-24">
+<body class="min-h-screen flex flex-col items-center selection:bg-emerald-500/30 pb-24 bg-slate-50 text-slate-800 dark:bg-[#030712] dark:text-slate-100">
 
-  <!-- افکت نوری پس‌زمینه -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-900/20 blur-[150px] rounded-full pointer-events-none -z-10"></div>
+  <!-- Background Ambient Lights -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-400/20 dark:bg-emerald-900/20 blur-[120px] dark:blur-[150px] rounded-full pointer-events-none -z-10 transition-all duration-700"></div>
 
-  <!-- تور راهنمای تعاملی (Onboarding) -->
-  <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+  <!-- Onboarding Tour Modal -->
+  <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
     <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
-  <!-- صفحه ورود -->
+  <!-- Login Screen -->
   <div id="login-screen" class="w-full max-w-md mt-24 p-6 hidden">
-    <div class="glass-panel p-10 rounded-[2.5rem] shadow-2xl text-center relative overflow-hidden group">
-      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+    <div class="glass-panel p-10 rounded-[2.5rem] text-center relative overflow-hidden group">
+      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
       </div>
-      <h2 class="text-3xl font-black text-white mb-3">شروع کار</h2>
-      <p class="text-sm text-slate-400 mb-8">برای همگام‌سازی، شناسه تلگرام خود را وارد کنید.</p>
-      <input id="chat-id-input" type="number" placeholder="Chat ID" class="w-full text-center input-premium rounded-xl px-5 py-4 mb-6 text-white text-xl tracking-widest" />
-      <button onclick="login()" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-xl transition-all hover:-translate-y-1">ورود به پنل کاربری</button>
-      <button onclick="startTour(true)" class="w-full mt-4 text-xs text-emerald-400 hover:text-emerald-300 underline underline-offset-4">شناسه تلگرام چیست؟ (راهنمای تصویری)</button>
+      <h2 class="text-3xl font-black mb-3 text-slate-800 dark:text-white" data-i18n="login_title">شروع کار</h2>
+      <p class="text-sm mb-8 text-slate-500 dark:text-slate-400" data-i18n="login_desc">شناسه تلگرام خود را وارد کنید.</p>
+      <input id="chat-id-input" type="number" class="w-full text-center input-premium rounded-xl px-5 py-4 mb-6 text-xl tracking-widest" />
+      <button onclick="login()" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg" data-i18n="login_btn">ورود به پنل</button>
     </div>
   </div>
 
-  <!-- داشبورد اصلی -->
+  <!-- Main App Dashboard -->
   <div id="app-screen" class="w-full max-w-4xl hidden px-4 sm:px-6 flex-grow">
     
-    <header class="flex justify-between items-center py-8">
+    <!-- Top Header & Settings -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 gap-4 border-b border-black/5 dark:border-white/5 mb-6">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg">
+        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
         </div>
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">یادآور ابری هوشمند</h1>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-white" data-i18n="app_title">یادآور ابری هوشمند</h1>
           <div class="flex items-center gap-2 mt-1" id="sync-status">
             <span class="flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse" id="sync-dot"></span>
-            <span class="text-xs text-slate-400 font-medium" id="sync-text">متصل و همگام</span>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400" id="sync-text" data-i18n="sync_online">متصل و همگام</span>
           </div>
         </div>
       </div>
-      <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-white/10 text-rose-400 transition-all" title="خروج"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
+      
+      <!-- User Controls (Language, Theme, Logout) -->
+      <div class="flex items-center gap-2 self-end sm:self-center">
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="glass-panel text-xs rounded-xl px-3 py-2.5 outline-none font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
+          <option value="fa">🇮🇷 فا</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="de">🇩🇪 DE</option>
+        </select>
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all">
+          <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+        <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-rose-500/10 text-rose-500 transition-all" title="Logout"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
+      </div>
     </header>
 
-    <!-- داشبورد گیمیفیکیشن -->
-    <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 border-emerald-500/20">
+    <!-- Productivity Analytics -->
+    <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
       </div>
       <div class="w-full flex-grow">
         <div class="flex justify-between items-end mb-2">
           <div>
-            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">سطح بهره‌وری شما</p>
-            <h3 class="text-lg font-bold text-emerald-400" id="level-title">شروع مسیر</h3>
+            <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400" data-i18n="prod_level">سطح بهره‌وری شما</p>
+            <h3 class="text-lg font-bold text-emerald-500 dark:text-emerald-400" id="level-title" data-i18n="level_start">شروع مسیر</h3>
           </div>
-          <div class="text-right">
-            <span class="text-2xl font-black text-white" id="tasks-done">0</span>
-            <span class="text-sm text-slate-500">/ <span id="tasks-total">0</span> انجام شده</span>
+          <div class="text-right flex items-baseline gap-1">
+            <span class="text-2xl font-black text-slate-800 dark:text-white" id="tasks-done">0</span>
+            <span class="text-xs sm:text-sm text-slate-500">/ <span id="tasks-total">0</span> <span data-i18n="done_text">انجام شده</span></span>
           </div>
         </div>
-        <div class="w-full h-2 bg-black/40 rounded-full overflow-hidden">
+        <div class="w-full h-2 bg-black/10 dark:bg-black/40 rounded-full overflow-hidden">
           <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
         </div>
       </div>
     </div>
 
-    <!-- پنل ثبت و ویرایش -->
+    <!-- Task Creation Panel -->
     <div class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
-      <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors">لغو ویرایش ✖</button>
+      <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors" data-i18n="cancel_edit">لغو ویرایش ✖</button>
       
-      <!-- تب‌ها -->
-      <div class="flex gap-2 mb-6 bg-black/30 p-1 rounded-xl w-fit">
-        <button id="tab-manual" onclick="switchTab('manual')" class="px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow">ثبت دستی</button>
-        <button id="tab-ai" onclick="switchTab('ai')" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5 transition-all">
-          <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"></path></svg> هوش مصنوعی گوگل
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-6 bg-black/5 dark:bg-black/30 p-1 rounded-xl w-fit">
+        <button id="tab-manual" onclick="switchTab('manual')" class="px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow" data-i18n="tab_manual">ثبت دستی</button>
+        <button id="tab-ai" onclick="switchTab('ai')" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5 transition-all">
+          <svg class="w-4 h-4 text-purple-500 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"></path></svg> <span data-i18n="tab_ai">هوش مصنوعی</span>
         </button>
       </div>
 
-      <!-- فرم هوش مصنوعی -->
+      <!-- AI Form -->
       <div id="ai-form" class="hidden space-y-4">
-        <div class="relative">
-          <textarea id="ai-input" rows="3" placeholder="مثال: پس‌فردا ساعت ۵ عصر حتماً قسط ماشین رو بدم (مالی و فوری)..." class="w-full input-premium rounded-2xl px-5 py-4 text-lg text-white placeholder-slate-500 resize-none"></textarea>
-        </div>
+        <textarea id="ai-input" rows="3" class="w-full input-premium rounded-2xl px-5 py-4 text-lg resize-none" data-placeholder="ai_placeholder" placeholder="مثال: فردا عصر به مدیرم ایمیل بزنم..."></textarea>
         <button id="ai-btn" onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> <span id="ai-btn-text">پردازش و استخراج خودکار</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> <span id="ai-btn-text" data-i18n="ai_btn">پردازش با هوش مصنوعی</span>
         </button>
       </div>
 
-      <!-- فرم دستی استاندارد -->
+      <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
-        <input id="title" type="text" required placeholder="عنوان وظیفه..." class="w-full bg-transparent border-b border-white/10 focus:border-emerald-500 px-2 py-3 text-xl text-white placeholder-slate-600 focus:outline-none transition-colors font-bold" />
+        <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
+        <!-- Smart Tags -->
         <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <label class="text-xs self-center text-slate-400 ml-2">دسته‌بندی:</label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="💼 کاری" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-300 peer-checked:border-blue-500/50 text-slate-400 transition-all">💼 کاری</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="🏠 شخصی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-300 peer-checked:border-orange-500/50 text-slate-400 transition-all">🏠 شخصی</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="💳 مالی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300 peer-checked:border-emerald-500/50 text-slate-400 transition-all">💳 مالی</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="📚 توسعه" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-300 peer-checked:border-purple-500/50 text-slate-400 transition-all">📚 توسعه</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="🎯 عمومی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-300 peer-checked:border-pink-500/50 text-slate-400 transition-all">🎯 عمومی</span></label>
+          <label class="text-xs self-center text-slate-400 ml-2" data-i18n="category">دسته‌بندی:</label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="work" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-600 dark:peer-checked:text-blue-300 peer-checked:border-blue-500/50 text-slate-500 dark:text-slate-400 transition-all" data-i18n="tag_work">💼 کاری</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="personal" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-600 dark:peer-checked:text-orange-300 peer-checked:border-orange-500/50 text-slate-500 dark:text-slate-400 transition-all" data-i18n="tag_personal">🏠 شخصی</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="finance" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-300 peer-checked:border-emerald-500/50 text-slate-500 dark:text-slate-400 transition-all" data-i18n="tag_finance">💳 مالی</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="dev" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-600 dark:peer-checked:text-purple-300 peer-checked:border-purple-500/50 text-slate-500 dark:text-slate-400 transition-all" data-i18n="tag_dev">📚 توسعه</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="general" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-600 dark:peer-checked:text-pink-300 peer-checked:border-pink-500/50 text-slate-500 dark:text-slate-400 transition-all" data-i18n="tag_general">🎯 عمومی</span></label>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="lg:col-span-2 bg-black/20 p-3 rounded-2xl flex flex-col justify-center border border-white/5">
+          <div class="lg:col-span-2 bg-black/5 dark:bg-black/20 p-3 rounded-2xl flex flex-col justify-center border border-black/5 dark:border-white/5">
             <div class="flex flex-wrap gap-2">
-              <select id="j-day" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <select id="j-month" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <select id="j-year" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <span class="text-slate-500 self-center">|</span>
-              <select id="j-hour" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
-              <span class="text-slate-500 self-center">:</span>
-              <select id="j-minute" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
+              <select id="t-day" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
+              <select id="t-month" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
+              <select id="t-year" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
+              <span class="text-slate-400 self-center">|</span>
+              <select id="t-hour" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
+              <span class="text-slate-400 self-center">:</span>
+              <select id="t-minute" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
             </div>
           </div>
-          <select id="advance" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none text-slate-300">
-            <option value="0" selected>بدون پیش‌هشدار</option><option value="1">۱ روز قبل</option><option value="3">۳ روز قبل</option>
+          <select id="advance" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none">
+            <option value="0" selected data-i18n="adv_0">بدون پیش‌هشدار</option><option value="1" data-i18n="adv_1">۱ روز قبل</option><option value="3" data-i18n="adv_3">۳ روز قبل</option>
           </select>
-          <select id="priority" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none text-slate-300">
-            <option value="low">اولویت عادی</option><option value="medium" selected>اولویت متوسط</option><option value="high">اولویت فوری</option>
+          <select id="priority" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none">
+            <option value="low" data-i18n="pri_low">اولویت عادی 🟢</option><option value="medium" selected data-i18n="pri_med">اولویت متوسط 🟡</option><option value="high" data-i18n="pri_high">اولویت فوری 🔴</option>
           </select>
         </div>
-        <textarea id="desc" rows="1" placeholder="توضیحات تکمیلی..." class="w-full input-premium rounded-xl px-4 py-3 text-sm text-white resize-none"></textarea>
-        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] transition-all">ایجاد وظیفه جدید</button>
+        <textarea id="desc" rows="1" class="w-full input-premium rounded-xl px-4 py-3 text-sm resize-none" data-placeholder="desc_placeholder" placeholder="توضیحات تکمیلی..."></textarea>
+        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all" data-i18n="submit_btn">ایجاد وظیفه جدید</button>
       </form>
     </div>
     
+    <!-- Filter Bar -->
     <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide" id="filter-bar">
-      <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-white/20 text-white border border-white/20 flex-shrink-0 transition-colors">همه وظایف</button>
-      <button onclick="setFilter('💼 کاری')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">💼 کاری</button>
-      <button onclick="setFilter('🏠 شخصی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">🏠 شخصی</button>
-      <button onclick="setFilter('💳 مالی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">💳 مالی</button>
-      <button onclick="setFilter('📚 توسعه')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">📚 توسعه</button>
-      <button onclick="setFilter('🎯 عمومی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">🎯 عمومی</button>
+      <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 dark:bg-white/20 text-white flex-shrink-0 transition-colors" data-i18n="filter_all">همه وظایف</button>
+      <button onclick="setFilter('work')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_work">💼 کاری</button>
+      <button onclick="setFilter('personal')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_personal">🏠 شخصی</button>
+      <button onclick="setFilter('finance')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_finance">💳 مالی</button>
+      <button onclick="setFilter('dev')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_dev">📚 توسعه</button>
     </div>
 
+    <!-- Task List -->
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
   </div>
 
+  <!-- Footer -->
   <footer class="mt-auto py-8 text-center relative z-10 w-full">
-    <p class="text-sm text-slate-400 font-medium tracking-wide">
-      طراحی با <span class="animate-heartbeat text-rose-500 mx-1">❤️</span> توسط 
-      <a href="#" target="_blank" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400 hover:opacity-80 transition-opacity">Nirvana.DEV</a>
+    <p class="text-sm font-medium tracking-wide text-slate-500 dark:text-slate-400">
+      <span data-i18n="footer_made">طراحی با</span> <span class="animate-heartbeat text-rose-500 mx-1">❤️</span> <span data-i18n="footer_by">توسط</span> 
+      <a href="#" target="_blank" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-80 transition-opacity">Nirvana.DEV</a>
     </p>
   </footer>
 
   <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
-    async function requestPushPermission() {
-      if (!("Notification" in window)) return;
-      if (Notification.permission !== "granted") await Notification.requestPermission();
+    // --- 1. Settings (Theme & Language i18n) ---
+    const translations = {
+      fa: {
+        app_title: "یادآور ابری هوشمند", sync_online: "متصل و همگام", sync_offline: "آفلاین (ذخیره محلی)",
+        login_title: "ورود امن", login_desc: "شناسه تلگرام خود را وارد کنید.", login_btn: "ورود به پنل کاربری",
+        prod_level: "سطح بهره‌وری شما", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
+        cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی گوگل",
+        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم (کاری و مهم)...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل با گوگل...",
+        title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
+        tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
+        adv_0: "بدون پیش‌هشدار", adv_1: "۱ روز قبل", adv_3: "۳ روز قبل", pri_low: "اولویت عادی 🟢", pri_med: "اولویت متوسط 🟡", pri_high: "اولویت فوری 🔴",
+        submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
+        empty_list: "وظیفه‌ای در این بخش وجود ندارد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش",
+        footer_made: "طراحی با", footer_by: "توسط",
+        months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
+      },
+      en: {
+        app_title: "Smart Cloud Reminder", sync_online: "Online & Synced", sync_offline: "Offline (Local Sync)",
+        login_title: "Secure Login", login_desc: "Enter your Telegram Chat ID.", login_btn: "Enter Dashboard",
+        prod_level: "Productivity Level", level_start: "Just Started", level_mid: "Making Progress", level_high: "Highly Active", level_max: "Time Master", done_text: "Completed",
+        cancel_edit: "Cancel Edit ✖", tab_manual: "Manual Entry", tab_ai: "Google AI Assistant",
+        ai_placeholder: "e.g., Email my boss tomorrow evening (Work & High priority)...", ai_btn: "Auto Extract & Save", ai_loading: "Analyzing with Google...",
+        title_placeholder: "Task Title...", desc_placeholder: "Additional details...", category: "Category:",
+        tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
+        adv_0: "No Advance Warning", adv_1: "1 Day Before", adv_3: "3 Days Before", pri_low: "Low Priority 🟢", pri_med: "Medium Priority 🟡", pri_high: "High Priority 🔴",
+        submit_btn: "Create New Task", save_btn: "Save Changes", filter_all: "All Tasks",
+        empty_list: "No tasks found in this section.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit",
+        footer_made: "Crafted with", footer_by: "by",
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      },
+      de: {
+        app_title: "Smart Cloud Erinnerung", sync_online: "Online & Synchronisiert", sync_offline: "Offline (Lokal)",
+        login_title: "Sicherer Login", login_desc: "Geben Sie Ihre Telegram Chat ID ein.", login_btn: "Zum Dashboard",
+        prod_level: "Produktivitätslevel", level_start: "Gerade begonnen", level_mid: "Macht Fortschritte", level_high: "Sehr Aktiv", level_max: "Zeitmeister", done_text: "Erledigt",
+        cancel_edit: "Bearbeiten abbrechen ✖", tab_manual: "Manuelle Eingabe", tab_ai: "Google KI Assistent",
+        ai_placeholder: "z.B. Morgen Abend meinem Chef eine E-Mail schreiben (Arbeit & Hoch)...", ai_btn: "Automatisch Extrahieren", ai_loading: "Analysieren mit Google...",
+        title_placeholder: "Aufgabentitel...", desc_placeholder: "Zusätzliche Details...", category: "Kategorie:",
+        tag_work: "💼 Arbeit", tag_personal: "🏠 Privat", tag_finance: "💳 Finanzen", tag_dev: "📚 Entwicklung", tag_general: "🎯 Allgemein",
+        adv_0: "Keine Vorwarnung", adv_1: "1 Tag Vorher", adv_3: "3 Tage Vorher", pri_low: "Niedrige Prio 🟢", pri_med: "Mittlere Prio 🟡", pri_high: "Hohe Prio 🔴",
+        submit_btn: "Neue Aufgabe erstellen", save_btn: "Änderungen speichern", filter_all: "Alle Aufgaben",
+        empty_list: "Keine Aufgaben in diesem Bereich gefunden.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten",
+        footer_made: "Erstellt mit", footer_by: "von",
+        months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+      }
+    };
+
+    let currentLang = localStorage.getItem('nirvana_lang') || 'fa';
+    let isDark = localStorage.getItem('nirvana_theme') !== 'light';
+
+    function initSettings() {
+      document.getElementById('lang-select').value = currentLang;
+      applyTheme(); applyLanguage();
     }
 
+    function toggleTheme() {
+      isDark = !isDark;
+      localStorage.setItem('nirvana_theme', isDark ? 'dark' : 'light');
+      applyTheme();
+    }
+
+    function applyTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        html.classList.add('dark');
+        document.getElementById('meta-theme-color').content = "#030712";
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>';
+      } else {
+        html.classList.remove('dark');
+        document.getElementById('meta-theme-color').content = "#f8fafc";
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>';
+      }
+    }
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('nirvana_lang', lang);
+      applyLanguage();
+      initDatePicker(); // Re-render calendar
+      if (currentData.length > 0) renderList(); // Re-translate tags
+    }
+
+    function t(key) { return translations[currentLang][key] || key; }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
+      
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.innerHTML = t(key);
+      });
+      document.querySelectorAll('[data-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-placeholder');
+        el.placeholder = t(key);
+      });
+      updateConnectionStatus();
+    }
+
+    // --- 2. Calendar Logic (Jalali vs Gregorian) ---
+    function initDatePicker(d = new Date()) {
+      let y, m, day, h = d.getHours(), min = d.getMinutes();
+      let yearOptions = '', monthOptions = '', dayOptions = '', hOptions = '', mOptions = '';
+
+      if (currentLang === 'fa') {
+        const j = jalaali.toJalaali(d); y = j.jy; m = j.jm; day = j.jd;
+        yearOptions = Array.from({length: 10}, (_, i) => `<option value="${y - 2 + i}" ${i===2 ? 'selected' : ''}>${y - 2 + i}</option>`).join('');
+      } else {
+        y = d.getFullYear(); m = d.getMonth() + 1; day = d.getDate();
+        yearOptions = Array.from({length: 10}, (_, i) => `<option value="${y - 2 + i}" ${i===2 ? 'selected' : ''}>${y - 2 + i}</option>`).join('');
+      }
+
+      dayOptions = Array.from({length: 31}, (_, i) => `<option value="${i+1}" ${i+1 === day ? 'selected' : ''}>${i+1}</option>`).join('');
+      monthOptions = t('months').map((name, i) => `<option value="${i+1}" ${i+1 === m ? 'selected' : ''}>${name}</option>`).join('');
+      hOptions = Array.from({length: 24}, (_, i) => `<option value="${i}" ${i === h ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join('');
+      mOptions = Array.from({length: 60}, (_, i) => `<option value="${i}" ${i === min ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join('');
+
+      document.getElementById('t-day').innerHTML = dayOptions;
+      document.getElementById('t-month').innerHTML = monthOptions;
+      document.getElementById('t-year').innerHTML = yearOptions;
+      document.getElementById('t-hour').innerHTML = hOptions;
+      document.getElementById('t-minute').innerHTML = mOptions;
+    }
+
+    function getSelectedDate() {
+      const y = parseInt(document.getElementById('t-year').value);
+      const m = parseInt(document.getElementById('t-month').value);
+      const d = parseInt(document.getElementById('t-day').value);
+      const h = parseInt(document.getElementById('t-hour').value);
+      const min = parseInt(document.getElementById('t-minute').value);
+      
+      if (currentLang === 'fa') {
+        const g = jalaali.toGregorian(y, m, d);
+        return new Date(g.gy, g.gm - 1, g.gd, h, min);
+      } else {
+        return new Date(y, m - 1, d, h, min);
+      }
+    }
+
+    function formatDateDisplay(isoString) {
+      const d = new Date(isoString);
+      if (currentLang === 'fa') {
+        const j = jalaali.toJalaali(d);
+        return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      } else {
+        return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      }
+    }
+
+    // --- 3. Core App Logic ---
     let currentChatId = localStorage.getItem('user_chat_id');
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
     let currentFilter = 'all';
+    let editingId = null;
+
+    initSettings(); // Boot sequence
+
+    if (currentChatId) { 
+      initDatePicker(); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
+      renderList(); updateConnectionStatus(); processSyncQueue();
+    } else {
+      document.getElementById('login-screen').classList.remove('hidden');
+    }
+
+    function login() { const input = document.getElementById('chat-id-input').value.trim(); if (!input) return; localStorage.setItem('user_chat_id', input); window.location.reload(); }
+    function logout() { localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
 
     function updateConnectionStatus() {
-      const dot = document.getElementById('sync-dot');
-      const text = document.getElementById('sync-text');
+      const dot = document.getElementById('sync-dot'); const text = document.getElementById('sync-text');
       if (navigator.onLine) {
-        dot.className = 'flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse';
-        text.innerText = 'متصل و همگام';
-        processSyncQueue();
+        dot.className = 'flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse'; text.innerText = t('sync_online'); processSyncQueue();
       } else {
-        dot.className = 'flex w-2 h-2 bg-rose-500 rounded-full';
-        text.innerText = 'آفلاین (ذخیره محلی)';
+        dot.className = 'flex w-2 h-2 bg-rose-500 rounded-full'; text.innerText = t('sync_offline');
       }
     }
     window.addEventListener('online', updateConnectionStatus);
@@ -194,68 +382,59 @@
 
     async function processSyncQueue() {
       if (offlineQueue.length === 0 || !navigator.onLine) {
-        if (navigator.onLine && currentChatId) fetchRemindersFromServer();
-        return;
+        if (navigator.onLine && currentChatId) fetchRemindersFromServer(); return;
       }
       const item = offlineQueue[0];
       try {
         const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.body ? JSON.stringify(item.body) : null });
-        if (res.ok) {
-          offlineQueue.shift();
-          localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue));
-          processSyncQueue(); 
-        }
-      } catch (e) { console.warn('Sync delayed:', e); }
+        if (res.ok) { offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
+      } catch (e) {}
     }
 
     function updateGamification() {
-      const total = currentData.length;
-      const done = currentData.filter(r => r.completed).length;
-      document.getElementById('tasks-total').innerText = total;
-      document.getElementById('tasks-done').innerText = done;
+      const total = currentData.length; const done = currentData.filter(r => r.completed).length;
+      document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done;
       const percent = total === 0 ? 0 : Math.round((done / total) * 100);
       document.getElementById('progress-bar').style.width = `${percent}%`;
 
-      let title = "شروع مسیر", emoji = "🌱";
-      if (percent === 100 && total > 0) { title = "استاد مدیریت زمان"; emoji = "👑"; }
-      else if (percent >= 70) { title = "فوق‌العاده فعال"; emoji = "🔥"; }
-      else if (percent >= 40) { title = "در مسیر پیشرفت"; emoji = "🚀"; }
+      let titleKey = "level_start", emoji = "🌱";
+      if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; }
+      else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; }
+      else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; }
       
-      document.getElementById('level-title').innerText = title;
+      document.getElementById('level-title').innerText = t(titleKey);
       document.getElementById('level-emoji').innerText = emoji;
     }
 
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
-      updateGamification();
-      localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+      updateGamification(); localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
 
       if (filtered.length === 0) {
         container.classList.remove('grid');
-        return container.innerHTML = '<div class="w-full text-center py-16 border border-dashed border-white/10 rounded-[2rem] text-slate-500"><p>وظیفه‌ای در این بخش وجود ندارد.</p></div>';
+        return container.innerHTML = `<div class="w-full text-center py-16 border border-dashed border-black/10 dark:border-white/10 rounded-[2rem] text-slate-500"><p>${t('empty_list')}</p></div>`;
       }
-      
       container.classList.add('grid');
       const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
 
       filtered.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
-        const d = new Date(r.datetime); const j = jalaali.toJalaali(d);
-        const dateStr = `${String(j.jd).padStart(2, '0')} ${monthNames[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        const dateStr = formatDateDisplay(r.datetime);
+        const tagText = t(`tag_${r.tag}`);
         
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
             <div>
               <div class="flex justify-between items-start mb-2">
-                <span class="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded-md text-slate-300">${r.tag || '🎯 عمومی'}</span>
-                <span class="text-xs font-mono text-slate-400 bg-black/30 px-2 py-1 rounded">${dateStr}</span>
+                <span class="text-xs bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300">${tagText}</span>
+                <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-black/30 px-2 py-1 rounded">${dateStr}</span>
               </div>
-              <h3 class="text-lg font-bold text-white leading-tight mb-2 ${r.completed ? 'line-through' : ''}">${r.title}</h3>
-              ${r.desc ? `<p class="text-sm text-slate-400 font-light mb-4 line-clamp-1">${r.desc}</p>` : ''}
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white leading-tight mb-2 ${r.completed ? 'line-through' : ''}">${r.title}</h3>
+              ${r.desc ? `<p class="text-sm text-slate-500 dark:text-slate-400 font-light mb-4 line-clamp-1">${r.desc}</p>` : ''}
             </div>
-            <div class="flex gap-2 mt-4 pt-4 border-t border-white/5">
-              <button onclick="toggleCompleteLocally(${r.id})" class="flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'}">${r.completed ? 'بازگردانی' : 'انجام شد ✓'}</button>
-              <button onclick="deleteLocally(${r.id})" class="p-2 rounded-xl bg-rose-500/10 text-rose-400"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
+            <div class="flex gap-2 mt-4 pt-4 border-t border-black/5 dark:border-white/5">
+              <button onclick="toggleCompleteLocally(${r.id})" class="flex-1 py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
+              <button onclick="deleteLocally(${r.id})" class="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
             </div>
           </div>`;
       });
@@ -264,11 +443,11 @@
     function setFilter(tag) {
       currentFilter = tag;
       document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('active', 'bg-white/20', 'text-white');
-        b.classList.add('bg-white/5', 'text-slate-400');
-        if (b.innerText.includes(tag) || (tag === 'all' && b.innerText === 'همه وظایف')) {
-          b.classList.add('bg-white/20', 'text-white');
-          b.classList.remove('bg-white/5', 'text-slate-400');
+        b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white');
+        b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-500', 'dark:text-slate-400');
+        if (b.getAttribute('onclick').includes(`'${tag}'`)) {
+          b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white');
+          b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-500', 'dark:text-slate-400');
         }
       });
       renderList();
@@ -282,11 +461,22 @@
 
     function saveReminder(e) {
       e.preventDefault();
-      const targetDate = new Date(jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gy, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gm - 1, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gd, parseInt(document.getElementById('j-hour').value), parseInt(document.getElementById('j-minute').value));
-      const tag = document.querySelector('input[name="tag"]:checked') ? document.querySelector('input[name="tag"]:checked').value : '🎯 عمومی';
-      const payload = { action: 'add', id: Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: parseInt(document.getElementById('advance').value), tag: tag, desc: document.getElementById('desc').value, completed: false };
-      currentData.push(payload); renderList(); pushToQueue('POST', payload);
-      document.getElementById('manual-form').reset(); initDatePicker();
+      const targetDate = getSelectedDate();
+      const tagEl = document.querySelector('input[name="tag"]:checked');
+      const tag = tagEl ? tagEl.value : 'general';
+      const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: parseInt(document.getElementById('advance').value), tag: tag, desc: document.getElementById('desc').value, completed: false };
+      
+      if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = payload; cancelEdit(); } 
+      else { currentData.push(payload); }
+      
+      renderList(); pushToQueue('POST', payload);
+      if(!editingId) { document.getElementById('manual-form').reset(); initDatePicker(); }
+    }
+
+    function cancelEdit() {
+      editingId = null; document.getElementById('manual-form').reset(); initDatePicker();
+      document.getElementById('submit-btn').innerText = t('submit_btn');
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
 
     function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
@@ -295,128 +485,57 @@
     async function fetchRemindersFromServer() {
       try {
         const res = await fetch(`/api/reminders?chat_id=${currentChatId}`);
-        const data = await res.json();
-        if (Array.isArray(data)) { currentData = data; renderList(); }
-      } catch (e) { console.log('Offline mode active'); }
+        const data = await res.json(); if (Array.isArray(data)) { currentData = data; renderList(); }
+      } catch (e) { }
     }
 
-    const tourSteps = [
-      { title: "خوش آمدید! 👋", text: "به سیستم هوشمند Nirvana خوش آمدید. با این پلتفرم دیگر هیچ کار مهمی را فراموش نخواهید کرد.", btn: "مرحله بعد" },
-      { title: "🤖 ربات تلگرام شخصی", text: "ما یادآورها را به تلگرام شما می‌فرستیم. در تلگرام ربات <b>@userinfobot</b> را استارت بزنید تا یک <b>شناسه عددی (Id)</b> بگیرید.", btn: "شناسه را گرفتم" },
-      { title: "🔒 اتصال ایمن", text: "شناسه را وارد کنید تا سیستم به صورت امن با تلگرام شما سینک شود.", btn: "شروع کار با سیستم" }
-    ];
-    let currentStep = 0;
-
-    function startTour(force = false) {
-      if (!force && localStorage.getItem('tour_done')) return;
-      currentStep = 0;
-      document.getElementById('tour-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('tour-modal').classList.remove('opacity-0'), 50);
-      showTourStep();
-    }
-
-    function showTourStep() {
-      const step = tourSteps[currentStep];
-      document.getElementById('tour-content').innerHTML = `
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold text-emerald-400">${step.title}</h3>
-          <span class="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">${currentStep + 1} از 3</span>
-        </div>
-        <p class="text-slate-300 leading-relaxed mb-8">${step.text}</p>
-        <button onclick="nextTourStep()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl hover:bg-emerald-400 transition-colors">${step.btn}</button>
-      `;
-    }
-
-    function nextTourStep() {
-      currentStep++;
-      if (currentStep >= tourSteps.length) {
-        document.getElementById('tour-modal').classList.add('opacity-0');
-        setTimeout(() => document.getElementById('tour-modal').classList.add('hidden'), 300);
-        localStorage.setItem('tour_done', 'true');
-        requestPushPermission(); 
-      } else { showTourStep(); }
-    }
-
+    // --- 4. Google Gemini AI Logic ---
     function switchTab(tab) {
-      if(tab === 'ai') { document.getElementById('manual-form').classList.add('hidden'); document.getElementById('ai-form').classList.remove('hidden'); document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow flex items-center gap-1.5"; document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white"; }
-      else { document.getElementById('ai-form').classList.add('hidden'); document.getElementById('manual-form').classList.remove('hidden'); document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow"; document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5"; }
+      if(tab === 'ai') { document.getElementById('manual-form').classList.add('hidden'); document.getElementById('ai-form').classList.remove('hidden'); document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow flex items-center gap-1.5"; document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"; }
+      else { document.getElementById('ai-form').classList.add('hidden'); document.getElementById('manual-form').classList.remove('hidden'); document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5"; }
     }
 
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim();
-      if (!text) return alert('لطفاً متن وظیفه را بنویسید.');
+      if (!text) return;
 
-      const btnText = document.getElementById('ai-btn-text');
-      const aiBtn = document.getElementById('ai-btn');
-      btnText.innerText = 'درحال تحلیل با موتور گوگل...';
-      aiBtn.disabled = true;
+      const btnText = document.getElementById('ai-btn-text'); const aiBtn = document.getElementById('ai-btn');
+      btnText.innerText = t('ai_loading'); aiBtn.disabled = true;
 
       const now = new Date(); const jNow = jalaali.toJalaali(now);
-      const prompt = `شما یک دستیار هوشمند مدیریت زمان هستید. تاریخ امروز: ${jNow.jy}/${jNow.jm}/${jNow.jd} و ساعت فعلی: ${now.getHours()}:${now.getMinutes()} است.
-      متن کاربر: "${text}"
-      فقط و فقط یک آبجکت JSON معتبر برگردان بدون هیچ کلمه اضافه یا فرمت مارک‌داون (بدون تگ‌های \`\`\`json). ساختار:
+      const prompt = `Act as a smart reminder assistant. Today's Gregorian date is ${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} and Jalali date is ${jNow.jy}/${jNow.jm}/${jNow.jd}. Current time is ${now.getHours()}:${now.getMinutes()}.
+      User input: "${text}"
+      Return ONLY a valid JSON object without any markdown tags. Format:
       {
-        "title": "عنوان کار", "jy": ${jNow.jy}, "jm": ${jNow.jm}, "jd": ${jNow.jd}, "h": 12, "m": 0, "priority": "medium", "tag": "🎯 عمومی", "desc": ""
+        "title": "Task title in input language", "y": ${currentLang === 'fa' ? jNow.jy : now.getFullYear()}, "m": ${currentLang === 'fa' ? jNow.jm : now.getMonth()+1}, "d": ${currentLang === 'fa' ? jNow.jd : now.getDate()}, "h": 12, "min": 0, "priority": "low/medium/high", "tag": "work/personal/finance/dev/general", "desc": ""
       }`;
 
       try {
         let response = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await response.json();
-        
         if (data.error) throw new Error(data.error);
 
-        // فرمت پاسخ مختص Google Gemini
         let aiResult = data.candidates[0].content.parts[0].text;
         aiResult = aiResult.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(aiResult);
 
-        const gregorian = jalaali.toGregorian(parsed.jy, parsed.jm, parsed.jd);
-        const targetDate = new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, parsed.h || 0, parsed.m || 0);
+        let targetDate;
+        if (currentLang === 'fa') {
+          const gregorian = jalaali.toGregorian(parsed.y, parsed.m, parsed.d);
+          targetDate = new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, parsed.h || 0, parsed.min || 0);
+        } else {
+          targetDate = new Date(parsed.y, parsed.m - 1, parsed.d, parsed.h || 0, parsed.min || 0);
+        }
 
-        const payload = { action: 'add', id: Date.now(), title: parsed.title, datetime: targetDate.toISOString(), priority: parsed.priority || 'medium', advanceNotice: 0, tag: parsed.tag || '🎯 عمومی', desc: parsed.desc || '', completed: false };
+        const payload = { action: 'add', id: Date.now(), title: parsed.title, datetime: targetDate.toISOString(), priority: parsed.priority || 'medium', advanceNotice: 0, tag: parsed.tag || 'general', desc: parsed.desc || '', completed: false };
 
         currentData.push(payload); renderList(); pushToQueue('POST', payload);
         document.getElementById('ai-input').value = ''; switchTab('manual');
 
       } catch (error) {
-        console.error("AI Error:", error); alert('خطا در ارتباط با هوش مصنوعی گوگل. از ثبت دستی استفاده کنید.');
-      } finally {
-        btnText.innerText = 'پردازش و استخراج خودکار'; aiBtn.disabled = false;
-      }
+        console.error("AI Error:", error); alert('Error connecting to Google AI.');
+      } finally { btnText.innerText = t('ai_btn'); aiBtn.disabled = false; }
     }
-
-    const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-    function initDatePicker(d = new Date()) {
-      const j = jalaali.toJalaali(d);
-      document.getElementById('j-day').innerHTML = Array.from({length: 31}, (_, i) => `<option value="${i+1}" ${i+1 === j.jd ? 'selected' : ''}>${i+1}</option>`).join('');
-      document.getElementById('j-month').innerHTML = monthNames.map((m, i) => `<option value="${i+1}" ${i+1 === j.jm ? 'selected' : ''}>${m}</option>`).join('');
-      document.getElementById('j-year').innerHTML = Array.from({length: 10}, (_, i) => `<option value="${j.jy - 2 + i}" ${j.jy - 2 + i === j.jy ? 'selected' : ''}>${j.jy - 2 + i}</option>`).join('');
-      document.getElementById('j-hour').innerHTML = Array.from({length: 24}, (_, i) => `<option value="${i}" ${i === d.getHours() ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join('');
-      document.getElementById('j-minute').innerHTML = Array.from({length: 60}, (_, i) => `<option value="${i}" ${i === d.getMinutes() ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join('');
-    }
-
-    if (currentChatId) { 
-      initDatePicker(); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
-      renderList(); updateConnectionStatus(); processSyncQueue();
-    } else {
-      document.getElementById('login-screen').classList.remove('hidden'); startTour();
-    }
-
-    function login() { const input = document.getElementById('chat-id-input').value.trim(); if (!input) return alert('شناسه را وارد کنید'); localStorage.setItem('user_chat_id', input); window.location.reload(); }
-    function logout() { localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
-    function cancelEdit() { document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
-
-    setInterval(() => {
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
-      const now = new Date().getTime();
-      currentData.forEach(r => {
-        const target = new Date(r.datetime).getTime();
-        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ یادآور Nirvana", { body: r.title, icon: "https://cdn-icons-png.flaticon.com/512/819/819865.png" });
-          r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
-        }
-      });
-    }, 30000);
   </script>
 </body>
 </html>
