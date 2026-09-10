@@ -12,15 +12,14 @@ export default async function handler(req, res) {
 
     const key = `reminders:${chat_id}`;
 
-    // خواندن یادآورها
     if (req.method === 'GET') {
       const data = await client.get(key);
       return res.status(200).json(data ? JSON.parse(data) : []);
     }
 
-    // ذخیره، ویرایش و حذف
     if (req.method === 'POST') {
-      const { action, id, title, datetime, priority, desc, advanceNotice, recurring } = req.body;
+      // ساب‌تسک‌ها (subtasks) به بدنه درخواست اضافه شد
+      const { action, id, title, datetime, priority, desc, advanceNotice, recurring, tag, subtasks } = req.body;
       const data = await client.get(key);
       let reminders = data ? JSON.parse(data) : [];
 
@@ -34,29 +33,22 @@ export default async function handler(req, res) {
         if (index > -1) {
           reminders[index] = {
             ...reminders[index],
-            title, 
-            datetime, 
-            priority, 
-            desc,
+            title, datetime, priority, desc,
             advanceNotice: advanceNotice || 0,
             recurring: recurring || 'none',
-            sent: false, 
-            advanceSent: false 
+            tag: tag || 'general',
+            subtasks: subtasks || [], // ذخیره ساب‌تسک‌های ویرایش شده
+            sent: false, advanceSent: false 
           };
         }
       } else {
-        // ایجاد یادآور جدید
         reminders.push({ 
-          id: Date.now(), 
-          title, 
-          datetime, 
-          priority, 
-          desc, 
+          id: Date.now(), title, datetime, priority, desc, 
           advanceNotice: advanceNotice || 0,
           recurring: recurring || 'none',
-          completed: false, 
-          sent: false, 
-          advanceSent: false 
+          tag: tag || 'general',
+          subtasks: subtasks || [], // ذخیره ساب‌تسک‌های جدید
+          completed: false, sent: false, advanceSent: false 
         });
       }
 
