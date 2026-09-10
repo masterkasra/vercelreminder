@@ -72,7 +72,15 @@
             </select>
           </div>
         </div>
-
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">تکرار دوره‌ای</label>
+              <select id="recurring" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 text-sm">
+                <option value="none" selected>بدون تکرار</option>
+                <option value="daily">روزانه</option>
+              <option value="weekly">هفتگی</option>
+            <option value="monthly">ماهانه</option>
+          </select>
+        </div>
         <div>
           <label class="block text-sm text-slate-300 mb-1">توضیحات (اختیاری)</label>
           <textarea id="desc" rows="2" placeholder="جزییات بیشتر..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500"></textarea>
