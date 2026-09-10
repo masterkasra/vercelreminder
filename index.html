@@ -7,10 +7,10 @@
   <link rel="manifest" href="/manifest.json" />
   <title>Nirvana | Smart Cloud Assistant</title>
   
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
-  <link href="[https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css](https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css)" rel="stylesheet" />
-  <script src="[https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js](https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js)"></script>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
   
   <style>
     body { font-family: 'Vazirmatn', system-ui, sans-serif; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
@@ -28,11 +28,7 @@
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    ::-webkit-scrollbar { width: 5px; } 
-    ::-webkit-scrollbar-track { background: transparent; } 
-    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .mic-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
     @keyframes pulse-red { to { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
@@ -55,18 +51,15 @@
       <button onclick="closePomo()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white">✖</button>
       <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-500 mb-2" data-i18n="pomo_title">تایمر تمرکز</h3>
       <p id="pomo-task-name" class="text-sm text-slate-500 dark:text-slate-400 mb-4 truncate"></p>
-      
-      <!-- Custom Timer Input -->
       <div class="flex justify-center items-center gap-2 mb-4">
         <label class="text-xs font-bold text-slate-500 dark:text-slate-400" data-i18n="pomo_custom_mins">زمان (دقیقه):</label>
         <input type="number" id="pomo-custom-time" value="25" min="1" max="120" onchange="updatePomoDisplayFromInput()" class="w-16 text-center input-premium rounded-lg px-2 py-1 font-bold text-emerald-500" />
       </div>
-
       <div class="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]">
         <span id="pomo-timer-display" class="text-5xl font-mono font-bold text-slate-800 dark:text-white tracking-widest">25:00</span>
       </div>
       <div class="flex justify-center gap-3">
-        <button id="pomo-start-btn" onclick="startPomo()" class="bg-emerald-500 text-white dark:text-black px-6 py-3 rounded-xl font-bold flex-1 hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-colors" data-i18n="pomo_start">شروع</button>
+        <button onclick="startPomo()" class="bg-emerald-500 text-white dark:text-black px-6 py-3 rounded-xl font-bold flex-1 hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-colors" data-i18n="pomo_start">شروع</button>
         <button onclick="resetPomo()" class="bg-slate-200 dark:bg-white/10 text-slate-800 dark:text-white px-6 py-3 rounded-xl font-bold flex-1 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors" data-i18n="pomo_reset">توقف</button>
       </div>
     </div>
@@ -76,18 +69,52 @@
     <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
-  <div id="login-screen" class="w-full max-w-md mt-24 p-6 hidden">
-    <div class="glass-panel p-10 rounded-[2.5rem] text-center relative overflow-hidden group">
-      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+  <!-- AUTHENTICATION SCREEN (Login & Register) -->
+  <div id="auth-screen" class="w-full max-w-md mt-16 p-6 hidden">
+    <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] relative overflow-hidden group">
+      <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
       </div>
-      <h2 class="text-3xl font-black mb-3 text-slate-800 dark:text-white" data-i18n="login_title">شروع کار</h2>
-      <p class="text-sm mb-8 text-slate-500 dark:text-slate-400" data-i18n="login_desc">شناسه تلگرام خود را وارد کنید.</p>
-      <input id="chat-id-input" type="number" class="w-full text-center input-premium rounded-xl px-5 py-4 mb-6 text-xl tracking-widest" />
-      <button onclick="login()" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg" data-i18n="login_btn">ورود به پنل</button>
+      
+      <!-- Auth Tabs -->
+      <div class="flex bg-black/5 dark:bg-white/5 rounded-xl p-1 mb-8">
+        <button id="auth-login-tab" onclick="switchAuthTab('login')" class="flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all">ورود</button>
+        <button id="auth-reg-tab" onclick="switchAuthTab('register')" class="flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all">ایجاد حساب</button>
+      </div>
+
+      <div id="auth-loading" class="hidden text-center text-emerald-500 text-sm font-bold animate-pulse mb-4">در حال پردازش...</div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleAuth(event, 'login')" class="space-y-4">
+        <input type="email" id="login-email" required placeholder="پست الکترونیک (ایمیل)" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        <input type="password" id="login-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        <button type="submit" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg mt-4">ورود به پنل</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
+        <div class="flex gap-2">
+          <input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
+          <input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
+        </div>
+        <input type="email" id="reg-email" required placeholder="ایمیل (برای ورود)" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <input type="password" id="reg-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <input type="tel" id="reg-phone" placeholder="شماره تماس" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <div class="flex gap-2">
+          <input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
+          <input type="text" id="reg-country" placeholder="کشور محل سکونت" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
+        </div>
+        <!-- Chat ID Required for Telegram -->
+        <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-2">
+          <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID) برای ارسال نوتیفیکیشن:</label>
+          <input type="number" id="reg-chatid" required placeholder="مثال: 123456789" class="w-full input-premium rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg mt-4 hover:bg-emerald-400">ثبت‌نام و ورود</button>
+      </form>
     </div>
   </div>
 
+  <!-- Main Dashboard -->
   <div id="app-screen" class="w-full max-w-4xl hidden px-4 sm:px-6 flex-grow">
     
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 gap-4 border-b border-black/5 dark:border-white/5 mb-6">
@@ -96,7 +123,7 @@
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
         </div>
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-white" data-i18n="app_title">یادآور ابری هوشمند</h1>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-white"><span data-i18n="app_title">یادآور ابری هوشمند</span> <span id="welcome-name" class="text-emerald-500 text-lg ml-2"></span></h1>
           <div class="flex items-center gap-2 mt-1" id="sync-status">
             <span class="flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse" id="sync-dot"></span>
             <span class="text-xs font-medium text-slate-500 dark:text-slate-400" id="sync-text" data-i18n="sync_online">متصل و همگام</span>
@@ -165,7 +192,7 @@
         </button>
       </div>
 
-      <!-- Manual Form (Labels Added, Custom Advance Added) -->
+      <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
         <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
@@ -197,7 +224,6 @@
           </div>
           
           <div class="flex flex-col gap-2">
-            <!-- Custom Advance Input -->
             <div class="flex items-center gap-2">
               <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap" data-i18n="adv_lbl">پیش‌هشدار:</span>
               <input type="number" id="advance" min="0" max="30" value="0" class="flex-1 input-premium rounded-xl px-3 py-2.5 text-sm text-center appearance-none" />
@@ -243,7 +269,6 @@
     <!-- The Calendar View -->
     <div id="calendar-view" class="hidden pb-12">
       <div class="glass-panel p-6 rounded-3xl">
-        <!-- Calendar Nav Added -->
         <div class="flex justify-between items-center mb-6">
           <button onclick="changeCalMonth(-1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -253,7 +278,6 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
           </button>
         </div>
-        
         <div id="cal-headers" class="calendar-grid text-center text-xs font-bold text-slate-500 dark:text-slate-400 mb-2"></div>
         <div id="cal-grid" class="calendar-grid"></div>
       </div>
@@ -271,35 +295,35 @@
     // --- 1. SETTINGS & i18n ---
     const translations = {
       fa: {
-        app_title: "یادآور ابری هوشمند", sync_online: "متصل و همگام", sync_offline: "آفلاین (ذخیره محلی)",
-        login_title: "ورود امن", login_desc: "شناسه تلگرام خود را وارد کنید.", login_btn: "ورود به پنل",
-        prod_level: "سطح بهره‌وری شما", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
-        cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی گوگل", btn_mic: "صحبت کنید",
+        app_title: "یادآور ابری هوشمند", sync_online: "متصل و همگام", sync_offline: "آفلاین (محلی)",
+        login_title: "ورود امن", login_desc: "ایمیل و رمز عبور خود را وارد کنید.", login_btn: "ورود به سیستم",
+        prod_level: "سطح بهره‌وری", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
+        cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی", btn_mic: "صحبت کنید",
         ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل با گوگل...",
         title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
         lbl_date: "تاریخ سررسید:", lbl_time: "ساعت:", adv_lbl: "هشدار:", adv_days: "روز قبل",
         subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...",
         tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
-        pri_low: "اولویت عادی 🟢", pri_med: "اولویت متوسط 🟡", pri_high: "اولویت فوری 🔴",
+        pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴",
         rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
-        empty_list: "وظیفه‌ای در این بخش وجود ندارد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "Google Cal",
+        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر تمرکز", btn_gcal: "Google Cal",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
         footer_made: "طراحی با", footer_by: "توسط", 
         months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'],
         days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
-        app_title: "Smart Cloud Reminder", sync_online: "Online & Synced", sync_offline: "Offline",
-        login_title: "Secure Login", login_desc: "Enter your Telegram Chat ID.", login_btn: "Enter Dashboard",
-        prod_level: "Productivity Level", level_start: "Just Started", level_mid: "Making Progress", level_high: "Highly Active", level_max: "Time Master", done_text: "Completed",
+        app_title: "Smart Cloud Reminder", sync_online: "Online", sync_offline: "Offline",
+        login_title: "Secure Login", login_desc: "Enter your email and password.", login_btn: "Login",
+        prod_level: "Productivity", level_start: "Just Started", level_mid: "Making Progress", level_high: "Highly Active", level_max: "Time Master", done_text: "Done",
         cancel_edit: "Cancel Edit ✖", tab_manual: "Manual Entry", tab_ai: "Google AI", btn_mic: "Speak",
-        ai_placeholder: "e.g., Email my boss tomorrow evening...", ai_btn: "Auto Extract & Save", ai_loading: "Analyzing...",
+        ai_placeholder: "e.g., Email my boss tomorrow evening...", ai_btn: "Auto Extract", ai_loading: "Analyzing...",
         title_placeholder: "Task Title...", desc_placeholder: "Additional details...", category: "Category:",
         lbl_date: "Due Date:", lbl_time: "Time:", adv_lbl: "Alert:", adv_days: "days before",
-        subtasks_label: "Sub-tasks (Checklist):", subtask_placeholder: "New step...",
+        subtasks_label: "Sub-tasks:", subtask_placeholder: "New step...",
         tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
-        pri_low: "Low Prio 🟢", pri_med: "Medium Prio 🟡", pri_high: "High Prio 🔴",
+        pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴",
         rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
         empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal",
@@ -309,19 +333,19 @@
         days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
-        app_title: "Smart Cloud Erinnerung", sync_online: "Online & Synced", sync_offline: "Offline",
-        login_title: "Sicherer Login", login_desc: "Geben Sie Ihre Telegram Chat ID ein.", login_btn: "Zum Dashboard",
-        prod_level: "Produktivitätslevel", level_start: "Gerade begonnen", level_mid: "Macht Fortschritte", level_high: "Sehr Aktiv", level_max: "Zeitmeister", done_text: "Erledigt",
+        app_title: "Smart Cloud Erinnerung", sync_online: "Online", sync_offline: "Offline",
+        login_title: "Sicherer Login", login_desc: "Geben Sie E-Mail und Passwort ein.", login_btn: "Einloggen",
+        prod_level: "Produktivität", level_start: "Begonnen", level_mid: "Fortschritte", level_high: "Sehr Aktiv", level_max: "Zeitmeister", done_text: "Erledigt",
         cancel_edit: "Abbrechen ✖", tab_manual: "Manuell", tab_ai: "Google KI", btn_mic: "Sprechen",
         ai_placeholder: "z.B. Morgen Abend meinem Chef schreiben...", ai_btn: "Automatisch Extrahieren", ai_loading: "Analysieren...",
-        title_placeholder: "Aufgabentitel...", desc_placeholder: "Zusätzliche Details...", category: "Kategorie:",
-        lbl_date: "Fälligkeit:", lbl_time: "Uhrzeit:", adv_lbl: "Alarm:", adv_days: "Tage vorher",
+        title_placeholder: "Titel...", desc_placeholder: "Details...", category: "Kategorie:",
+        lbl_date: "Datum:", lbl_time: "Zeit:", adv_lbl: "Alarm:", adv_days: "Tage vor",
         subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...",
-        tag_work: "💼 Arbeit", tag_personal: "🏠 Privat", tag_finance: "💳 Finanzen", tag_dev: "📚 Entwicklung", tag_general: "🎯 Allgemein",
+        tag_work: "💼 Arbeit", tag_personal: "🏠 Privat", tag_finance: "💳 Finanzen", tag_dev: "📚 Code", tag_general: "🎯 Allgemein",
         pri_low: "Niedrig 🟢", pri_med: "Mittel 🟡", pri_high: "Hoch 🔴",
-        rec_none: "Nicht wiederholen", rec_daily: "Täglich", rec_weekly: "Wöchentlich", rec_monthly: "Monatlich",
-        submit_btn: "Aufgabe erstellen", save_btn: "Speichern", filter_all: "Alle Aufgaben",
-        empty_list: "Keine Aufgaben gefunden.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten", btn_del: "Löschen", btn_pomo: "Timer", btn_gcal: "G-Cal",
+        rec_none: "Nicht wdh.", rec_daily: "Täglich", rec_weekly: "Wöchentlich", rec_monthly: "Monatlich",
+        submit_btn: "Erstellen", save_btn: "Speichern", filter_all: "Alle Aufgaben",
+        empty_list: "Keine Aufgaben.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten", btn_del: "Löschen", btn_pomo: "Timer", btn_gcal: "G-Cal",
         view_list: "Liste", view_cal: "Kalender", pomo_title: "Fokus-Timer", pomo_start: "Start", pomo_reset: "Stopp", pomo_custom_mins: "Zeit (min):",
         footer_made: "Erstellt mit", footer_by: "von", 
         months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
@@ -348,189 +372,125 @@
       document.getElementById('cal-headers').innerHTML = t('days').map(d => `<div>${d}</div>`).join('');
     }
 
-    // --- 2. STATE & SYNC ---
-    let currentChatId = localStorage.getItem('user_chat_id');
+    // --- 2. AUTHENTICATION & STATE ---
+    let currentUser = JSON.parse(localStorage.getItem('nirvana_user'));
+    // Fallback if they were using old ChatId method without real user object
+    if (!currentUser && localStorage.getItem('user_chat_id')) {
+        currentUser = { email: "legacy@nirvana", chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" };
+    }
+    let currentChatId = currentUser ? currentUser.chatId : null;
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
-    let currentFilter = 'all'; 
-    let editingId = null;
-    let tempSubtasks = [];
+    let currentFilter = 'all'; let editingId = null; let tempSubtasks = [];
 
-    // --- 3. SUBTASKS ---
-    function addTempSubtask() {
-      const input = document.getElementById('subtask-input');
-      if (!input.value.trim()) return;
-      tempSubtasks.push({ text: input.value.trim(), done: false });
-      input.value = ''; renderTempSubtasks();
-    }
-    function renderTempSubtasks() {
-      const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = '';
-      tempSubtasks.forEach((st, i) => {
-        ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${st.text}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`;
-      });
-    }
-    function removeTempSubtask(idx) { tempSubtasks.splice(idx, 1); renderTempSubtasks(); }
-
-    function toggleSubtaskLocally(taskId, subIdx) {
-      const tIdx = currentData.findIndex(r => r.id === taskId);
-      if (tIdx > -1 && currentData[tIdx].subtasks) {
-        currentData[tIdx].subtasks[subIdx].done = !currentData[tIdx].subtasks[subIdx].done;
-        renderList(); pushToQueue('POST', { action: 'edit', ...currentData[tIdx] });
+    function switchAuthTab(tab) {
+      if (tab === 'login') {
+        document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all";
+        document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
+      } else {
+        document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden');
+        document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all";
+        document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
       }
     }
 
+    async function handleAuth(e, action) {
+      e.preventDefault();
+      document.getElementById('auth-loading').classList.remove('hidden');
+      
+      let payload = { action };
+      if (action === 'login') {
+        payload.email = document.getElementById('login-email').value;
+        payload.password = document.getElementById('login-password').value;
+      } else {
+        payload.email = document.getElementById('reg-email').value;
+        payload.password = document.getElementById('reg-password').value;
+        payload.firstName = document.getElementById('reg-fname').value;
+        payload.lastName = document.getElementById('reg-lname').value;
+        payload.phone = document.getElementById('reg-phone').value;
+        payload.job = document.getElementById('reg-job').value;
+        payload.country = document.getElementById('reg-country').value;
+        payload.chatId = document.getElementById('reg-chatid').value;
+      }
+
+      try {
+        const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json();
+        document.getElementById('auth-loading').classList.add('hidden');
+        if (data.error) return alert(data.error);
+        
+        localStorage.setItem('nirvana_user', JSON.stringify(data.user));
+        localStorage.setItem('user_chat_id', data.user.chatId);
+        window.location.reload();
+      } catch (err) {
+        document.getElementById('auth-loading').classList.add('hidden');
+        alert("Server connection error.");
+      }
+    }
+
+    function logout() { localStorage.removeItem('nirvana_user'); localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
+
+    // --- 3. SUBTASKS ---
+    function addTempSubtask() { const input = document.getElementById('subtask-input'); if (!input.value.trim()) return; tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderTempSubtasks(); }
+    function renderTempSubtasks() { const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = ''; tempSubtasks.forEach((st, i) => { ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${st.text}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`; }); }
+    function removeTempSubtask(idx) { tempSubtasks.splice(idx, 1); renderTempSubtasks(); }
+    function toggleSubtaskLocally(taskId, subIdx) { const tIdx = currentData.findIndex(r => r.id === taskId); if (tIdx > -1 && currentData[tIdx].subtasks) { currentData[tIdx].subtasks[subIdx].done = !currentData[tIdx].subtasks[subIdx].done; renderList(); pushToQueue('POST', { action: 'edit', ...currentData[tIdx] }); } }
+
     // --- 4. POMODORO (Custom Timer Fix) ---
     let pomoInterval; let pomoTime = 25 * 60; let isPomoRunning = false;
-    function openPomo(taskId) {
-      const r = currentData.find(x => x.id === taskId); if(!r) return;
-      document.getElementById('pomo-task-name').innerText = r.title; 
-      document.getElementById('pomo-custom-time').value = 25; // Default reset
-      updatePomoDisplayFromInput();
-      document.getElementById('pomo-modal').classList.remove('hidden');
-      setTimeout(() => document.getElementById('pomo-modal').classList.remove('opacity-0'), 10);
-    }
+    function openPomo(taskId) { const r = currentData.find(x => x.id === taskId); if(!r) return; document.getElementById('pomo-task-name').innerText = r.title; document.getElementById('pomo-custom-time').value = 25; updatePomoDisplayFromInput(); document.getElementById('pomo-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('pomo-modal').classList.remove('opacity-0'), 10); }
     function closePomo() { resetPomo(); document.getElementById('pomo-modal').classList.add('opacity-0'); setTimeout(() => document.getElementById('pomo-modal').classList.add('hidden'), 300); }
-    
-    function updatePomoDisplayFromInput() {
-      if(isPomoRunning) return;
-      let val = parseInt(document.getElementById('pomo-custom-time').value) || 25;
-      if (val < 1) val = 1; if (val > 120) val = 120;
-      document.getElementById('pomo-custom-time').value = val;
-      pomoTime = val * 60;
-      updatePomoDisplay();
-    }
-    function updatePomoDisplay() {
-      const m = String(Math.floor(pomoTime / 60)).padStart(2, '0'); const s = String(pomoTime % 60).padStart(2, '0');
-      document.getElementById('pomo-timer-display').innerText = `${m}:${s}`;
-    }
-    function startPomo() {
-      if (isPomoRunning) return; isPomoRunning = true;
-      pomoInterval = setInterval(() => {
-        if (pomoTime > 0) { pomoTime--; updatePomoDisplay(); } else { clearInterval(pomoInterval); alert("زمان تمرکز تمام شد!"); resetPomo(); }
-      }, 1000);
-    }
+    function updatePomoDisplayFromInput() { if(isPomoRunning) return; let val = parseInt(document.getElementById('pomo-custom-time').value) || 25; if (val < 1) val = 1; if (val > 120) val = 120; document.getElementById('pomo-custom-time').value = val; pomoTime = val * 60; updatePomoDisplay(); }
+    function updatePomoDisplay() { const m = String(Math.floor(pomoTime / 60)).padStart(2, '0'); const s = String(pomoTime % 60).padStart(2, '0'); document.getElementById('pomo-timer-display').innerText = `${m}:${s}`; }
+    function startPomo() { if (isPomoRunning) return; isPomoRunning = true; pomoInterval = setInterval(() => { if (pomoTime > 0) { pomoTime--; updatePomoDisplay(); } else { clearInterval(pomoInterval); alert("زمان تمرکز تمام شد!"); resetPomo(); } }, 1000); }
     function resetPomo() { clearInterval(pomoInterval); isPomoRunning = false; updatePomoDisplayFromInput(); }
 
     // --- 5. GOOGLE CALENDAR EXPORT ---
-    function exportToGCal(taskId) {
-      const r = currentData.find(x => x.id === taskId); if(!r) return;
-      const d1 = new Date(r.datetime); const d2 = new Date(d1.getTime() + 60*60*1000);
-      const fmt = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g,"");
-      const url = `[https://calendar.google.com/calendar/render?action=TEMPLATE&text=$](https://calendar.google.com/calendar/render?action=TEMPLATE&text=$){encodeURIComponent(r.title)}&dates=${fmt(d1)}/${fmt(d2)}&details=${encodeURIComponent(r.desc || '')}`;
-      window.open(url, '_blank');
-    }
+    function exportToGCal(taskId) { const r = currentData.find(x => x.id === taskId); if(!r) return; const d1 = new Date(r.datetime); const d2 = new Date(d1.getTime() + 60*60*1000); const fmt = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g,""); const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(r.title)}&dates=${fmt(d1)}/${fmt(d2)}&details=${encodeURIComponent(r.desc || '')}`; window.open(url, '_blank'); }
 
     // --- 6. VIEW SWITCHER (List / Calendar) ---
     function switchView(view) {
       const listBtn = document.getElementById('view-list-btn'); const calBtn = document.getElementById('view-cal-btn');
       const listPanel = document.getElementById('reminders-list'); const calPanel = document.getElementById('calendar-view');
       const formPanel = document.getElementById('creation-panel'); const filterBar = document.getElementById('filter-bar');
-
-      if (view === 'calendar') {
-        listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
-        calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow";
-        listPanel.classList.add('hidden'); filterBar.classList.add('hidden'); formPanel.classList.add('hidden');
-        calPanel.classList.remove('hidden'); renderCalendar();
-      } else {
-        calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
-        listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow";
-        calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); filterBar.classList.remove('hidden'); formPanel.classList.remove('hidden');
-      }
+      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); filterBar.classList.add('hidden'); formPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
+      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); filterBar.classList.remove('hidden'); formPanel.classList.remove('hidden'); }
     }
 
     // --- 7. CALENDAR GRID LOGIC (Fixed Nav) ---
     let currentCalMonth = new Date();
-
     function changeCalMonth(offset) {
-      if (currentLang === 'fa') {
-        const j = jalaali.toJalaali(currentCalMonth);
-        let nextMonth = j.jm + offset;
-        let nextYear = j.jy;
-        if (nextMonth > 12) { nextMonth = 1; nextYear++; }
-        if (nextMonth < 1) { nextMonth = 12; nextYear--; }
-        const g = jalaali.toGregorian(nextYear, nextMonth, 1);
-        currentCalMonth = new Date(g.gy, g.gm - 1, g.gd);
-      } else {
-        currentCalMonth.setMonth(currentCalMonth.getMonth() + offset);
-      }
+      if (currentLang === 'fa') { const j = jalaali.toJalaali(currentCalMonth); let nextMonth = j.jm + offset; let nextYear = j.jy; if (nextMonth > 12) { nextMonth = 1; nextYear++; } if (nextMonth < 1) { nextMonth = 12; nextYear--; } const g = jalaali.toGregorian(nextYear, nextMonth, 1); currentCalMonth = new Date(g.gy, g.gm - 1, g.gd); } 
+      else { currentCalMonth.setMonth(currentCalMonth.getMonth() + offset); }
       renderCalendar();
     }
-
     function renderCalendar() {
       const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-      const title = document.getElementById('cal-month-title'); 
-      const realNow = new Date();
+      const title = document.getElementById('cal-month-title'); const realNow = new Date();
       let daysInMonth = 30; let firstDayOffset = 0;
-
-      if (currentLang === 'fa') {
-        const j = jalaali.toJalaali(currentCalMonth); title.innerText = `${t('months')[j.jm-1]} ${j.jy}`;
-        daysInMonth = jalaali.jalaaliMonthLength(j.jy, j.jm);
-        firstDayOffset = (new Date(jalaali.toGregorian(j.jy, j.jm, 1).gy, jalaali.toGregorian(j.jy, j.jm, 1).gm - 1, jalaali.toGregorian(j.jy, j.jm, 1).gd).getDay() + 1) % 7; 
-      } else {
-        title.innerText = `${t('months')[currentCalMonth.getMonth()]} ${currentCalMonth.getFullYear()}`;
-        daysInMonth = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth() + 1, 0).getDate();
-        firstDayOffset = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth(), 1).getDay();
-      }
-
+      if (currentLang === 'fa') { const j = jalaali.toJalaali(currentCalMonth); title.innerText = `${t('months')[j.jm-1]} ${j.jy}`; daysInMonth = jalaali.jalaaliMonthLength(j.jy, j.jm); firstDayOffset = (new Date(jalaali.toGregorian(j.jy, j.jm, 1).gy, jalaali.toGregorian(j.jy, j.jm, 1).gm - 1, jalaali.toGregorian(j.jy, j.jm, 1).gd).getDay() + 1) % 7; } 
+      else { title.innerText = `${t('months')[currentCalMonth.getMonth()]} ${currentCalMonth.getFullYear()}`; daysInMonth = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth() + 1, 0).getDate(); firstDayOffset = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth(), 1).getDay(); }
       for (let i = 0; i < firstDayOffset; i++) { grid.innerHTML += `<div class="calendar-day opacity-0 pointer-events-none"></div>`; }
-      
       for (let d = 1; d <= daysInMonth; d++) {
-        let dayTasks = currentData.filter(r => {
-          const tDate = new Date(r.datetime);
-          if (currentLang === 'fa') { return jalaali.toJalaali(tDate).jd === d && jalaali.toJalaali(tDate).jm === jalaali.toJalaali(currentCalMonth).jm && jalaali.toJalaali(tDate).jy === jalaali.toJalaali(currentCalMonth).jy; } 
-          else { return tDate.getDate() === d && tDate.getMonth() === currentCalMonth.getMonth() && tDate.getFullYear() === currentCalMonth.getFullYear(); }
-        });
-
+        let dayTasks = currentData.filter(r => { const tDate = new Date(r.datetime); if (currentLang === 'fa') { return jalaali.toJalaali(tDate).jd === d && jalaali.toJalaali(tDate).jm === jalaali.toJalaali(currentCalMonth).jm && jalaali.toJalaali(tDate).jy === jalaali.toJalaali(currentCalMonth).jy; } else { return tDate.getDate() === d && tDate.getMonth() === currentCalMonth.getMonth() && tDate.getFullYear() === currentCalMonth.getFullYear(); } });
         let dotsHTML = dayTasks.slice(0, 4).map(r => `<div class="w-1.5 h-1.5 rounded-full ${r.priority === 'high' ? 'bg-rose-500' : 'bg-emerald-500'}"></div>`).join('');
-        
-        let isToday = false;
-        if (currentLang === 'fa') { isToday = d === jalaali.toJalaali(realNow).jd && jalaali.toJalaali(currentCalMonth).jm === jalaali.toJalaali(realNow).jm && jalaali.toJalaali(currentCalMonth).jy === jalaali.toJalaali(realNow).jy; }
-        else { isToday = d === realNow.getDate() && currentCalMonth.getMonth() === realNow.getMonth() && currentCalMonth.getFullYear() === realNow.getFullYear(); }
-
-        grid.innerHTML += `
-          <div class="calendar-day flex flex-col items-center ${isToday ? 'active-day' : ''}" onclick="alert('${dayTasks.length > 0 ? dayTasks.map(x=>x.title).join('\\n') : t('empty_list')}')">
-            <span class="text-sm font-bold ${isToday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'}">${d}</span>
-            <div class="flex gap-0.5 mt-2 flex-wrap justify-center w-full">${dotsHTML}</div>
-          </div>`;
+        let isToday = false; if (currentLang === 'fa') { isToday = d === jalaali.toJalaali(realNow).jd && jalaali.toJalaali(currentCalMonth).jm === jalaali.toJalaali(realNow).jm && jalaali.toJalaali(currentCalMonth).jy === jalaali.toJalaali(realNow).jy; } else { isToday = d === realNow.getDate() && currentCalMonth.getMonth() === realNow.getMonth() && currentCalMonth.getFullYear() === realNow.getFullYear(); }
+        grid.innerHTML += `<div class="calendar-day flex flex-col items-center ${isToday ? 'active-day' : ''}" onclick="alert('${dayTasks.length > 0 ? dayTasks.map(x=>x.title).join('\\n') : t('empty_list')}')"><span class="text-sm font-bold ${isToday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'}">${d}</span><div class="flex gap-0.5 mt-2 flex-wrap justify-center w-full">${dotsHTML}</div></div>`;
       }
     }
 
     // --- 8. CORE CRUD & RENDER ---
-    function updateGamification() {
-      const total = currentData.length; const done = currentData.filter(r => r.completed).length;
-      document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done;
-      const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-      document.getElementById('progress-bar').style.width = `${percent}%`;
-      let titleKey = "level_start", emoji = "🌱";
-      if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; } else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; } else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; }
-      document.getElementById('level-title').innerText = t(titleKey); document.getElementById('level-emoji').innerText = emoji;
-    }
-
+    function updateGamification() { const total = currentData.length; const done = currentData.filter(r => r.completed).length; document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done; const percent = total === 0 ? 0 : Math.round((done / total) * 100); document.getElementById('progress-bar').style.width = `${percent}%`; let titleKey = "level_start", emoji = "🌱"; if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; } else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; } else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; } document.getElementById('level-title').innerText = t(titleKey); document.getElementById('level-emoji').innerText = emoji; }
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
       updateGamification(); localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
-
       if (filtered.length === 0) { container.classList.remove('grid'); return container.innerHTML = `<div class="w-full text-center py-16 border border-dashed border-black/10 dark:border-white/10 rounded-[2rem] text-slate-500"><p>${t('empty_list')}</p></div>`; }
-      container.classList.add('grid');
-      const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
-
+      container.classList.add('grid'); const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
       filtered.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
         const dateStr = formatDateDisplay(r.datetime); const tagText = t(`tag_${r.tag}`);
-        
-        let subtasksHTML = '';
-        if (r.subtasks && r.subtasks.length > 0) {
-          subtasksHTML = '<ul class="mt-3 space-y-2">';
-          r.subtasks.forEach((st, idx) => {
-            subtasksHTML += `
-              <li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer">
-                <span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span>
-              </li>`;
-          });
-          subtasksHTML += '</ul>';
-        }
-
+        let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span></li>`; }); subtasksHTML += '</ul>'; }
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
             <div>
@@ -542,10 +502,8 @@
               ${r.desc ? `<p class="text-sm text-slate-500 dark:text-slate-400 font-light mb-2 line-clamp-1">${r.desc}</p>` : ''}
               ${subtasksHTML}
             </div>
-            
             <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-black/5 dark:border-white/5">
               <button onclick="toggleCompleteLocally(${r.id})" class="flex-grow py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
-              
               <button onclick="openPomo(${r.id})" class="p-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 transition-colors" title="${t('btn_pomo')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
               <button onclick="exportToGCal(${r.id})" class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors" title="${t('btn_gcal')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>
               <button onclick="editReminder(${r.id})" class="p-2 rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400 transition-colors" title="${t('btn_edit')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
@@ -555,39 +513,23 @@
       });
     }
 
-    function setFilter(tag) {
-      currentFilter = tag;
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white');
-        b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400');
-        if (b.getAttribute('onclick').includes(`'${tag}'`)) { b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); }
-      });
-      renderList();
-    }
-
+    function setFilter(tag) { currentFilter = tag; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); if (b.getAttribute('onclick').includes(`'${tag}'`)) { b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); } }); renderList(); }
     function pushToQueue(method, payload) { offlineQueue.push({ method, body: payload, timestamp: Date.now() }); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
-
+    
     function saveReminder(e) {
-      e.preventDefault();
-      const targetDate = getSelectedDate();
-      const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
+      e.preventDefault(); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
       const advVal = parseInt(document.getElementById('advance').value) || 0;
-      
       const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: advVal, recurring: document.getElementById('recurring').value, tag: tag, desc: document.getElementById('desc').value, subtasks: [...tempSubtasks], completed: false };
-      
       if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = payload; cancelEdit(); } else { currentData.push(payload); }
       renderList(); pushToQueue('POST', payload); if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); initDatePicker(); document.getElementById('advance').value = 0; }
     }
 
     function editReminder(id) {
-      const r = currentData.find(x => x.id === id); if(!r) return;
-      editingId = id; tempSubtasks = r.subtasks ? [...r.subtasks] : [];
+      const r = currentData.find(x => x.id === id); if(!r) return; editingId = id; tempSubtasks = r.subtasks ? [...r.subtasks] : [];
       document.getElementById('title').value = r.title; document.getElementById('desc').value = r.desc || ''; document.getElementById('priority').value = r.priority || 'medium'; document.getElementById('advance').value = r.advanceNotice || 0; document.getElementById('recurring').value = r.recurring || 'none';
       const tagRadio = document.querySelector(`input[name="tag"][value="${r.tag}"]`); if(tagRadio) tagRadio.checked = true;
-      initDatePicker(new Date(r.datetime)); renderTempSubtasks();
-      document.getElementById('submit-btn').innerText = t('save_btn'); document.getElementById('cancel-edit-btn').classList.remove('hidden'); switchTab('manual'); window.scrollTo({ top: 0, behavior: 'smooth' });
+      initDatePicker(new Date(r.datetime)); renderTempSubtasks(); document.getElementById('submit-btn').innerText = t('save_btn'); document.getElementById('cancel-edit-btn').classList.remove('hidden'); switchTab('manual'); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function cancelEdit() { editingId = null; tempSubtasks = []; renderTempSubtasks(); document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('advance').value = 0; document.getElementById('submit-btn').innerText = t('submit_btn'); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
     function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
     function deleteLocally(id) { currentData = currentData.filter(r => r.id !== id); renderList(); pushToQueue('POST', { action: 'delete', id }); }
@@ -603,15 +545,14 @@
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
 
-    // --- 9. AI & VOICE (FIXED AI PARSING) ---
+    // --- 9. AI & VOICE (FIXED JSON PARSER) ---
     let recognition;
     function startVoiceRecognition() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return alert('Voice recognition not supported.');
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; recognition = new SpeechRecognition();
       recognition.lang = currentLang === 'fa' ? 'fa-IR' : (currentLang === 'de' ? 'de-DE' : 'en-US'); recognition.interimResults = false;
       const btn = document.getElementById('mic-btn'); const text = document.getElementById('mic-text');
-      btn.classList.add('mic-pulse'); text.innerText = 'Listening...';
-      recognition.start();
+      btn.classList.add('mic-pulse'); text.innerText = 'Listening...'; recognition.start();
       recognition.onresult = function(e) { document.getElementById('ai-input').value = e.results[0][0].transcript; processAI(); };
       recognition.onspeechend = function() { recognition.stop(); btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); };
       recognition.onerror = function() { btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); };
@@ -624,22 +565,16 @@
 
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
-      document.getElementById('ai-btn').disabled = true;
-      const now = new Date(); const jNow = jalaali.toJalaali(now);
-      
-      // پرامپت ضد-خطا برای گرفتن JSON 100% معتبر از گوگل
-      const prompt = `Extract reminder details. Return ONLY a valid, raw JSON object without markdown, without backticks, without any extra text. Today's year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
-      User input: "${text}"
-      Format exactly like this:
-      {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
+      document.getElementById('ai-btn').disabled = true; const now = new Date(); const jNow = jalaali.toJalaali(now);
+      const prompt = `Extract reminder details. Return ONLY a valid, raw JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
+      Input: "${text}"
+      Format: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
       
       try {
         let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await res.json();
-        
         let aiResult = data.candidates[0].content.parts[0].text;
-        // حذف تمام کاراکترهای احتمالی مارک‌داون گوگل
-        aiResult = aiResult.replace(/```json/g, '').replace(/```/g, '').trim();
+        aiResult = aiResult.replace(/```json/g, '').replace(/```/g, '').trim(); // Anti-crash parser
         
         const p = JSON.parse(aiResult);
         let td; if(currentLang==='fa'){ const g=jalaali.toGregorian(p.y,p.m,p.d); td=new Date(g.gy,g.gm-1,g.gd,p.h||0,p.min||0); } else { td=new Date(p.y,p.m-1,p.d,p.h||0,p.min||0); }
@@ -648,15 +583,13 @@
       } catch (e) { alert('AI Parse Error. Please try manual entry.'); } finally { document.getElementById('ai-btn').disabled = false; }
     }
 
-    // --- 10. BOOT & NATIVE NOTIFICATIONS ---
+    // --- 10. BOOT & SYNC ---
     initSettings();
-    if (currentChatId) { 
-      initDatePicker(); document.getElementById('login-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
+    if (currentUser || currentChatId) { 
+      initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
+      if(currentUser && currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
       renderList(); updateConnectionStatus(); processSyncQueue();
-    } else { document.getElementById('login-screen').classList.remove('hidden'); }
-
-    function login() { const input = document.getElementById('chat-id-input').value.trim(); if (!input) return; localStorage.setItem('user_chat_id', input); window.location.reload(); }
-    function logout() { localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
+    } else { document.getElementById('auth-screen').classList.remove('hidden'); }
 
     function updateConnectionStatus() {
       const dot = document.getElementById('sync-dot'); const text = document.getElementById('sync-text');
@@ -666,16 +599,12 @@
     window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus);
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
-    async function requestPushPermission() { if (("Notification" in window) && Notification.permission !== "granted") await Notification.requestPermission(); }
-
     setInterval(() => {
       if (!("Notification" in window) || Notification.permission !== "granted") return;
       const now = new Date().getTime();
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
-        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ Nirvana Reminder", { body: r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
-        }
+        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) { new Notification("⏰ Nirvana", { body: r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData)); }
       });
     }, 30000);
   </script>
