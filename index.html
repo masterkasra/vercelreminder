@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#030712" id="meta-theme-color" />
   <link rel="manifest" href="/manifest.json" />
-  <title>Nirvana | Smart Cloud Assistant</title>
+  <title>Nirvana | Enterprise Cloud Assistant</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  
+  <!-- کتابخانه‌های ضروری: جلالی، رمزنگاری E2E و خروجی PDF -->
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
     body { font-family: 'Vazirmatn', system-ui, sans-serif; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
@@ -28,7 +32,11 @@
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar { width: 5px; } 
+    ::-webkit-scrollbar-track { background: transparent; } 
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
     .mic-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
     @keyframes pulse-red { to { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
@@ -69,14 +77,13 @@
     <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
-  <!-- AUTHENTICATION SCREEN (Login & Register) -->
+  <!-- AUTHENTICATION SCREEN -->
   <div id="auth-screen" class="w-full max-w-md mt-16 p-6 hidden">
     <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] relative overflow-hidden group">
       <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
       </div>
       
-      <!-- Auth Tabs -->
       <div class="flex bg-black/5 dark:bg-white/5 rounded-xl p-1 mb-8">
         <button id="auth-login-tab" onclick="switchAuthTab('login')" class="flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all">ورود</button>
         <button id="auth-reg-tab" onclick="switchAuthTab('register')" class="flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all">ایجاد حساب</button>
@@ -84,37 +91,28 @@
 
       <div id="auth-loading" class="hidden text-center text-emerald-500 text-sm font-bold animate-pulse mb-4">در حال پردازش...</div>
 
-      <!-- Login Form -->
       <form id="login-form" onsubmit="handleAuth(event, 'login')" class="space-y-4">
-        <input type="email" id="login-email" required placeholder="پست الکترونیک (ایمیل)" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
-        <input type="password" id="login-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
-        <button type="submit" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg mt-4">ورود به پنل</button>
+        <input type="email" id="login-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        <input type="password" id="login-password" required placeholder="رمز عبور (استفاده به عنوان کلید E2EE)" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        <button type="submit" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:-translate-y-1 transition-all">ورود به سیستم</button>
       </form>
 
-      <!-- Register Form -->
       <form id="register-form" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
-        <div class="flex gap-2">
-          <input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-          <input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-        </div>
-        <input type="email" id="reg-email" required placeholder="ایمیل (برای ورود)" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
-        <input type="password" id="reg-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <div class="flex gap-2"><input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
+        <input type="email" id="reg-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <input type="password" id="reg-password" required placeholder="رمز عبور (کلید مخفی شما)" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
         <input type="tel" id="reg-phone" placeholder="شماره تماس" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
-        <div class="flex gap-2">
-          <input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-          <input type="text" id="reg-country" placeholder="کشور محل سکونت" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-        </div>
-        <!-- Chat ID Required for Telegram -->
+        <div class="flex gap-2"><input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-country" placeholder="کشور" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-2">
-          <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID) برای ارسال نوتیفیکیشن:</label>
+          <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID):</label>
           <input type="number" id="reg-chatid" required placeholder="مثال: 123456789" class="w-full input-premium rounded-lg px-3 py-2 text-sm" />
         </div>
-        <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg mt-4 hover:bg-emerald-400">ثبت‌نام و ورود</button>
+        <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:bg-emerald-400 hover:-translate-y-1 transition-all">ثبت‌نام و ورود</button>
       </form>
     </div>
   </div>
 
-  <!-- Main Dashboard -->
+  <!-- MAIN DASHBOARD -->
   <div id="app-screen" class="w-full max-w-4xl hidden px-4 sm:px-6 flex-grow">
     
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 gap-4 border-b border-black/5 dark:border-white/5 mb-6">
@@ -139,14 +137,15 @@
         <select id="lang-select" onchange="changeLanguage(this.value)" class="glass-panel text-xs rounded-xl px-3 py-2.5 outline-none font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
           <option value="fa">🇮🇷 فا</option><option value="en">🇬🇧 EN</option><option value="de">🇩🇪 DE</option>
         </select>
-        <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Toggle Theme">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all">
           <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
         <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-rose-500/10 text-rose-500 transition-all" title="Logout"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
       </div>
     </header>
 
-    <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6">
+    <!-- Gamification & Analytics Export -->
+    <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 relative">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
       </div>
@@ -165,9 +164,13 @@
           <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
         </div>
       </div>
+      <!-- دکمه خروجی PDF گزارش -->
+      <button onclick="exportAnalyticsPDF()" class="absolute top-4 left-4 sm:relative sm:top-0 sm:left-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20" title="PDF Export">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <span class="hidden sm:inline" data-i18n="export_pdf">دانلود گزارش</span>
+      </button>
     </div>
 
-    <!-- Creation Panel -->
     <div id="creation-panel" class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
       <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors z-20" data-i18n="cancel_edit">لغو ویرایش ✖</button>
       
@@ -178,7 +181,7 @@
         </button>
       </div>
 
-      <!-- AI Form with VOICE -->
+      <!-- AI Form -->
       <div id="ai-form" class="hidden space-y-4">
         <div class="relative flex flex-col md:flex-row gap-4 items-stretch">
           <textarea id="ai-input" rows="3" class="w-full input-premium rounded-2xl px-5 py-4 text-lg resize-none flex-grow" data-placeholder="ai_placeholder" placeholder="مثال: فردا عصر به مدیرم ایمیل بزنم..."></textarea>
@@ -187,6 +190,13 @@
             <span id="mic-text" class="text-sm" data-i18n="btn_mic">صحبت کنید</span>
           </button>
         </div>
+        
+        <!-- Toggle E2E for AI -->
+        <label class="flex items-center gap-2 cursor-pointer bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5 w-fit">
+          <input type="checkbox" id="ai-is-encrypted" class="w-4 h-4 text-emerald-500 rounded border-white/10 focus:ring-emerald-500">
+          <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" data-i18n="e2e_label">🔒 رمزنگاری سرتاسری (E2EE)</span>
+        </label>
+
         <button id="ai-btn" onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> <span id="ai-btn-text" data-i18n="ai_btn">پردازش با هوش مصنوعی</span>
         </button>
@@ -194,19 +204,26 @@
 
       <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
-        <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
+        <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold text-slate-800 dark:text-white" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
-        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <label class="text-xs self-center text-slate-500 dark:text-slate-400 ml-2" data-i18n="category">دسته‌بندی:</label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="work" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-600 dark:peer-checked:text-blue-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_work">💼 کاری</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="personal" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-600 dark:peer-checked:text-orange-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_personal">🏠 شخصی</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="finance" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_finance">💳 مالی</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="dev" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-600 dark:peer-checked:text-purple-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_dev">📚 توسعه</span></label>
-          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="general" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-600 dark:peer-checked:text-pink-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_general">🎯 عمومی</span></label>
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-grow">
+            <label class="text-xs self-center text-slate-500 dark:text-slate-400 ml-2" data-i18n="category">دسته‌بندی:</label>
+            <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="work" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-600 dark:peer-checked:text-blue-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_work">💼 کاری</span></label>
+            <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="personal" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-600 dark:peer-checked:text-orange-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_personal">🏠 شخصی</span></label>
+            <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="finance" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-600 dark:peer-checked:text-emerald-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_finance">💳 مالی</span></label>
+            <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="dev" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-600 dark:peer-checked:text-purple-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_dev">📚 توسعه</span></label>
+            <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="general" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-600 dark:peer-checked:text-pink-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_general">🎯 عمومی</span></label>
+          </div>
+          
+          <!-- E2E Toggle -->
+          <label class="flex items-center gap-2 cursor-pointer bg-black/5 dark:bg-white/5 p-2 rounded-xl border border-black/5 dark:border-white/5">
+            <input type="checkbox" id="is-encrypted" class="w-4 h-4 text-emerald-500 rounded focus:ring-emerald-500">
+            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" data-i18n="e2e_label">🔒 رمز E2EE</span>
+          </label>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Time & Date with Clear Labels -->
           <div class="lg:col-span-2 bg-black/5 dark:bg-black/20 p-3 rounded-2xl flex flex-col justify-center border border-black/5 dark:border-white/5">
             <div class="flex justify-between px-1 mb-1">
               <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="lbl_date">تاریخ سررسید</span>
@@ -248,9 +265,17 @@
           <ul id="temp-subtasks-list" class="space-y-1 text-sm text-slate-600 dark:text-slate-300 pl-2"></ul>
         </div>
 
-        <textarea id="desc" rows="1" class="w-full input-premium rounded-xl px-4 py-3 text-sm resize-none" data-placeholder="desc_placeholder" placeholder="توضیحات تکمیلی..."></textarea>
+        <!-- پیوست فایل -->
+        <div class="flex items-center gap-4">
+          <textarea id="desc" rows="1" class="flex-grow input-premium rounded-xl px-4 py-3 text-sm resize-none" data-placeholder="desc_placeholder" placeholder="توضیحات تکمیلی..."></textarea>
+          <input type="file" id="file-input" class="hidden" onchange="handleFile(event)" accept="image/*,application/pdf">
+          <button type="button" onclick="document.getElementById('file-input').click()" class="p-3 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 text-slate-600 dark:text-slate-300" title="پیوست فایل">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+          </button>
+        </div>
+        <div id="file-name-display" class="text-xs text-emerald-500 font-bold px-2 hidden"></div>
         
-        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all" data-i18n="submit_btn">ایجاد وظیفه جدید</button>
+        <button id="submit-btn" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white dark:text-black font-bold py-4 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all" data-i18n="submit_btn">ایجاد وظیفه جدید</button>
       </form>
     </div>
     
@@ -263,10 +288,8 @@
       <button onclick="setFilter('general')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_general">🎯 عمومی</button>
     </div>
 
-    <!-- The List View -->
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
 
-    <!-- The Calendar View -->
     <div id="calendar-view" class="hidden pb-12">
       <div class="glass-panel p-6 rounded-3xl">
         <div class="flex justify-between items-center mb-6">
@@ -299,19 +322,16 @@
         login_title: "ورود امن", login_desc: "ایمیل و رمز عبور خود را وارد کنید.", login_btn: "ورود به سیستم",
         prod_level: "سطح بهره‌وری", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
         cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی", btn_mic: "صحبت کنید",
-        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل با گوگل...",
+        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل...",
         title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
         lbl_date: "تاریخ سررسید:", lbl_time: "ساعت:", adv_lbl: "هشدار:", adv_days: "روز قبل",
-        subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...",
+        subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...", e2e_label: "🔒 رمز E2EE",
         tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
-        pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴",
-        rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
+        pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴", rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
-        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر تمرکز", btn_gcal: "Google Cal",
+        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر تمرکز", btn_gcal: "تقویم", export_pdf: "دانلود گزارش",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
-        footer_made: "طراحی با", footer_by: "توسط", 
-        months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'],
-        days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
+        footer_made: "طراحی با", footer_by: "توسط", months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
         app_title: "Smart Cloud Reminder", sync_online: "Online", sync_offline: "Offline",
@@ -321,16 +341,13 @@
         ai_placeholder: "e.g., Email my boss tomorrow evening...", ai_btn: "Auto Extract", ai_loading: "Analyzing...",
         title_placeholder: "Task Title...", desc_placeholder: "Additional details...", category: "Category:",
         lbl_date: "Due Date:", lbl_time: "Time:", adv_lbl: "Alert:", adv_days: "days before",
-        subtasks_label: "Sub-tasks:", subtask_placeholder: "New step...",
+        subtasks_label: "Sub-tasks:", subtask_placeholder: "New step...", e2e_label: "🔒 E2EE Lock",
         tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
-        pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴",
-        rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
+        pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴", rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
-        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal",
+        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export Report",
         view_list: "List", view_cal: "Calendar", pomo_title: "Focus Timer", pomo_start: "Start", pomo_reset: "Stop", pomo_custom_mins: "Time (mins):",
-        footer_made: "Crafted with", footer_by: "by", 
-        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        footer_made: "Crafted with", footer_by: "by", months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
         app_title: "Smart Cloud Erinnerung", sync_online: "Online", sync_offline: "Offline",
@@ -340,16 +357,13 @@
         ai_placeholder: "z.B. Morgen Abend meinem Chef schreiben...", ai_btn: "Automatisch Extrahieren", ai_loading: "Analysieren...",
         title_placeholder: "Titel...", desc_placeholder: "Details...", category: "Kategorie:",
         lbl_date: "Datum:", lbl_time: "Zeit:", adv_lbl: "Alarm:", adv_days: "Tage vor",
-        subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...",
+        subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...", e2e_label: "🔒 E2EE",
         tag_work: "💼 Arbeit", tag_personal: "🏠 Privat", tag_finance: "💳 Finanzen", tag_dev: "📚 Code", tag_general: "🎯 Allgemein",
-        pri_low: "Niedrig 🟢", pri_med: "Mittel 🟡", pri_high: "Hoch 🔴",
-        rec_none: "Nicht wdh.", rec_daily: "Täglich", rec_weekly: "Wöchentlich", rec_monthly: "Monatlich",
+        pri_low: "Niedrig 🟢", pri_med: "Mittel 🟡", pri_high: "Hoch 🔴", rec_none: "Nicht wdh.", rec_daily: "Täglich", rec_weekly: "Wöchentlich", rec_monthly: "Monatlich",
         submit_btn: "Erstellen", save_btn: "Speichern", filter_all: "Alle Aufgaben",
-        empty_list: "Keine Aufgaben.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten", btn_del: "Löschen", btn_pomo: "Timer", btn_gcal: "G-Cal",
+        empty_list: "Keine Aufgaben.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten", btn_del: "Löschen", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Bericht",
         view_list: "Liste", view_cal: "Kalender", pomo_title: "Fokus-Timer", pomo_start: "Start", pomo_reset: "Stopp", pomo_custom_mins: "Zeit (min):",
-        footer_made: "Erstellt mit", footer_by: "von", 
-        months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'],
-        days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
+        footer_made: "Erstellt mit", footer_by: "von", months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
     };
 
@@ -372,102 +386,103 @@
       document.getElementById('cal-headers').innerHTML = t('days').map(d => `<div>${d}</div>`).join('');
     }
 
-    // --- 2. AUTHENTICATION & STATE ---
+    // --- 2. SECURITY (E2EE) & AUTH & FILES ---
     let currentUser = JSON.parse(localStorage.getItem('nirvana_user'));
-    // Fallback if they were using old ChatId method without real user object
-    if (!currentUser && localStorage.getItem('user_chat_id')) {
-        currentUser = { email: "legacy@nirvana", chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" };
-    }
+    if (!currentUser && localStorage.getItem('user_chat_id')) { currentUser = { email: "legacy", password: localStorage.getItem('user_chat_id'), chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" }; }
     let currentChatId = currentUser ? currentUser.chatId : null;
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
-    let currentFilter = 'all'; let editingId = null; let tempSubtasks = [];
+    let currentFilter = 'all'; let editingId = null; let tempSubtasks = []; let tempAttachment = null;
+
+    function getSecret() { return (currentUser && currentUser.password) ? currentUser.password : "NirvanaSecretKey"; }
+    function encryptText(text) { return text ? CryptoJS.AES.encrypt(text, getSecret()).toString() : ""; }
+    function decryptText(cipher) {
+      if(!cipher) return "";
+      try { const bytes = CryptoJS.AES.decrypt(cipher, getSecret()); return bytes.toString(CryptoJS.enc.Utf8) || "🔒 Encrypted"; } 
+      catch(e) { return "🔒 Encrypted"; }
+    }
 
     function switchAuthTab(tab) {
-      if (tab === 'login') {
-        document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden');
-        document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all";
-        document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
-      } else {
-        document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all";
-        document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
-      }
+      if (tab === 'login') { document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden'); document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all"; document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; } 
+      else { document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden'); document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all"; document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; }
     }
 
     async function handleAuth(e, action) {
-      e.preventDefault();
-      document.getElementById('auth-loading').classList.remove('hidden');
-      
+      e.preventDefault(); document.getElementById('auth-loading').classList.remove('hidden');
       let payload = { action };
-      if (action === 'login') {
-        payload.email = document.getElementById('login-email').value;
-        payload.password = document.getElementById('login-password').value;
-      } else {
-        payload.email = document.getElementById('reg-email').value;
-        payload.password = document.getElementById('reg-password').value;
-        payload.firstName = document.getElementById('reg-fname').value;
-        payload.lastName = document.getElementById('reg-lname').value;
-        payload.phone = document.getElementById('reg-phone').value;
-        payload.job = document.getElementById('reg-job').value;
-        payload.country = document.getElementById('reg-country').value;
-        payload.chatId = document.getElementById('reg-chatid').value;
-      }
+      if (action === 'login') { payload.email = document.getElementById('login-email').value; payload.password = document.getElementById('login-password').value; } 
+      else { payload.email = document.getElementById('reg-email').value; payload.password = document.getElementById('reg-password').value; payload.firstName = document.getElementById('reg-fname').value; payload.lastName = document.getElementById('reg-lname').value; payload.phone = document.getElementById('reg-phone').value; payload.job = document.getElementById('reg-job').value; payload.country = document.getElementById('reg-country').value; payload.chatId = document.getElementById('reg-chatid').value; }
 
       try {
         const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const data = await res.json();
-        document.getElementById('auth-loading').classList.add('hidden');
+        const data = await res.json(); document.getElementById('auth-loading').classList.add('hidden');
         if (data.error) return alert(data.error);
-        
-        localStorage.setItem('nirvana_user', JSON.stringify(data.user));
-        localStorage.setItem('user_chat_id', data.user.chatId);
-        window.location.reload();
-      } catch (err) {
-        document.getElementById('auth-loading').classList.add('hidden');
-        alert("Server connection error.");
-      }
+        localStorage.setItem('nirvana_user', JSON.stringify(data.user)); localStorage.setItem('user_chat_id', data.user.chatId); window.location.reload();
+      } catch (err) { document.getElementById('auth-loading').classList.add('hidden'); alert("Server Error."); }
     }
-
     function logout() { localStorage.removeItem('nirvana_user'); localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
 
-    // --- 3. SUBTASKS ---
+    function handleFile(e) {
+      const file = e.target.files[0]; if(!file) return;
+      if(file.size > 2 * 1024 * 1024) return alert("حجم فایل نباید بیشتر از 2 مگابایت باشد.");
+      const reader = new FileReader();
+      reader.onload = (ev) => { tempAttachment = { name: file.name, type: file.type, data: ev.target.result }; const disp = document.getElementById('file-name-display'); disp.innerText = `📎 ${file.name}`; disp.classList.remove('hidden'); };
+      reader.readAsDataURL(file);
+    }
+
+    // --- 3. EXPORT ANALYTICS PDF ---
+    function exportAnalyticsPDF() {
+      const total = currentData.length; const done = currentData.filter(r=>r.completed).length; const pending = total - done;
+      const element = document.createElement('div');
+      element.innerHTML = `
+        <div style="padding: 30px; font-family: Tahoma, sans-serif; direction: rtl; text-align: right; background: #fff; color: #000;">
+          <h1 style="color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 10px;">گزارش عملکرد ماهانه Nirvana</h1>
+          <h3>خلاصه وضعیت:</h3>
+          <p>تعداد کل وظایف: <b>${total}</b></p><p>انجام شده: <b style="color:green;">${done}</b></p><p>باقی‌مانده: <b style="color:red;">${pending}</b></p>
+          <p>درصد موفقیت: <b>${total ? Math.round((done/total)*100) : 0}%</b></p>
+          <br><h3>لیست کارهای باقی‌مانده:</h3>
+          <ul>${currentData.filter(r=>!r.completed).map(r=> `<li>${r.isEncrypted ? '🔒 [رمزنگاری شده E2EE]' : r.title} - ${r.priority}</li>`).join('')}</ul>
+          <br><p style="font-size:10px; color:#888;">Generated by Nirvana.DEV</p>
+        </div>`;
+      html2pdf().set({ margin: 0.5, filename: 'Nirvana_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(element).save();
+    }
+
+    // --- 4. SUBTASKS & POMODORO & GCAL ---
     function addTempSubtask() { const input = document.getElementById('subtask-input'); if (!input.value.trim()) return; tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderTempSubtasks(); }
     function renderTempSubtasks() { const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = ''; tempSubtasks.forEach((st, i) => { ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${st.text}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`; }); }
     function removeTempSubtask(idx) { tempSubtasks.splice(idx, 1); renderTempSubtasks(); }
     function toggleSubtaskLocally(taskId, subIdx) { const tIdx = currentData.findIndex(r => r.id === taskId); if (tIdx > -1 && currentData[tIdx].subtasks) { currentData[tIdx].subtasks[subIdx].done = !currentData[tIdx].subtasks[subIdx].done; renderList(); pushToQueue('POST', { action: 'edit', ...currentData[tIdx] }); } }
 
-    // --- 4. POMODORO (Custom Timer Fix) ---
     let pomoInterval; let pomoTime = 25 * 60; let isPomoRunning = false;
-    function openPomo(taskId) { const r = currentData.find(x => x.id === taskId); if(!r) return; document.getElementById('pomo-task-name').innerText = r.title; document.getElementById('pomo-custom-time').value = 25; updatePomoDisplayFromInput(); document.getElementById('pomo-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('pomo-modal').classList.remove('opacity-0'), 10); }
+    function openPomo(taskId) { const r = currentData.find(x => x.id === taskId); if(!r) return; document.getElementById('pomo-task-name').innerText = r.isEncrypted ? decryptText(r.title) : r.title; document.getElementById('pomo-custom-time').value = 25; updatePomoDisplayFromInput(); document.getElementById('pomo-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('pomo-modal').classList.remove('opacity-0'), 10); }
     function closePomo() { resetPomo(); document.getElementById('pomo-modal').classList.add('opacity-0'); setTimeout(() => document.getElementById('pomo-modal').classList.add('hidden'), 300); }
     function updatePomoDisplayFromInput() { if(isPomoRunning) return; let val = parseInt(document.getElementById('pomo-custom-time').value) || 25; if (val < 1) val = 1; if (val > 120) val = 120; document.getElementById('pomo-custom-time').value = val; pomoTime = val * 60; updatePomoDisplay(); }
     function updatePomoDisplay() { const m = String(Math.floor(pomoTime / 60)).padStart(2, '0'); const s = String(pomoTime % 60).padStart(2, '0'); document.getElementById('pomo-timer-display').innerText = `${m}:${s}`; }
     function startPomo() { if (isPomoRunning) return; isPomoRunning = true; pomoInterval = setInterval(() => { if (pomoTime > 0) { pomoTime--; updatePomoDisplay(); } else { clearInterval(pomoInterval); alert("زمان تمرکز تمام شد!"); resetPomo(); } }, 1000); }
     function resetPomo() { clearInterval(pomoInterval); isPomoRunning = false; updatePomoDisplayFromInput(); }
 
-    // --- 5. GOOGLE CALENDAR EXPORT ---
-    function exportToGCal(taskId) { const r = currentData.find(x => x.id === taskId); if(!r) return; const d1 = new Date(r.datetime); const d2 = new Date(d1.getTime() + 60*60*1000); const fmt = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g,""); const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(r.title)}&dates=${fmt(d1)}/${fmt(d2)}&details=${encodeURIComponent(r.desc || '')}`; window.open(url, '_blank'); }
+    function exportToGCal(taskId) {
+      const r = currentData.find(x => x.id === taskId); if(!r) return;
+      const title = r.isEncrypted ? decryptText(r.title) : r.title; const desc = r.isEncrypted ? decryptText(r.desc) : (r.desc || '');
+      const d1 = new Date(r.datetime); const d2 = new Date(d1.getTime() + 60*60*1000); const fmt = (dt) => dt.toISOString().replace(/-|:|\.\d\d\d/g,"");
+      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${fmt(d1)}/${fmt(d2)}&details=${encodeURIComponent(desc)}`, '_blank');
+    }
 
-    // --- 6. VIEW SWITCHER (List / Calendar) ---
+    // --- 5. CALENDAR VIEW ---
     function switchView(view) {
       const listBtn = document.getElementById('view-list-btn'); const calBtn = document.getElementById('view-cal-btn');
       const listPanel = document.getElementById('reminders-list'); const calPanel = document.getElementById('calendar-view');
-      const formPanel = document.getElementById('creation-panel'); const filterBar = document.getElementById('filter-bar');
-      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); filterBar.classList.add('hidden'); formPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
-      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); filterBar.classList.remove('hidden'); formPanel.classList.remove('hidden'); }
+      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
+      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); }
     }
 
-    // --- 7. CALENDAR GRID LOGIC (Fixed Nav) ---
     let currentCalMonth = new Date();
     function changeCalMonth(offset) {
       if (currentLang === 'fa') { const j = jalaali.toJalaali(currentCalMonth); let nextMonth = j.jm + offset; let nextYear = j.jy; if (nextMonth > 12) { nextMonth = 1; nextYear++; } if (nextMonth < 1) { nextMonth = 12; nextYear--; } const g = jalaali.toGregorian(nextYear, nextMonth, 1); currentCalMonth = new Date(g.gy, g.gm - 1, g.gd); } 
-      else { currentCalMonth.setMonth(currentCalMonth.getMonth() + offset); }
-      renderCalendar();
+      else { currentCalMonth.setMonth(currentCalMonth.getMonth() + offset); } renderCalendar();
     }
     function renderCalendar() {
-      const grid = document.getElementById('cal-grid'); grid.innerHTML = '';
-      const title = document.getElementById('cal-month-title'); const realNow = new Date();
+      const grid = document.getElementById('cal-grid'); grid.innerHTML = ''; const title = document.getElementById('cal-month-title'); const realNow = new Date();
       let daysInMonth = 30; let firstDayOffset = 0;
       if (currentLang === 'fa') { const j = jalaali.toJalaali(currentCalMonth); title.innerText = `${t('months')[j.jm-1]} ${j.jy}`; daysInMonth = jalaali.jalaaliMonthLength(j.jy, j.jm); firstDayOffset = (new Date(jalaali.toGregorian(j.jy, j.jm, 1).gy, jalaali.toGregorian(j.jy, j.jm, 1).gm - 1, jalaali.toGregorian(j.jy, j.jm, 1).gd).getDay() + 1) % 7; } 
       else { title.innerText = `${t('months')[currentCalMonth.getMonth()]} ${currentCalMonth.getFullYear()}`; daysInMonth = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth() + 1, 0).getDate(); firstDayOffset = new Date(currentCalMonth.getFullYear(), currentCalMonth.getMonth(), 1).getDay(); }
@@ -476,11 +491,11 @@
         let dayTasks = currentData.filter(r => { const tDate = new Date(r.datetime); if (currentLang === 'fa') { return jalaali.toJalaali(tDate).jd === d && jalaali.toJalaali(tDate).jm === jalaali.toJalaali(currentCalMonth).jm && jalaali.toJalaali(tDate).jy === jalaali.toJalaali(currentCalMonth).jy; } else { return tDate.getDate() === d && tDate.getMonth() === currentCalMonth.getMonth() && tDate.getFullYear() === currentCalMonth.getFullYear(); } });
         let dotsHTML = dayTasks.slice(0, 4).map(r => `<div class="w-1.5 h-1.5 rounded-full ${r.priority === 'high' ? 'bg-rose-500' : 'bg-emerald-500'}"></div>`).join('');
         let isToday = false; if (currentLang === 'fa') { isToday = d === jalaali.toJalaali(realNow).jd && jalaali.toJalaali(currentCalMonth).jm === jalaali.toJalaali(realNow).jm && jalaali.toJalaali(currentCalMonth).jy === jalaali.toJalaali(realNow).jy; } else { isToday = d === realNow.getDate() && currentCalMonth.getMonth() === realNow.getMonth() && currentCalMonth.getFullYear() === realNow.getFullYear(); }
-        grid.innerHTML += `<div class="calendar-day flex flex-col items-center ${isToday ? 'active-day' : ''}" onclick="alert('${dayTasks.length > 0 ? dayTasks.map(x=>x.title).join('\\n') : t('empty_list')}')"><span class="text-sm font-bold ${isToday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'}">${d}</span><div class="flex gap-0.5 mt-2 flex-wrap justify-center w-full">${dotsHTML}</div></div>`;
+        grid.innerHTML += `<div class="calendar-day flex flex-col items-center ${isToday ? 'active-day' : ''}"><span class="text-sm font-bold ${isToday ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'}">${d}</span><div class="flex gap-0.5 mt-2 flex-wrap justify-center w-full">${dotsHTML}</div></div>`;
       }
     }
 
-    // --- 8. CORE CRUD & RENDER ---
+    // --- 6. CORE CRUD ---
     function updateGamification() { const total = currentData.length; const done = currentData.filter(r => r.completed).length; document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done; const percent = total === 0 ? 0 : Math.round((done / total) * 100); document.getElementById('progress-bar').style.width = `${percent}%`; let titleKey = "level_start", emoji = "🌱"; if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; } else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; } else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; } document.getElementById('level-title').innerText = t(titleKey); document.getElementById('level-emoji').innerText = emoji; }
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
@@ -488,19 +503,30 @@
       updateGamification(); localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
       if (filtered.length === 0) { container.classList.remove('grid'); return container.innerHTML = `<div class="w-full text-center py-16 border border-dashed border-black/10 dark:border-white/10 rounded-[2rem] text-slate-500"><p>${t('empty_list')}</p></div>`; }
       container.classList.add('grid'); const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
+
       filtered.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
         const dateStr = formatDateDisplay(r.datetime); const tagText = t(`tag_${r.tag}`);
+        const displayTitle = r.isEncrypted ? decryptText(r.title) : r.title;
+        const displayDesc = r.isEncrypted ? decryptText(r.desc) : (r.desc || '');
+        
         let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span></li>`; }); subtasksHTML += '</ul>'; }
+        
+        let attachHTML = ''; if (r.attachment) { attachHTML = `<a href="${r.attachment.data}" download="${r.attachment.name}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود: ${r.attachment.name}</a>`; }
+
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
             <div>
               <div class="flex justify-between items-start mb-2">
-                <span class="text-xs bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300">${tagText}</span>
+                <div class="flex gap-2">
+                  <span class="text-xs bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300">${tagText}</span>
+                  ${r.isEncrypted ? '<span class="text-xs bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-1 rounded-md">🔒 E2EE</span>' : ''}
+                </div>
                 <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-black/30 px-2 py-1 rounded">${dateStr}</span>
               </div>
-              <h3 class="text-lg font-bold text-slate-800 dark:text-white leading-tight mb-2 ${r.completed ? 'line-through' : ''}">${r.title}</h3>
-              ${r.desc ? `<p class="text-sm text-slate-500 dark:text-slate-400 font-light mb-2 line-clamp-1">${r.desc}</p>` : ''}
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white leading-tight mb-2 ${r.completed ? 'line-through' : ''}">${displayTitle}</h3>
+              ${displayDesc ? `<p class="text-sm text-slate-500 dark:text-slate-400 font-light mb-2 line-clamp-2">${displayDesc}</p>` : ''}
               ${subtasksHTML}
+              ${attachHTML}
             </div>
             <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-black/5 dark:border-white/5">
               <button onclick="toggleCompleteLocally(${r.id})" class="flex-grow py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
@@ -519,18 +545,29 @@
     function saveReminder(e) {
       e.preventDefault(); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
       const advVal = parseInt(document.getElementById('advance').value) || 0;
-      const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: advVal, recurring: document.getElementById('recurring').value, tag: tag, desc: document.getElementById('desc').value, subtasks: [...tempSubtasks], completed: false };
+      const isEnc = document.getElementById('is-encrypted').checked;
+      
+      let finalTitle = document.getElementById('title').value; let finalDesc = document.getElementById('desc').value;
+      if (isEnc) { finalTitle = encryptText(finalTitle); finalDesc = encryptText(finalDesc); }
+      
+      const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: finalTitle, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: advVal, recurring: document.getElementById('recurring').value, tag: tag, desc: finalDesc, subtasks: [...tempSubtasks], isEncrypted: isEnc, attachment: tempAttachment, completed: false };
+      
       if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = payload; cancelEdit(); } else { currentData.push(payload); }
-      renderList(); pushToQueue('POST', payload); if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); initDatePicker(); document.getElementById('advance').value = 0; }
+      renderList(); pushToQueue('POST', payload); if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); tempAttachment = null; document.getElementById('file-name-display').classList.add('hidden'); initDatePicker(); document.getElementById('advance').value = 0; }
     }
 
     function editReminder(id) {
       const r = currentData.find(x => x.id === id); if(!r) return; editingId = id; tempSubtasks = r.subtasks ? [...r.subtasks] : [];
-      document.getElementById('title').value = r.title; document.getElementById('desc').value = r.desc || ''; document.getElementById('priority').value = r.priority || 'medium'; document.getElementById('advance').value = r.advanceNotice || 0; document.getElementById('recurring').value = r.recurring || 'none';
+      document.getElementById('title').value = r.isEncrypted ? decryptText(r.title) : r.title; 
+      document.getElementById('desc').value = r.isEncrypted ? decryptText(r.desc) : (r.desc || ''); 
+      document.getElementById('priority').value = r.priority || 'medium'; document.getElementById('advance').value = r.advanceNotice || 0; document.getElementById('recurring').value = r.recurring || 'none';
+      document.getElementById('is-encrypted').checked = r.isEncrypted || false;
+      tempAttachment = r.attachment || null;
+      if(tempAttachment) { const disp = document.getElementById('file-name-display'); disp.innerText = `📎 ${tempAttachment.name}`; disp.classList.remove('hidden'); }
       const tagRadio = document.querySelector(`input[name="tag"][value="${r.tag}"]`); if(tagRadio) tagRadio.checked = true;
       initDatePicker(new Date(r.datetime)); renderTempSubtasks(); document.getElementById('submit-btn').innerText = t('save_btn'); document.getElementById('cancel-edit-btn').classList.remove('hidden'); switchTab('manual'); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function cancelEdit() { editingId = null; tempSubtasks = []; renderTempSubtasks(); document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('advance').value = 0; document.getElementById('submit-btn').innerText = t('submit_btn'); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
+    function cancelEdit() { editingId = null; tempSubtasks = []; tempAttachment = null; renderTempSubtasks(); document.getElementById('file-name-display').classList.add('hidden'); document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('advance').value = 0; document.getElementById('submit-btn').innerText = t('submit_btn'); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
     function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
     function deleteLocally(id) { currentData = currentData.filter(r => r.id !== id); renderList(); pushToQueue('POST', { action: 'delete', id }); }
     async function fetchRemindersFromServer() { try { const res = await fetch(`/api/reminders?chat_id=${currentChatId}`); const data = await res.json(); if (Array.isArray(data)) { currentData = data; renderList(); } } catch (e) { } }
@@ -545,7 +582,7 @@
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
 
-    // --- 9. AI & VOICE (FIXED JSON PARSER) ---
+    // --- 7. AI & VOICE ---
     let recognition;
     function startVoiceRecognition() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return alert('Voice recognition not supported.');
@@ -558,32 +595,26 @@
       recognition.onerror = function() { btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); };
     }
 
-    function switchTab(tab) {
-      if(tab === 'ai') { document.getElementById('manual-form').classList.add('hidden'); document.getElementById('ai-form').classList.remove('hidden'); document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow flex items-center gap-1.5"; document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"; }
-      else { document.getElementById('ai-form').classList.add('hidden'); document.getElementById('manual-form').classList.remove('hidden'); document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1.5"; }
-    }
-
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
       document.getElementById('ai-btn').disabled = true; const now = new Date(); const jNow = jalaali.toJalaali(now);
-      const prompt = `Extract reminder details. Return ONLY a valid, raw JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
-      Input: "${text}"
-      Format: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
-      
+      const prompt = `Extract reminder details. Return ONLY a valid, raw JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}. Input: "${text}" Format: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
       try {
         let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await res.json();
-        let aiResult = data.candidates[0].content.parts[0].text;
-        aiResult = aiResult.replace(/```json/g, '').replace(/```/g, '').trim(); // Anti-crash parser
-        
+        let aiResult = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
         const p = JSON.parse(aiResult);
         let td; if(currentLang==='fa'){ const g=jalaali.toGregorian(p.y,p.m,p.d); td=new Date(g.gy,g.gm-1,g.gd,p.h||0,p.min||0); } else { td=new Date(p.y,p.m-1,p.d,p.h||0,p.min||0); }
-        const payload = { action: 'add', id: Date.now(), title: p.title, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', completed: false };
+        
+        const isEnc = document.getElementById('ai-is-encrypted').checked;
+        let finalTitle = p.title; if(isEnc) finalTitle = encryptText(finalTitle);
+
+        const payload = { action: 'add', id: Date.now(), title: finalTitle, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', isEncrypted: isEnc, attachment: null, completed: false };
         currentData.push(payload); renderList(); pushToQueue('POST', payload); document.getElementById('ai-input').value = ''; switchTab('manual');
       } catch (e) { alert('AI Parse Error. Please try manual entry.'); } finally { document.getElementById('ai-btn').disabled = false; }
     }
 
-    // --- 10. BOOT & SYNC ---
+    // --- 8. BOOT & SYNC ---
     initSettings();
     if (currentUser || currentChatId) { 
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
@@ -599,12 +630,16 @@
     window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus);
 
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
+    async function requestPushPermission() { if (("Notification" in window) && Notification.permission !== "granted") await Notification.requestPermission(); }
+
     setInterval(() => {
       if (!("Notification" in window) || Notification.permission !== "granted") return;
       const now = new Date().getTime();
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
-        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) { new Notification("⏰ Nirvana", { body: r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData)); }
+        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
+          new Notification("⏰ Nirvana", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+        }
       });
     }, 30000);
   </script>
