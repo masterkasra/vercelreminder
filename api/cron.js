@@ -23,41 +23,27 @@ export default async function handler(req, res) {
         const targetTime = new Date(r.datetime).getTime();
         const advanceTime = targetTime - ((r.advanceNotice || 0) * 24 * 60 * 60 * 1000);
 
-        // ۱. ارسال هشدار زودهنگام
+        // امنیت E2EE: اگر رمزنگاری شده باشد، اطلاعات در تلگرام سانسور می‌شود
+        const msgTitle = r.isEncrypted ? '🔒 [پیام قفل شده و محرمانه]' : r.title;
+        const msgDesc = r.isEncrypted ? 'برای مشاهده جزئیات وارد اپلیکیشن شوید.' : (r.desc || '-');
+
         if (r.advanceNotice > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
-          const msg = `⏳ *هشدار (${r.advanceNotice} روز مانده)*\n\n📌 عنوان: ${r.title}`;
-          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
-          });
+          const msg = `⏳ *هشدار زودهنگام*\n\n📌 عنوان: ${msgTitle}`;
+          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' }) });
           r.advanceSent = true; dbChanged = true; messagesSent++;
         }
 
-        // ۲. سررسید اصلی + دکمه‌های شیشه‌ای + تکرار دوره‌ای
         if (!r.sent && targetTime <= now) {
-          // دکمه‌های شیشه‌ای تلگرام
-          const keyboard = {
-            inline_keyboard: [
-              [{ text: "✅ انجام شد", callback_data: `complete_${r.id}` }],
-              [{ text: "💤 یادآوری ۱ ساعت بعد", callback_data: `snooze_${r.id}` }]
-            ]
-          };
-
-          const msg = `⏰ *یادآور رسید!*\n\n📌 عنوان: ${r.title}\n📝 توضیحات: ${r.desc || '-'}`;
-          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown', reply_markup: keyboard })
-          });
-          
+          const keyboard = { inline_keyboard: [[{ text: "✅ انجام شد", callback_data: `complete_${r.id}` }], [{ text: "💤 تاخیر ۱ ساعت", callback_data: `snooze_${r.id}` }]] };
+          const msg = `⏰ *یادآور رسید!*\n\n📌 عنوان: ${msgTitle}\n📝 توضیحات: ${msgDesc}`;
+          await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown', reply_markup: r.isEncrypted ? undefined : keyboard }) });
           r.sent = true; dbChanged = true; messagesSent++;
 
-          // ساخت خودکار یادآور بعدی برای کارهای دوره‌ای (روزانه/هفتگی/ماهانه)
           if (r.recurring && r.recurring !== 'none') {
             let nextDate = new Date(r.datetime);
             if (r.recurring === 'daily') nextDate.setDate(nextDate.getDate() + 1);
             else if (r.recurring === 'weekly') nextDate.setDate(nextDate.getDate() + 7);
             else if (r.recurring === 'monthly') nextDate.setDate(nextDate.getDate() + 30);
-            
             reminders.push({ ...r, id: Date.now() + Math.random(), datetime: nextDate.toISOString(), sent: false, advanceSent: false, completed: false });
           }
         }
