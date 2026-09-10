@@ -14,7 +14,7 @@
     .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
     .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
     .input-premium:focus { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); outline: none; }
-    .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; }
+    .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; border: none; }
     @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
@@ -24,13 +24,12 @@
 </head>
 <body class="min-h-screen flex flex-col items-center selection:bg-emerald-500/30 pb-24">
 
+  <!-- افکت نوری پس‌زمینه -->
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-900/20 blur-[150px] rounded-full pointer-events-none -z-10"></div>
 
-  <!-- تور راهنمای تعاملی (Onboarding Modal) -->
+  <!-- تور راهنمای تعاملی (Onboarding) -->
   <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content">
-      <!-- محتوای تور با جاوااسکریپت پر می‌شود -->
-    </div>
+    <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
   <!-- صفحه ورود -->
@@ -50,7 +49,6 @@
   <!-- داشبورد اصلی -->
   <div id="app-screen" class="w-full max-w-4xl hidden px-4 sm:px-6 flex-grow">
     
-    <!-- هدر و وضعیت اتصال -->
     <header class="flex justify-between items-center py-8">
       <div class="flex items-center gap-4">
         <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl flex items-center justify-center shadow-lg">
@@ -64,10 +62,10 @@
           </div>
         </div>
       </div>
-      <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-white/10 text-rose-400 transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
+      <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-white/10 text-rose-400 transition-all" title="خروج"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
     </header>
 
-    <!-- داشبورد گیمیفیکیشن (Productivity Analytics) -->
+    <!-- داشبورد گیمیفیکیشن -->
     <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 border-emerald-500/20">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
@@ -93,24 +91,21 @@
     <div class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
       <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors">لغو ویرایش ✖</button>
       
-      <!-- تب‌های هوش مصنوعی / دستی -->
+      <!-- تب‌ها -->
       <div class="flex gap-2 mb-6 bg-black/30 p-1 rounded-xl w-fit">
         <button id="tab-manual" onclick="switchTab('manual')" class="px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow">ثبت دستی</button>
         <button id="tab-ai" onclick="switchTab('ai')" class="px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5 transition-all">
-          <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"></path></svg> هوش مصنوعی (AI)
+          <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"></path></svg> هوش مصنوعی گوگل
         </button>
       </div>
 
       <!-- فرم هوش مصنوعی -->
       <div id="ai-form" class="hidden space-y-4">
         <div class="relative">
-          <textarea id="ai-input" rows="3" placeholder="مثال: فردا ساعت ۵ عصر به مدیرم ایمیل بزنم (خیلی مهمه)" class="w-full input-premium rounded-2xl px-5 py-4 text-lg text-white placeholder-slate-500 resize-none"></textarea>
-          <div class="absolute bottom-4 left-4 flex gap-2">
-            <button class="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 transition-colors" title="دستیار صوتی (به زودی)"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg></button>
-          </div>
+          <textarea id="ai-input" rows="3" placeholder="مثال: پس‌فردا ساعت ۵ عصر حتماً قسط ماشین رو بدم (مالی و فوری)..." class="w-full input-premium rounded-2xl px-5 py-4 text-lg text-white placeholder-slate-500 resize-none"></textarea>
         </div>
-        <button onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-lg transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> استخراج و ثبت خودکار
+        <button id="ai-btn" onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> <span id="ai-btn-text">پردازش و استخراج خودکار</span>
         </button>
       </div>
 
@@ -118,13 +113,13 @@
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
         <input id="title" type="text" required placeholder="عنوان وظیفه..." class="w-full bg-transparent border-b border-white/10 focus:border-emerald-500 px-2 py-3 text-xl text-white placeholder-slate-600 focus:outline-none transition-colors font-bold" />
         
-        <!-- Smart Tags -->
         <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           <label class="text-xs self-center text-slate-400 ml-2">دسته‌بندی:</label>
-          <label class="cursor-pointer"><input type="radio" name="tag" value="💼 کاری" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-300 peer-checked:border-blue-500/50 text-slate-400 transition-all">💼 کاری</span></label>
-          <label class="cursor-pointer"><input type="radio" name="tag" value="🏠 شخصی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-300 peer-checked:border-orange-500/50 text-slate-400 transition-all">🏠 شخصی</span></label>
-          <label class="cursor-pointer"><input type="radio" name="tag" value="💳 مالی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300 peer-checked:border-emerald-500/50 text-slate-400 transition-all">💳 مالی</span></label>
-          <label class="cursor-pointer"><input type="radio" name="tag" value="📚 توسعه" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-300 peer-checked:border-purple-500/50 text-slate-400 transition-all">📚 توسعه</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="💼 کاری" checked class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-blue-500/20 peer-checked:text-blue-300 peer-checked:border-blue-500/50 text-slate-400 transition-all">💼 کاری</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="🏠 شخصی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-orange-500/20 peer-checked:text-orange-300 peer-checked:border-orange-500/50 text-slate-400 transition-all">🏠 شخصی</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="💳 مالی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300 peer-checked:border-emerald-500/50 text-slate-400 transition-all">💳 مالی</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="📚 توسعه" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-300 peer-checked:border-purple-500/50 text-slate-400 transition-all">📚 توسعه</span></label>
+          <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="🎯 عمومی" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-300 peer-checked:border-pink-500/50 text-slate-400 transition-all">🎯 عمومی</span></label>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -139,7 +134,6 @@
               <select id="j-minute" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
             </div>
           </div>
-          
           <select id="advance" class="w-full input-premium rounded-xl px-3 py-3 text-sm appearance-none text-slate-300">
             <option value="0" selected>بدون پیش‌هشدار</option><option value="1">۱ روز قبل</option><option value="3">۳ روز قبل</option>
           </select>
@@ -152,13 +146,13 @@
       </form>
     </div>
     
-    <!-- Smart Tags Filters -->
     <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide" id="filter-bar">
-      <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-white/20 text-white border border-white/20">همه وظایف</button>
-      <button onclick="setFilter('💼 کاری')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">💼 کاری</button>
-      <button onclick="setFilter('🏠 شخصی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">🏠 شخصی</button>
-      <button onclick="setFilter('💳 مالی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">💳 مالی</button>
-      <button onclick="setFilter('📚 توسعه')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10">📚 توسعه</button>
+      <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-white/20 text-white border border-white/20 flex-shrink-0 transition-colors">همه وظایف</button>
+      <button onclick="setFilter('💼 کاری')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">💼 کاری</button>
+      <button onclick="setFilter('🏠 شخصی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">🏠 شخصی</button>
+      <button onclick="setFilter('💳 مالی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">💳 مالی</button>
+      <button onclick="setFilter('📚 توسعه')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">📚 توسعه</button>
+      <button onclick="setFilter('🎯 عمومی')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-white/5 text-slate-400 border border-white/5 hover:bg-white/10 flex-shrink-0 transition-colors">🎯 عمومی</button>
     </div>
 
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
@@ -172,19 +166,12 @@
   </footer>
 
   <script>
-    // ---------------------------------------------------
-    // 1. PWA & Native Notifications
-    // ---------------------------------------------------
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
-    
     async function requestPushPermission() {
       if (!("Notification" in window)) return;
       if (Notification.permission !== "granted") await Notification.requestPermission();
     }
 
-    // ---------------------------------------------------
-    // 2. Offline-First Sync Engine (موتور همگام‌سازی آفلاین)
-    // ---------------------------------------------------
     let currentChatId = localStorage.getItem('user_chat_id');
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
@@ -207,31 +194,25 @@
 
     async function processSyncQueue() {
       if (offlineQueue.length === 0 || !navigator.onLine) {
-        // Fetch fresh data if queue is empty
         if (navigator.onLine && currentChatId) fetchRemindersFromServer();
         return;
       }
-      
       const item = offlineQueue[0];
       try {
         const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.body ? JSON.stringify(item.body) : null });
         if (res.ok) {
-          offlineQueue.shift(); // Remove successful item
+          offlineQueue.shift();
           localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue));
-          processSyncQueue(); // Process next
+          processSyncQueue(); 
         }
       } catch (e) { console.warn('Sync delayed:', e); }
     }
 
-    // ---------------------------------------------------
-    // 3. UI Logic & Gamification
-    // ---------------------------------------------------
     function updateGamification() {
       const total = currentData.length;
       const done = currentData.filter(r => r.completed).length;
       document.getElementById('tasks-total').innerText = total;
       document.getElementById('tasks-done').innerText = done;
-      
       const percent = total === 0 ? 0 : Math.round((done / total) * 100);
       document.getElementById('progress-bar').style.width = `${percent}%`;
 
@@ -247,7 +228,6 @@
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
-      
       updateGamification();
       localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
 
@@ -294,62 +274,36 @@
       renderList();
     }
 
-    // ---------------------------------------------------
-    // 4. Data Operations (Optimistic UI)
-    // ---------------------------------------------------
     function pushToQueue(method, payload) {
       offlineQueue.push({ method, body: payload, timestamp: Date.now() });
       localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue));
-      processSyncQueue(); // Try to sync immediately
+      processSyncQueue();
     }
 
     function saveReminder(e) {
       e.preventDefault();
       const targetDate = new Date(jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gy, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gm - 1, jalaali.toGregorian(parseInt(document.getElementById('j-year').value), parseInt(document.getElementById('j-month').value), parseInt(document.getElementById('j-day').value)).gd, parseInt(document.getElementById('j-hour').value), parseInt(document.getElementById('j-minute').value));
-      const tag = document.querySelector('input[name="tag"]:checked').value;
-
+      const tag = document.querySelector('input[name="tag"]:checked') ? document.querySelector('input[name="tag"]:checked').value : '🎯 عمومی';
       const payload = { action: 'add', id: Date.now(), title: document.getElementById('title').value, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: parseInt(document.getElementById('advance').value), tag: tag, desc: document.getElementById('desc').value, completed: false };
-      
-      currentData.push(payload);
-      renderList();
-      pushToQueue('POST', payload);
-      document.getElementById('manual-form').reset();
-      initDatePicker();
+      currentData.push(payload); renderList(); pushToQueue('POST', payload);
+      document.getElementById('manual-form').reset(); initDatePicker();
     }
 
-    function toggleCompleteLocally(id) {
-      const idx = currentData.findIndex(r => r.id === id);
-      if (idx > -1) {
-        currentData[idx].completed = !currentData[idx].completed;
-        renderList();
-        pushToQueue('POST', { action: 'complete', id });
-      }
-    }
-
-    function deleteLocally(id) {
-      currentData = currentData.filter(r => r.id !== id);
-      renderList();
-      pushToQueue('POST', { action: 'delete', id });
-    }
+    function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
+    function deleteLocally(id) { currentData = currentData.filter(r => r.id !== id); renderList(); pushToQueue('POST', { action: 'delete', id }); }
 
     async function fetchRemindersFromServer() {
       try {
         const res = await fetch(`/api/reminders?chat_id=${currentChatId}`);
         const data = await res.json();
-        if (Array.isArray(data)) {
-          currentData = data;
-          renderList();
-        }
+        if (Array.isArray(data)) { currentData = data; renderList(); }
       } catch (e) { console.log('Offline mode active'); }
     }
 
-    // ---------------------------------------------------
-    // 5. Interactive Onboarding Tour
-    // ---------------------------------------------------
     const tourSteps = [
-      { title: "خوش آمدید! 👋", text: "به سیستم مدیریت زمان Nirvana خوش آمدید. ما اینجا هستیم تا هیچ کاری را فراموش نکنید.", btn: "مرحله بعد" },
-      { title: "🤖 ربات تلگرام", text: "برای دریافت نوتیفیکیشن‌ها، ابتدا در تلگرام ربات <b>@userinfobot</b> را استارت بزنید تا یک شناسه عددی (Id) به شما بدهد.", btn: "فهمیدم، مرحله بعد" },
-      { title: "🔒 ورود امن", text: "آن شناسه عددی را در کادر صفحه بعد وارد کنید تا وارد سیستم شوید. هیچکس جز شما به اطلاعاتتان دسترسی نخواهد داشت.", btn: "شروع کار با سیستم" }
+      { title: "خوش آمدید! 👋", text: "به سیستم هوشمند Nirvana خوش آمدید. با این پلتفرم دیگر هیچ کار مهمی را فراموش نخواهید کرد.", btn: "مرحله بعد" },
+      { title: "🤖 ربات تلگرام شخصی", text: "ما یادآورها را به تلگرام شما می‌فرستیم. در تلگرام ربات <b>@userinfobot</b> را استارت بزنید تا یک <b>شناسه عددی (Id)</b> بگیرید.", btn: "شناسه را گرفتم" },
+      { title: "🔒 اتصال ایمن", text: "شناسه را وارد کنید تا سیستم به صورت امن با تلگرام شما سینک شود.", btn: "شروع کار با سیستم" }
     ];
     let currentStep = 0;
 
@@ -369,7 +323,7 @@
           <span class="text-xs bg-white/10 px-2 py-1 rounded text-slate-400">${currentStep + 1} از 3</span>
         </div>
         <p class="text-slate-300 leading-relaxed mb-8">${step.text}</p>
-        <button onclick="nextTourStep()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl">${step.btn}</button>
+        <button onclick="nextTourStep()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl hover:bg-emerald-400 transition-colors">${step.btn}</button>
       `;
     }
 
@@ -379,27 +333,58 @@
         document.getElementById('tour-modal').classList.add('opacity-0');
         setTimeout(() => document.getElementById('tour-modal').classList.add('hidden'), 300);
         localStorage.setItem('tour_done', 'true');
-        requestPushPermission(); // درخواست نوتیفیکیشن بومی در پایان تور
+        requestPushPermission(); 
       } else { showTourStep(); }
     }
 
-    // ---------------------------------------------------
-    // 6. AI NLP Foundation
-    // ---------------------------------------------------
     function switchTab(tab) {
       if(tab === 'ai') { document.getElementById('manual-form').classList.add('hidden'); document.getElementById('ai-form').classList.remove('hidden'); document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow flex items-center gap-1.5"; document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white"; }
       else { document.getElementById('ai-form').classList.add('hidden'); document.getElementById('manual-form').classList.remove('hidden'); document.getElementById('tab-manual').className = "px-4 py-2 text-sm font-bold rounded-lg bg-white/10 text-white shadow"; document.getElementById('tab-ai').className = "px-4 py-2 text-sm font-bold rounded-lg text-slate-400 hover:text-white flex items-center gap-1.5"; }
     }
 
-    function processAI() {
-      const text = document.getElementById('ai-input').value;
+    async function processAI() {
+      const text = document.getElementById('ai-input').value.trim();
       if (!text) return alert('لطفاً متن وظیفه را بنویسید.');
-      alert('این بخش آماده اتصال به API هوش مصنوعی (مانند OpenRouter) است. به محض ارسال API توسط شما، این بخش متن را پردازش کرده و مستقیماً وارد دیتابیس می‌کند.');
+
+      const btnText = document.getElementById('ai-btn-text');
+      const aiBtn = document.getElementById('ai-btn');
+      btnText.innerText = 'درحال تحلیل با موتور گوگل...';
+      aiBtn.disabled = true;
+
+      const now = new Date(); const jNow = jalaali.toJalaali(now);
+      const prompt = `شما یک دستیار هوشمند مدیریت زمان هستید. تاریخ امروز: ${jNow.jy}/${jNow.jm}/${jNow.jd} و ساعت فعلی: ${now.getHours()}:${now.getMinutes()} است.
+      متن کاربر: "${text}"
+      فقط و فقط یک آبجکت JSON معتبر برگردان بدون هیچ کلمه اضافه یا فرمت مارک‌داون (بدون تگ‌های \`\`\`json). ساختار:
+      {
+        "title": "عنوان کار", "jy": ${jNow.jy}, "jm": ${jNow.jm}, "jd": ${jNow.jd}, "h": 12, "m": 0, "priority": "medium", "tag": "🎯 عمومی", "desc": ""
+      }`;
+
+      try {
+        let response = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
+        let data = await response.json();
+        
+        if (data.error) throw new Error(data.error);
+
+        // فرمت پاسخ مختص Google Gemini
+        let aiResult = data.candidates[0].content.parts[0].text;
+        aiResult = aiResult.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(aiResult);
+
+        const gregorian = jalaali.toGregorian(parsed.jy, parsed.jm, parsed.jd);
+        const targetDate = new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, parsed.h || 0, parsed.m || 0);
+
+        const payload = { action: 'add', id: Date.now(), title: parsed.title, datetime: targetDate.toISOString(), priority: parsed.priority || 'medium', advanceNotice: 0, tag: parsed.tag || '🎯 عمومی', desc: parsed.desc || '', completed: false };
+
+        currentData.push(payload); renderList(); pushToQueue('POST', payload);
+        document.getElementById('ai-input').value = ''; switchTab('manual');
+
+      } catch (error) {
+        console.error("AI Error:", error); alert('خطا در ارتباط با هوش مصنوعی گوگل. از ثبت دستی استفاده کنید.');
+      } finally {
+        btnText.innerText = 'پردازش و استخراج خودکار'; aiBtn.disabled = false;
+      }
     }
 
-    // ---------------------------------------------------
-    // Init
-    // ---------------------------------------------------
     const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
     function initDatePicker(d = new Date()) {
       const j = jalaali.toJalaali(d);
@@ -419,15 +404,15 @@
 
     function login() { const input = document.getElementById('chat-id-input').value.trim(); if (!input) return alert('شناسه را وارد کنید'); localStorage.setItem('user_chat_id', input); window.location.reload(); }
     function logout() { localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
+    function cancelEdit() { document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
 
-    // بررسی دوره‌ای برای ارسال نوتیفیکیشن بومی روی سیستم
     setInterval(() => {
-      if (Notification.permission !== "granted") return;
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
       const now = new Date().getTime();
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
         if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ یادآور Nirvana", { body: r.title, icon: "/icon.png" });
+          new Notification("⏰ یادآور Nirvana", { body: r.title, icon: "https://cdn-icons-png.flaticon.com/512/819/819865.png" });
           r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
         }
       });
