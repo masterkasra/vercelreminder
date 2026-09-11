@@ -20,25 +20,17 @@
     .glass-panel { transition: all 0.4s ease; }
     .dark .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
     .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
-    
     .dark .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; }
     .input-premium { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1); color: #0f172a; transition: all 0.3s ease; }
     .input-premium:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); outline: none; }
-    
     .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; border: none; }
     @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-    
-    ::-webkit-scrollbar { width: 5px; } 
-    ::-webkit-scrollbar-track { background: transparent; } 
-    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .mic-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
     @keyframes pulse-red { to { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
-
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .calendar-day { padding: 8px; min-height: 80px; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
     .dark .calendar-day { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
@@ -72,11 +64,7 @@
     </div>
   </div>
 
-  <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
-  </div>
-
-  <!-- AUTHENTICATION SCREEN (Login & Register) -->
+  <!-- AUTHENTICATION SCREEN -->
   <div id="auth-screen" class="w-full max-w-md mt-16 p-6 hidden">
     <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] relative overflow-hidden group">
       <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
@@ -136,14 +124,13 @@
         <select id="lang-select" onchange="changeLanguage(this.value)" class="glass-panel text-xs rounded-xl px-3 py-2.5 outline-none font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
           <option value="fa">🇮🇷 فا</option><option value="en">🇬🇧 EN</option><option value="de">🇩🇪 DE</option>
         </select>
-        <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Toggle Theme">
           <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
         <button onclick="logout()" class="p-2.5 rounded-xl glass-panel hover:bg-rose-500/10 text-rose-500 transition-all" title="Logout"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
       </div>
     </header>
 
-    <!-- Gamification & Analytics Export -->
     <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 relative">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
@@ -163,14 +150,12 @@
           <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
         </div>
       </div>
-      <!-- دکمه خروجی PDF گزارش -->
       <button onclick="exportAnalyticsPDF()" class="absolute top-4 left-4 sm:relative sm:top-0 sm:left-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20" title="PDF Export">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         <span class="hidden sm:inline" data-i18n="export_pdf">دانلود گزارش</span>
       </button>
     </div>
 
-    <!-- Creation Panel -->
     <div id="creation-panel" class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
       <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors z-20" data-i18n="cancel_edit">لغو ویرایش ✖</button>
       
@@ -181,7 +166,6 @@
         </button>
       </div>
 
-      <!-- AI Form with VOICE -->
       <div id="ai-form" class="hidden space-y-4">
         <div class="relative flex flex-col md:flex-row gap-4 items-stretch">
           <textarea id="ai-input" rows="3" class="w-full input-premium rounded-2xl px-5 py-4 text-lg resize-none flex-grow" data-placeholder="ai_placeholder" placeholder="مثال: فردا عصر به مدیرم ایمیل بزنم..."></textarea>
@@ -201,7 +185,6 @@
         </button>
       </div>
 
-      <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
         <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold text-slate-800 dark:text-white" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
@@ -262,7 +245,6 @@
           <ul id="temp-subtasks-list" class="space-y-1 text-sm text-slate-600 dark:text-slate-300 pl-2"></ul>
         </div>
 
-        <!-- پیوست فایل -->
         <div class="flex items-center gap-4">
           <textarea id="desc" rows="1" class="flex-grow input-premium rounded-xl px-4 py-3 text-sm resize-none" data-placeholder="desc_placeholder" placeholder="توضیحات تکمیلی..."></textarea>
           <input type="file" id="file-input" class="hidden" onchange="handleFile(event)" accept="image/*,application/pdf">
@@ -285,20 +267,14 @@
       <button onclick="setFilter('general')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_general">🎯 عمومی</button>
     </div>
 
-    <!-- The List View -->
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
 
-    <!-- The Calendar View -->
     <div id="calendar-view" class="hidden pb-12">
       <div class="glass-panel p-6 rounded-3xl">
         <div class="flex justify-between items-center mb-6">
-          <button onclick="changeCalMonth(-1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-          </button>
+          <button onclick="changeCalMonth(-1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
           <h2 id="cal-month-title" class="text-xl font-bold text-center text-slate-800 dark:text-white"></h2>
-          <button onclick="changeCalMonth(1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-          </button>
+          <button onclick="changeCalMonth(1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
         </div>
         <div id="cal-headers" class="calendar-grid text-center text-xs font-bold text-slate-500 dark:text-slate-400 mb-2"></div>
         <div id="cal-grid" class="calendar-grid"></div>
@@ -321,14 +297,14 @@
         login_title: "ورود امن", login_desc: "ایمیل و رمز عبور خود را وارد کنید.", login_btn: "ورود به سیستم",
         prod_level: "سطح بهره‌وری", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
         cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی", btn_mic: "صحبت کنید",
-        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل با گوگل...",
+        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل...",
         title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
         lbl_date: "تاریخ سررسید:", lbl_time: "ساعت:", adv_lbl: "هشدار:", adv_days: "روز قبل",
         subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...", e2e_label: "🔒 رمز E2EE",
         tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
         pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴", rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
-        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "Google Cal", export_pdf: "دانلود گزارش",
+        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "تقویم گوگل", export_pdf: "دانلود گزارش",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
         footer_made: "طراحی با", footer_by: "توسط", months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
@@ -344,7 +320,7 @@
         tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
         pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴", rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
-        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export PDF",
+        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export Report",
         view_list: "List", view_cal: "Calendar", pomo_title: "Focus Timer", pomo_start: "Start", pomo_reset: "Stop", pomo_custom_mins: "Time (mins):",
         footer_made: "Crafted with", footer_by: "by", months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
@@ -419,17 +395,23 @@
         localStorage.setItem('nirvana_user', JSON.stringify(data.user)); localStorage.setItem('user_chat_id', data.user.chatId); window.location.reload();
       } catch (err) { document.getElementById('auth-loading').classList.add('hidden'); alert("Server Error."); }
     }
-    function logout() { localStorage.removeItem('nirvana_user'); localStorage.removeItem('user_chat_id'); localStorage.removeItem('nirvana_tasks_cache'); window.location.reload(); }
+    
+    function logout() { 
+        localStorage.removeItem('nirvana_user'); 
+        localStorage.removeItem('user_chat_id'); 
+        localStorage.removeItem('nirvana_tasks_cache'); 
+        localStorage.removeItem('nirvana_sync_queue');
+        window.location.reload(); 
+    }
 
     function handleFile(e) {
       const file = e.target.files[0]; if(!file) return;
-      if(file.size > 2 * 1024 * 1024) return alert("حجم فایل نباید بیشتر از 2 مگابایت باشد.");
+      if(file.size > 1 * 1024 * 1024) return alert("به دلیل محدودیت دیتابیس رایگان، حجم فایل نباید بیشتر از 1 مگابایت باشد.");
       const reader = new FileReader();
       reader.onload = (ev) => { tempAttachment = { name: file.name, type: file.type, data: ev.target.result }; const disp = document.getElementById('file-name-display'); disp.innerText = `📎 ${file.name}`; disp.classList.remove('hidden'); };
       reader.readAsDataURL(file);
     }
 
-    // --- 3. EXPORT ANALYTICS PDF ---
     function exportAnalyticsPDF() {
       const total = currentData.length; const done = currentData.filter(r=>r.completed).length; const pending = total - done;
       const element = document.createElement('div');
@@ -446,7 +428,7 @@
       html2pdf().set({ margin: 0.5, filename: 'Nirvana_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(element).save();
     }
 
-    // --- 4. SUBTASKS & POMODORO & GCAL ---
+    // --- 3. SUBTASKS & POMODORO & GCAL ---
     function addTempSubtask() { const input = document.getElementById('subtask-input'); if (!input.value.trim()) return; tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderTempSubtasks(); }
     function renderTempSubtasks() { const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = ''; tempSubtasks.forEach((st, i) => { ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${st.text}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`; }); }
     function removeTempSubtask(idx) { tempSubtasks.splice(idx, 1); renderTempSubtasks(); }
@@ -467,7 +449,7 @@
       window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${fmt(d1)}/${fmt(d2)}&details=${encodeURIComponent(desc)}`, '_blank');
     }
 
-    // --- 5. CALENDAR VIEW ---
+    // --- 4. CALENDAR VIEW ---
     function switchView(view) {
       const listBtn = document.getElementById('view-list-btn'); const calBtn = document.getElementById('view-cal-btn');
       const listPanel = document.getElementById('reminders-list'); const calPanel = document.getElementById('calendar-view');
@@ -494,8 +476,9 @@
       }
     }
 
-    // --- 6. CORE CRUD ---
+    // --- 5. CORE CRUD & RENDER ---
     function updateGamification() { const total = currentData.length; const done = currentData.filter(r => r.completed).length; document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done; const percent = total === 0 ? 0 : Math.round((done / total) * 100); document.getElementById('progress-bar').style.width = `${percent}%`; let titleKey = "level_start", emoji = "🌱"; if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; } else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; } else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; } document.getElementById('level-title').innerText = t(titleKey); document.getElementById('level-emoji').innerText = emoji; }
+    
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
@@ -510,7 +493,6 @@
         const displayDesc = r.isEncrypted ? decryptText(r.desc) : (r.desc || '');
         
         let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span></li>`; }); subtasksHTML += '</ul>'; }
-        
         let attachHTML = ''; if (r.attachment) { attachHTML = `<a href="${r.attachment.data}" download="${r.attachment.name}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${r.attachment.name}</a>`; }
 
         container.innerHTML += `
@@ -566,12 +548,10 @@
       const tagRadio = document.querySelector(`input[name="tag"][value="${r.tag}"]`); if(tagRadio) tagRadio.checked = true;
       initDatePicker(new Date(r.datetime)); renderTempSubtasks(); document.getElementById('submit-btn').innerText = t('save_btn'); document.getElementById('cancel-edit-btn').classList.remove('hidden'); switchTab('manual'); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function cancelEdit() { editingId = null; tempSubtasks = []; tempAttachment = null; renderTempSubtasks(); document.getElementById('file-name-display').classList.add('hidden'); document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('advance').value = 0; document.getElementById('submit-btn').innerText = t('submit_btn'); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
     function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
     function deleteLocally(id) { currentData = currentData.filter(r => r.id !== id); renderList(); pushToQueue('POST', { action: 'delete', id }); }
-    async function fetchRemindersFromServer() { try { const res = await fetch(`/api/reminders?chat_id=${currentChatId}`); const data = await res.json(); if (Array.isArray(data)) { currentData = data; renderList(); } } catch (e) { } }
-
+    
     function initDatePicker(d = new Date()) {
       let y, m, day, h = d.getHours(), min = d.getMinutes(); let yearOptions = '', monthOptions = '', dayOptions = '', hOptions = '', mOptions = '';
       if (currentLang === 'fa') { const j = jalaali.toJalaali(d); y = j.jy; m = j.jm; day = j.jd; yearOptions = Array.from({length: 10}, (_, i) => `<option value="${y - 2 + i}" ${i===2 ? 'selected' : ''}>${y - 2 + i}</option>`).join(''); } 
@@ -582,7 +562,7 @@
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
 
-    // --- 7. AI & VOICE (FIXED AI PROMPT) ---
+    // --- 6. AI & VOICE ---
     let recognition;
     function startVoiceRecognition() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return alert('Voice recognition not supported.');
@@ -604,17 +584,15 @@
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
       document.getElementById('ai-btn').disabled = true; const now = new Date(); const jNow = jalaali.toJalaali(now);
       
-      const prompt = `Extract reminder details. Return ONLY a valid JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
+      const prompt = `Extract reminder details. Return ONLY a raw JSON object. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
       Input: "${text}"
-      Format exactly like this (nothing else):
-      {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
+      Format exactly like this: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
       
       try {
         let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await res.json();
-        let aiResult = data.candidates[0].content.parts[0].text;
         
-        // Robust JSON parser to fix AI Error
+        let aiResult = data.candidates[0].content.parts[0].text;
         const startIndex = aiResult.indexOf('{'); const endIndex = aiResult.lastIndexOf('}');
         if (startIndex === -1 || endIndex === -1) throw new Error("No JSON found");
         aiResult = aiResult.substring(startIndex, endIndex + 1);
@@ -630,12 +608,12 @@
       } catch (e) { alert('AI Parse Error. Please try manual entry.'); } finally { document.getElementById('ai-btn').disabled = false; }
     }
 
-    // --- 8. BOOT & SYNC ---
+    // --- 7. BOOT & SYNC ---
     initSettings();
     if (currentUser || currentChatId) { 
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
       if(currentUser && currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
-      renderList(); updateConnectionStatus(); processSyncQueue();
+      fetchRemindersFromServer(); updateConnectionStatus(); 
     } else { document.getElementById('auth-screen').classList.remove('hidden'); }
 
     function updateConnectionStatus() {
@@ -645,16 +623,39 @@
     }
     window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus);
 
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
-    async function requestPushPermission() { if (("Notification" in window) && Notification.permission !== "granted") await Notification.requestPermission(); }
+    async function processSyncQueue() {
+      if (offlineQueue.length === 0 || !navigator.onLine) return;
+      const item = offlineQueue[0];
+      try { 
+        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.body ? JSON.stringify(item.body) : null }); 
+        if (res.ok) { offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
+        else { offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
+      } catch (e) {}
+    }
 
+    async function fetchRemindersFromServer() { 
+      try { 
+        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`); 
+        const data = await res.json(); 
+        if (Array.isArray(data)) { 
+          const offlineIds = offlineQueue.map(q => q.body && q.body.id);
+          const serverData = data.filter(d => !offlineIds.includes(d.id));
+          const localUnsynced = currentData.filter(d => offlineIds.includes(d.id));
+          currentData = [...serverData, ...localUnsynced];
+          renderList(); 
+          if (!document.getElementById('calendar-view').classList.contains('hidden')) renderCalendar();
+        } 
+      } catch (e) { } 
+    }
+
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
     setInterval(() => {
       if (!("Notification" in window) || Notification.permission !== "granted") return;
       const now = new Date().getTime();
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
         if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ Nirvana", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+          new Notification("⏰ Nirvana Reminder", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
         }
       });
     }, 30000);
