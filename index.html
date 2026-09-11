@@ -20,17 +20,25 @@
     .glass-panel { transition: all 0.4s ease; }
     .dark .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
     .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+    
     .dark .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; }
     .input-premium { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1); color: #0f172a; transition: all 0.3s ease; }
     .input-premium:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); outline: none; }
+    
     .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; border: none; }
     @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    
+    ::-webkit-scrollbar { width: 5px; } 
+    ::-webkit-scrollbar-track { background: transparent; } 
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
     .mic-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
     @keyframes pulse-red { to { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
+
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .calendar-day { padding: 8px; min-height: 80px; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
     .dark .calendar-day { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
@@ -62,6 +70,11 @@
         <button onclick="resetPomo()" class="bg-slate-200 dark:bg-white/10 text-slate-800 dark:text-white px-6 py-3 rounded-xl font-bold flex-1 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors" data-i18n="pomo_reset">توقف</button>
       </div>
     </div>
+  </div>
+
+  <!-- Tour Modal -->
+  <div id="tour-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
   <!-- AUTHENTICATION SCREEN -->
@@ -131,6 +144,7 @@
       </div>
     </header>
 
+    <!-- Productivity Gamification -->
     <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 relative">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
@@ -156,6 +170,7 @@
       </button>
     </div>
 
+    <!-- Creation Panel -->
     <div id="creation-panel" class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
       <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors z-20" data-i18n="cancel_edit">لغو ویرایش ✖</button>
       
@@ -166,6 +181,7 @@
         </button>
       </div>
 
+      <!-- AI Form -->
       <div id="ai-form" class="hidden space-y-4">
         <div class="relative flex flex-col md:flex-row gap-4 items-stretch">
           <textarea id="ai-input" rows="3" class="w-full input-premium rounded-2xl px-5 py-4 text-lg resize-none flex-grow" data-placeholder="ai_placeholder" placeholder="مثال: فردا عصر به مدیرم ایمیل بزنم..."></textarea>
@@ -185,6 +201,7 @@
         </button>
       </div>
 
+      <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
         <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold text-slate-800 dark:text-white" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
@@ -272,9 +289,13 @@
     <div id="calendar-view" class="hidden pb-12">
       <div class="glass-panel p-6 rounded-3xl">
         <div class="flex justify-between items-center mb-6">
-          <button onclick="changeCalMonth(-1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+          <button onclick="changeCalMonth(-1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
           <h2 id="cal-month-title" class="text-xl font-bold text-center text-slate-800 dark:text-white"></h2>
-          <button onclick="changeCalMonth(1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+          <button onclick="changeCalMonth(1)" class="p-2 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
         </div>
         <div id="cal-headers" class="calendar-grid text-center text-xs font-bold text-slate-500 dark:text-slate-400 mb-2"></div>
         <div id="cal-grid" class="calendar-grid"></div>
@@ -304,7 +325,7 @@
         tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
         pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴", rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
-        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "تقویم گوگل", export_pdf: "دانلود گزارش",
+        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر تمرکز", btn_gcal: "تقویم گوگل", export_pdf: "دانلود گزارش",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
         footer_made: "طراحی با", footer_by: "توسط", months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
@@ -453,8 +474,9 @@
     function switchView(view) {
       const listBtn = document.getElementById('view-list-btn'); const calBtn = document.getElementById('view-cal-btn');
       const listPanel = document.getElementById('reminders-list'); const calPanel = document.getElementById('calendar-view');
-      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
-      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); }
+      const formPanel = document.getElementById('creation-panel'); const filterBar = document.getElementById('filter-bar');
+      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); filterBar.classList.add('hidden'); formPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
+      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); filterBar.classList.remove('hidden'); formPanel.classList.remove('hidden'); }
     }
 
     let currentCalMonth = new Date();
@@ -562,7 +584,7 @@
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
 
-    // --- 6. AI & VOICE ---
+    // --- 6. AI & VOICE (ULTRA ROBUST PARSER) ---
     let recognition;
     function startVoiceRecognition() {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return alert('Voice recognition not supported.');
@@ -582,19 +604,35 @@
 
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
-      document.getElementById('ai-btn').disabled = true; const now = new Date(); const jNow = jalaali.toJalaali(now);
+      const btnText = document.getElementById('ai-btn-text'); const aiBtn = document.getElementById('ai-btn');
+      btnText.innerText = t('ai_loading'); aiBtn.disabled = true;
+      const now = new Date(); const jNow = jalaali.toJalaali(now);
       
-      const prompt = `Extract reminder details. Return ONLY a raw JSON object. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
-      Input: "${text}"
-      Format exactly like this: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
+      const prompt = `You are a strict data extractor. Today's Date -> Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
+      User Input: "${text}"
+      Return ONLY a pure JSON object. NO markdown, NO text outside JSON.
+      Format MUST match exactly:
+      {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
       
       try {
         let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await res.json();
         
+        if (data.error) {
+            console.error("API Error:", data.error);
+            alert("خطای سرور گوگل: " + (data.error.message || "لطفاً API Key خود را در ورسل بررسی کنید."));
+            return;
+        }
+
+        if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts[0]) {
+            throw new Error("پاسخ نامعتبر از گوگل جمنای");
+        }
+
         let aiResult = data.candidates[0].content.parts[0].text;
+        
+        // Anti-crash JSON extractor
         const startIndex = aiResult.indexOf('{'); const endIndex = aiResult.lastIndexOf('}');
-        if (startIndex === -1 || endIndex === -1) throw new Error("No JSON found");
+        if (startIndex === -1 || endIndex === -1) throw new Error("متن دریافتی قابلیت تبدیل به زمان را نداشت.");
         aiResult = aiResult.substring(startIndex, endIndex + 1);
         
         const p = JSON.parse(aiResult);
@@ -605,7 +643,12 @@
 
         const payload = { action: 'add', id: Date.now(), title: finalTitle, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', isEncrypted: isEnc, attachment: null, completed: false };
         currentData.push(payload); renderList(); pushToQueue('POST', payload); document.getElementById('ai-input').value = ''; switchTab('manual');
-      } catch (e) { alert('AI Parse Error. Please try manual entry.'); } finally { document.getElementById('ai-btn').disabled = false; }
+      } catch (e) { 
+        console.error(e); 
+        alert('در درک متن شما مشکلی پیش آمد. لطفاً به صورت دستی ثبت کنید.'); 
+      } finally { 
+        btnText.innerText = t('ai_btn'); aiBtn.disabled = false; 
+      }
     }
 
     // --- 7. BOOT & SYNC ---
@@ -655,7 +698,7 @@
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
         if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ Nirvana Reminder", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+          new Notification("⏰ Nirvana", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
         }
       });
     }, 30000);
