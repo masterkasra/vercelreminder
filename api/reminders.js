@@ -5,10 +5,15 @@ client.on('error', err => console.error('Redis Error:', err));
 
 export default async function handler(req, res) {
   try {
-    if (!client.isOpen) await client.connect();
+    if (!client.isOpen) {
+      await client.connect();
+    }
     
     const { chat_id } = req.query;
-    if (!chat_id) return res.status(400).json({ error: 'Chat ID is required' });
+    // مسدود کردن درخواست‌های بدون شناسه
+    if (!chat_id || chat_id === 'undefined' || chat_id === 'null') {
+      return res.status(400).json({ error: 'شناسه معتبر نیست' });
+    }
 
     const key = `reminders:${chat_id}`;
 
@@ -44,7 +49,8 @@ export default async function handler(req, res) {
         }
       } else {
         reminders.push({ 
-          id: Date.now(), title, datetime, priority, desc, 
+          id: id || Date.now(), // 🌟 رفع باگ حیاتی: استفاده از شناسه مرورگر
+          title, datetime, priority, desc, 
           advanceNotice: advanceNotice || 0,
           recurring: recurring || 'none',
           tag: tag || 'general',
