@@ -11,18 +11,18 @@
   <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
   
-  <!-- کتابخانه‌های سیستم -->
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
     body { font-family: 'Vazirmatn', system-ui, sans-serif; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
-    .glass-panel { transition: all 0.4s ease; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+    .glass-panel { transition: all 0.4s ease; }
     .dark .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
     
-    .input-premium { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1); color: #0f172a; transition: all 0.3s ease; }
     .dark .input-premium { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.05); color: #fff; }
+    .input-premium { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(0,0,0,0.1); color: #0f172a; transition: all 0.3s ease; }
     .input-premium:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); outline: none; }
     
     .btn-ai { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); background-size: 200% 200%; animation: gradientShift 5s ease infinite; border: none; }
@@ -31,16 +31,20 @@
     .animate-heartbeat { display: inline-block; animation: heartbeat 1.2s ease-in-out infinite; }
     .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } 
-    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar { width: 5px; } 
+    ::-webkit-scrollbar-track { background: transparent; } 
+    .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
     .mic-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite cubic-bezier(0.66, 0, 0, 1); }
     @keyframes pulse-red { to { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .calendar-day { padding: 8px; min-height: 80px; border-radius: 12px; transition: all 0.2s; cursor: pointer; background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
+    .calendar-day { padding: 8px; min-height: 80px; border-radius: 12px; transition: all 0.2s; cursor: pointer; }
     .dark .calendar-day { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+    .calendar-day { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
     .calendar-day:hover { transform: scale(1.02); }
+    .dark .calendar-day.active-day { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); }
     .calendar-day.active-day { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); }
   </style>
 </head>
@@ -51,15 +55,13 @@
   <!-- Pomodoro Modal -->
   <div id="pomo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
     <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center relative">
-      <button onclick="closePomo()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white text-xl">✖</button>
+      <button onclick="closePomo()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 dark:hover:text-white">✖</button>
       <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-500 mb-2" data-i18n="pomo_title">تایمر تمرکز</h3>
       <p id="pomo-task-name" class="text-sm text-slate-500 dark:text-slate-400 mb-4 truncate"></p>
-      
       <div class="flex justify-center items-center gap-2 mb-4">
         <label class="text-xs font-bold text-slate-500 dark:text-slate-400" data-i18n="pomo_custom_mins">زمان (دقیقه):</label>
         <input type="number" id="pomo-custom-time" value="25" min="1" max="120" onchange="updatePomoDisplayFromInput()" class="w-16 text-center input-premium rounded-lg px-2 py-1 font-bold text-emerald-500" />
       </div>
-
       <div class="relative w-48 h-48 mx-auto mb-8 flex items-center justify-center rounded-full border-4 border-emerald-500/20 bg-emerald-500/5 shadow-[0_0_40px_rgba(16,185,129,0.1)]">
         <span id="pomo-timer-display" class="text-5xl font-mono font-bold text-slate-800 dark:text-white tracking-widest">25:00</span>
       </div>
@@ -74,7 +76,7 @@
     <div class="glass-panel p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300" id="tour-content"></div>
   </div>
 
-  <!-- AUTHENTICATION SCREEN -->
+  <!-- AUTHENTICATION SCREEN (Login & Register) -->
   <div id="auth-screen" class="w-full max-w-md mt-16 p-6 hidden">
     <div class="glass-panel p-8 sm:p-10 rounded-[2.5rem] relative overflow-hidden group">
       <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
@@ -86,7 +88,7 @@
         <button id="auth-reg-tab" onclick="switchAuthTab('register')" class="flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all">ایجاد حساب</button>
       </div>
 
-      <div id="auth-loading" class="hidden text-center text-emerald-500 text-sm font-bold animate-pulse mb-4">در حال پردازش سیستم...</div>
+      <div id="auth-loading" class="hidden text-center text-emerald-500 text-sm font-bold animate-pulse mb-4">در حال پردازش...</div>
 
       <form id="login-form" onsubmit="handleAuth(event, 'login')" class="space-y-4">
         <input type="email" id="login-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
@@ -95,19 +97,13 @@
       </form>
 
       <form id="register-form" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
-        <div class="flex gap-2">
-          <input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-          <input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-        </div>
+        <div class="flex gap-2"><input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <input type="email" id="reg-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
-        <input type="password" id="reg-password" required placeholder="رمز عبور قوی" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <input type="password" id="reg-password" required placeholder="رمز عبور (کلید مخفی شما)" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
         <input type="tel" id="reg-phone" placeholder="شماره تماس" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
-        <div class="flex gap-2">
-          <input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-          <input type="text" id="reg-country" placeholder="کشور" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" />
-        </div>
+        <div class="flex gap-2"><input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-country" placeholder="کشور" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-2">
-          <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID) جهت نوتیفیکیشن:</label>
+          <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID):</label>
           <input type="number" id="reg-chatid" required placeholder="مثال: 123456789" class="w-full input-premium rounded-lg px-3 py-2 text-sm" />
         </div>
         <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:bg-emerald-400 hover:-translate-y-1 transition-all">ثبت‌نام و ورود</button>
@@ -124,9 +120,7 @@
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
         </div>
         <div>
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-white">
-            <span data-i18n="app_title">یادآور ابری هوشمند</span> <span id="welcome-name" class="text-emerald-500 text-lg ml-1 font-black"></span>
-          </h1>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-white"><span data-i18n="app_title">یادآور ابری هوشمند</span> <span id="welcome-name" class="text-emerald-500 text-lg ml-2"></span></h1>
           <div class="flex items-center gap-2 mt-1" id="sync-status">
             <span class="flex w-2 h-2 bg-emerald-500 rounded-full animate-pulse" id="sync-dot"></span>
             <span class="text-xs font-medium text-slate-500 dark:text-slate-400" id="sync-text" data-i18n="sync_online">متصل و همگام</span>
@@ -149,7 +143,7 @@
       </div>
     </header>
 
-    <!-- Analytics Dashboard & PDF Export -->
+    <!-- Gamification & Analytics Export -->
     <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 relative">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
@@ -169,13 +163,14 @@
           <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
         </div>
       </div>
-      <button onclick="exportAnalyticsPDF()" class="absolute top-4 left-4 sm:relative sm:top-0 sm:left-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20">
+      <!-- دکمه خروجی PDF گزارش -->
+      <button onclick="exportAnalyticsPDF()" class="absolute top-4 left-4 sm:relative sm:top-0 sm:left-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20" title="PDF Export">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         <span class="hidden sm:inline" data-i18n="export_pdf">دانلود گزارش</span>
       </button>
     </div>
 
-    <!-- Task Creation / Editing Panel -->
+    <!-- Creation Panel -->
     <div id="creation-panel" class="glass-panel rounded-[2rem] p-6 sm:p-8 mb-8 relative z-10">
       <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden absolute top-6 left-6 text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition-colors z-20" data-i18n="cancel_edit">لغو ویرایش ✖</button>
       
@@ -186,11 +181,11 @@
         </button>
       </div>
 
-      <!-- AI Form with Working Voice Input -->
+      <!-- AI Form with VOICE -->
       <div id="ai-form" class="hidden space-y-4">
         <div class="relative flex flex-col md:flex-row gap-4 items-stretch">
           <textarea id="ai-input" rows="3" class="w-full input-premium rounded-2xl px-5 py-4 text-lg resize-none flex-grow" data-placeholder="ai_placeholder" placeholder="مثال: فردا عصر به مدیرم ایمیل بزنم..."></textarea>
-          <button type="button" id="mic-btn" onclick="startVoiceRecognition()" class="flex md:flex-col justify-center items-center gap-2 px-6 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 rounded-2xl transition-all text-slate-600 dark:text-slate-300 font-bold">
+          <button id="mic-btn" onclick="startVoiceRecognition()" class="flex md:flex-col justify-center items-center gap-2 px-6 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 rounded-2xl transition-all text-slate-600 dark:text-slate-300 font-bold">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
             <span id="mic-text" class="text-sm" data-i18n="btn_mic">صحبت کنید</span>
           </button>
@@ -201,12 +196,12 @@
           <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" data-i18n="e2e_label">🔒 رمز E2EE</span>
         </label>
 
-        <button type="button" id="ai-btn" onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
+        <button id="ai-btn" onclick="processAI()" class="w-full btn-ai text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-transform hover:scale-[1.01] flex justify-center items-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> <span id="ai-btn-text" data-i18n="ai_btn">پردازش با هوش مصنوعی</span>
         </button>
       </div>
 
-      <!-- Manual Form (With Everything) -->
+      <!-- Manual Form -->
       <form id="manual-form" onsubmit="saveReminder(event)" class="space-y-5">
         <input id="title" type="text" required class="w-full bg-transparent border-b border-black/10 dark:border-white/10 focus:border-emerald-500 px-2 py-3 text-xl focus:outline-none transition-colors font-bold text-slate-800 dark:text-white" data-placeholder="title_placeholder" placeholder="عنوان وظیفه..." />
         
@@ -219,7 +214,6 @@
             <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="dev" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-purple-500/20 peer-checked:text-purple-600 dark:peer-checked:text-purple-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_dev">📚 توسعه</span></label>
             <label class="cursor-pointer flex-shrink-0"><input type="radio" name="tag" value="general" class="peer hidden"><span class="px-3 py-1.5 text-xs rounded-full border border-black/10 dark:border-white/10 peer-checked:bg-pink-500/20 peer-checked:text-pink-600 dark:peer-checked:text-pink-300 text-slate-600 dark:text-slate-400 transition-all" data-i18n="tag_general">🎯 عمومی</span></label>
           </div>
-          
           <label class="flex items-center gap-2 cursor-pointer bg-black/5 dark:bg-white/5 p-2 rounded-xl border border-black/5 dark:border-white/5">
             <input type="checkbox" id="is-encrypted" class="w-4 h-4 text-emerald-500 rounded focus:ring-emerald-500">
             <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400" data-i18n="e2e_label">🔒 رمز E2EE</span>
@@ -230,7 +224,7 @@
           <div class="lg:col-span-2 bg-black/5 dark:bg-black/20 p-3 rounded-2xl flex flex-col justify-center border border-black/5 dark:border-white/5">
             <div class="flex justify-between px-1 mb-1">
               <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="lbl_date">تاریخ سررسید</span>
-              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="lbl_time">ساعت</span>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="lbl_time">ساعت یادآوری</span>
             </div>
             <div class="flex flex-wrap gap-2">
               <select id="t-day" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
@@ -245,9 +239,9 @@
           
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="adv_lbl">هشدار:</span>
-              <input type="number" id="advance" min="0" max="30" value="0" class="flex-1 input-premium rounded-xl px-3 py-2 text-sm text-center appearance-none" />
-              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400" data-i18n="adv_days">روز قبل</span>
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap" data-i18n="adv_lbl">پیش‌هشدار:</span>
+              <input type="number" id="advance" min="0" max="30" value="0" class="flex-1 input-premium rounded-xl px-3 py-2.5 text-sm text-center appearance-none" />
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap" data-i18n="adv_days">روز قبل</span>
             </div>
             <select id="recurring" class="w-full input-premium rounded-xl px-3 py-2.5 text-sm appearance-none">
               <option value="none" selected data-i18n="rec_none">بدون تکرار</option><option value="daily" data-i18n="rec_daily">روزانه</option><option value="weekly" data-i18n="rec_weekly">هفتگی</option><option value="monthly" data-i18n="rec_monthly">ماهانه</option>
@@ -259,7 +253,6 @@
           </select>
         </div>
 
-        <!-- Subtasks Checklists -->
         <div class="bg-black/5 dark:bg-black/20 p-4 rounded-xl border border-black/5 dark:border-white/5">
           <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 block" data-i18n="subtasks_label">چک‌لیست مراحل (ساب‌تسک):</label>
           <div class="flex gap-2 mb-2">
@@ -269,6 +262,7 @@
           <ul id="temp-subtasks-list" class="space-y-1 text-sm text-slate-600 dark:text-slate-300 pl-2"></ul>
         </div>
 
+        <!-- پیوست فایل -->
         <div class="flex items-center gap-4">
           <textarea id="desc" rows="1" class="flex-grow input-premium rounded-xl px-4 py-3 text-sm resize-none" data-placeholder="desc_placeholder" placeholder="توضیحات تکمیلی..."></textarea>
           <input type="file" id="file-input" class="hidden" onchange="handleFile(event)" accept="image/*,application/pdf">
@@ -282,7 +276,6 @@
       </form>
     </div>
     
-    <!-- Filter Tags -->
     <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide" id="filter-bar">
       <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 dark:bg-white/20 text-white flex-shrink-0 transition-colors" data-i18n="filter_all">همه وظایف</button>
       <button onclick="setFilter('work')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_work">💼 کاری</button>
@@ -292,8 +285,10 @@
       <button onclick="setFilter('general')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_general">🎯 عمومی</button>
     </div>
 
+    <!-- The List View -->
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
 
+    <!-- The Calendar View -->
     <div id="calendar-view" class="hidden pb-12">
       <div class="glass-panel p-6 rounded-3xl">
         <div class="flex justify-between items-center mb-6">
@@ -317,6 +312,7 @@
       <a href="#" target="_blank" class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-80 transition-opacity">Nirvana.DEV</a>
     </p>
   </footer>
+
   <script>
     // --- 1. SETTINGS & i18n ---
     const translations = {
@@ -325,7 +321,7 @@
         login_title: "ورود امن", login_desc: "ایمیل و رمز عبور خود را وارد کنید.", login_btn: "ورود به سیستم",
         prod_level: "سطح بهره‌وری", level_start: "شروع مسیر", level_mid: "در مسیر پیشرفت", level_high: "فوق‌العاده فعال", level_max: "استاد مدیریت زمان", done_text: "انجام شده",
         cancel_edit: "لغو ویرایش ✖", tab_manual: "ثبت دستی", tab_ai: "هوش مصنوعی", btn_mic: "صحبت کنید",
-        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل...",
+        ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل با گوگل...",
         title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
         lbl_date: "تاریخ سررسید:", lbl_time: "ساعت:", adv_lbl: "هشدار:", adv_days: "روز قبل",
         subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...", e2e_label: "🔒 رمز E2EE",
@@ -348,7 +344,7 @@
         tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
         pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴", rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
-        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export Report",
+        empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export PDF",
         view_list: "List", view_cal: "Calendar", pomo_title: "Focus Timer", pomo_start: "Start", pomo_reset: "Stop", pomo_custom_mins: "Time (mins):",
         footer_made: "Crafted with", footer_by: "by", months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
@@ -357,7 +353,7 @@
         login_title: "Sicherer Login", login_desc: "Geben Sie E-Mail und Passwort ein.", login_btn: "Einloggen",
         prod_level: "Produktivität", level_start: "Begonnen", level_mid: "Fortschritte", level_high: "Sehr Aktiv", level_max: "Zeitmeister", done_text: "Erledigt",
         cancel_edit: "Abbrechen ✖", tab_manual: "Manuell", tab_ai: "Google KI", btn_mic: "Sprechen",
-        ai_placeholder: "z.B. Morgen Abend meinem Chef schreiben...", ai_btn: "Automatisch Extrahieren", ai_loading: "Analysieren...",
+        ai_placeholder: "z.B. Morgen Abend meinem Chef schreiben...", ai_btn: "Extrahieren", ai_loading: "Analysieren...",
         title_placeholder: "Titel...", desc_placeholder: "Details...", category: "Kategorie:",
         lbl_date: "Datum:", lbl_time: "Zeit:", adv_lbl: "Alarm:", adv_days: "Tage vor",
         subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...", e2e_label: "🔒 E2EE",
@@ -391,6 +387,7 @@
 
     // --- 2. SECURITY (E2EE) & AUTH & FILES ---
     let currentUser = JSON.parse(localStorage.getItem('nirvana_user'));
+    if (!currentUser && localStorage.getItem('user_chat_id')) { currentUser = { email: "legacy", password: localStorage.getItem('user_chat_id'), chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" }; }
     let currentChatId = currentUser ? currentUser.chatId : null;
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
@@ -474,9 +471,8 @@
     function switchView(view) {
       const listBtn = document.getElementById('view-list-btn'); const calBtn = document.getElementById('view-cal-btn');
       const listPanel = document.getElementById('reminders-list'); const calPanel = document.getElementById('calendar-view');
-      const formPanel = document.getElementById('creation-panel'); const filterBar = document.getElementById('filter-bar');
-      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); filterBar.classList.add('hidden'); formPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
-      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); filterBar.classList.remove('hidden'); formPanel.classList.remove('hidden'); }
+      if (view === 'calendar') { listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; listPanel.classList.add('hidden'); calPanel.classList.remove('hidden'); renderCalendar(); } 
+      else { calBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; listBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow"; calPanel.classList.add('hidden'); listPanel.classList.remove('hidden'); }
     }
 
     let currentCalMonth = new Date();
@@ -498,9 +494,8 @@
       }
     }
 
-    // --- 6. CORE CRUD (EDIT PERFECTED) ---
+    // --- 6. CORE CRUD ---
     function updateGamification() { const total = currentData.length; const done = currentData.filter(r => r.completed).length; document.getElementById('tasks-total').innerText = total; document.getElementById('tasks-done').innerText = done; const percent = total === 0 ? 0 : Math.round((done / total) * 100); document.getElementById('progress-bar').style.width = `${percent}%`; let titleKey = "level_start", emoji = "🌱"; if (percent === 100 && total > 0) { titleKey = "level_max"; emoji = "👑"; } else if (percent >= 70) { titleKey = "level_high"; emoji = "🔥"; } else if (percent >= 40) { titleKey = "level_mid"; emoji = "🚀"; } document.getElementById('level-title').innerText = t(titleKey); document.getElementById('level-emoji').innerText = emoji; }
-    
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
@@ -515,7 +510,8 @@
         const displayDesc = r.isEncrypted ? decryptText(r.desc) : (r.desc || '');
         
         let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span></li>`; }); subtasksHTML += '</ul>'; }
-        let attachHTML = ''; if (r.attachment) { attachHTML = `<a href="${r.attachment.data}" download="${r.attachment.name}" class="mt-3 inline-block bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded border border-blue-500/20">📎 ${r.attachment.name}</a>`; }
+        
+        let attachHTML = ''; if (r.attachment) { attachHTML = `<a href="${r.attachment.data}" download="${r.attachment.name}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${r.attachment.name}</a>`; }
 
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
@@ -548,7 +544,8 @@
     
     function saveReminder(e) {
       e.preventDefault(); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
-      const advVal = parseInt(document.getElementById('advance').value) || 0; const isEnc = document.getElementById('is-encrypted').checked;
+      const advVal = parseInt(document.getElementById('advance').value) || 0;
+      const isEnc = document.getElementById('is-encrypted').checked;
       
       let finalTitle = document.getElementById('title').value; let finalDesc = document.getElementById('desc').value;
       if (isEnc) { finalTitle = encryptText(finalTitle); finalDesc = encryptText(finalDesc); }
@@ -560,8 +557,7 @@
     }
 
     function editReminder(id) {
-      const r = currentData.find(x => x.id === id); if(!r) return;
-      editingId = id; tempSubtasks = r.subtasks ? [...r.subtasks] : [];
+      const r = currentData.find(x => x.id === id); if(!r) return; editingId = id; tempSubtasks = r.subtasks ? [...r.subtasks] : [];
       document.getElementById('title').value = r.isEncrypted ? decryptText(r.title) : r.title; 
       document.getElementById('desc').value = r.isEncrypted ? decryptText(r.desc) : (r.desc || ''); 
       document.getElementById('priority').value = r.priority || 'medium'; document.getElementById('advance').value = r.advanceNotice || 0; document.getElementById('recurring').value = r.recurring || 'none';
@@ -570,6 +566,7 @@
       const tagRadio = document.querySelector(`input[name="tag"][value="${r.tag}"]`); if(tagRadio) tagRadio.checked = true;
       initDatePicker(new Date(r.datetime)); renderTempSubtasks(); document.getElementById('submit-btn').innerText = t('save_btn'); document.getElementById('cancel-edit-btn').classList.remove('hidden'); switchTab('manual'); window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     function cancelEdit() { editingId = null; tempSubtasks = []; tempAttachment = null; renderTempSubtasks(); document.getElementById('file-name-display').classList.add('hidden'); document.getElementById('manual-form').reset(); initDatePicker(); document.getElementById('advance').value = 0; document.getElementById('submit-btn').innerText = t('submit_btn'); document.getElementById('cancel-edit-btn').classList.add('hidden'); }
     function toggleCompleteLocally(id) { const idx = currentData.findIndex(r => r.id === id); if (idx > -1) { currentData[idx].completed = !currentData[idx].completed; renderList(); pushToQueue('POST', { action: 'complete', id }); } }
     function deleteLocally(id) { currentData = currentData.filter(r => r.id !== id); renderList(); pushToQueue('POST', { action: 'delete', id }); }
@@ -585,13 +582,10 @@
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
 
-    // --- 7. AI & VOICE (FIXED) ---
+    // --- 7. AI & VOICE (FIXED AI PROMPT) ---
     let recognition;
     function startVoiceRecognition() {
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert(currentLang === 'fa' ? 'مرورگر شما (مثل فایرفاکس) از تایپ صوتی پشتیبانی نمی‌کند. لطفا از گوگل کروم یا سافاری استفاده کنید.' : 'Voice recognition not supported in this browser.');
-        return;
-      }
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return alert('Voice recognition not supported.');
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; recognition = new SpeechRecognition();
       recognition.lang = currentLang === 'fa' ? 'fa-IR' : (currentLang === 'de' ? 'de-DE' : 'en-US'); recognition.interimResults = false;
       const btn = document.getElementById('mic-btn'); const text = document.getElementById('mic-text');
@@ -609,11 +603,22 @@
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
       document.getElementById('ai-btn').disabled = true; const now = new Date(); const jNow = jalaali.toJalaali(now);
-      const prompt = `Extract reminder details. Return ONLY a valid, raw JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}. Input: "${text}" Format: {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
+      
+      const prompt = `Extract reminder details. Return ONLY a valid JSON object without markdown. Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
+      Input: "${text}"
+      Format exactly like this (nothing else):
+      {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
+      
       try {
         let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
         let data = await res.json();
-        let aiResult = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
+        let aiResult = data.candidates[0].content.parts[0].text;
+        
+        // Robust JSON parser to fix AI Error
+        const startIndex = aiResult.indexOf('{'); const endIndex = aiResult.lastIndexOf('}');
+        if (startIndex === -1 || endIndex === -1) throw new Error("No JSON found");
+        aiResult = aiResult.substring(startIndex, endIndex + 1);
+        
         const p = JSON.parse(aiResult);
         let td; if(currentLang==='fa'){ const g=jalaali.toGregorian(p.y,p.m,p.d); td=new Date(g.gy,g.gm-1,g.gd,p.h||0,p.min||0); } else { td=new Date(p.y,p.m-1,p.d,p.h||0,p.min||0); }
         
@@ -627,13 +632,11 @@
 
     // --- 8. BOOT & SYNC ---
     initSettings();
-    if (currentUser && currentUser.email !== "legacy") { 
+    if (currentUser || currentChatId) { 
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
-      if(currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
+      if(currentUser && currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
       renderList(); updateConnectionStatus(); processSyncQueue();
-    } else { 
-      document.getElementById('auth-screen').classList.remove('hidden'); 
-    }
+    } else { document.getElementById('auth-screen').classList.remove('hidden'); }
 
     function updateConnectionStatus() {
       const dot = document.getElementById('sync-dot'); const text = document.getElementById('sync-text');
