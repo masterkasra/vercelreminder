@@ -1,12 +1,8 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
   
-  // خواندن کلید OpenRouter (حتماً در Vercel متغیر OPENROUTER_API_KEY را با کلید sk-or-v1-... تنظیم کنید)
   const apiKey = process.env.OPENROUTER_API_KEY;
-  
-  if (!apiKey) {
-    return res.status(500).json({ error: { message: 'کلید OPENROUTER_API_KEY در تنظیمات ورسل یافت نشد.' } });
-  }
+  if (!apiKey) return res.status(500).json({ error: { message: 'کلید OPENROUTER_API_KEY در تنظیمات ورسل یافت نشد.' } });
 
   const { prompt } = req.body;
 
@@ -18,8 +14,8 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        // استفاده از مدل رایگان و پرسرعت برای استخراج متن
-        model: "meta-llama/llama-3-8b-instruct:free", 
+        // مسیریاب هوشمند اوپن‌روتر: همیشه به بهترین سرور رایگان و فعال وصل می‌شود
+        model: "openrouter/auto", 
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -30,8 +26,6 @@ export default async function handler(req, res) {
         return res.status(response.status).json({ error: data.error || { message: "OpenRouter API Error" } });
     }
     
-    // تبدیل خروجی اوپن‌روتر به فرمتی که فرانت‌اند ما انتظار دارد
-    // فرانت‌اند منتظر data.candidates[0].content.parts[0].text است
     const aiText = data.choices[0].message.content;
     
     return res.status(200).json({
