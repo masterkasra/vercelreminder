@@ -99,7 +99,7 @@
       <form id="register-form" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
         <div class="flex gap-2"><input type="text" id="reg-fname" required placeholder="نام" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-lname" required placeholder="نام خانوادگی" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <input type="email" id="reg-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
-        <input type="password" id="reg-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
+        <input type="password" id="reg-password" required placeholder="رمز عبور (کلید مخفی شما)" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
         <input type="tel" id="reg-phone" placeholder="شماره تماس" class="w-full input-premium rounded-xl px-4 py-3 text-sm" />
         <div class="flex gap-2"><input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-country" placeholder="کشور" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-2">
@@ -143,7 +143,6 @@
       </div>
     </header>
 
-    <!-- Gamification & Analytics Export -->
     <div class="glass-panel rounded-3xl p-5 mb-8 flex flex-col sm:flex-row items-center gap-6 relative">
       <div class="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <span class="text-2xl" id="level-emoji">🌱</span>
@@ -163,7 +162,6 @@
           <div id="progress-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 progress-bar-fill" style="width: 0%"></div>
         </div>
       </div>
-      <!-- دکمه خروجی PDF گزارش -->
       <button onclick="exportAnalyticsPDF()" class="absolute top-4 left-4 sm:relative sm:top-0 sm:left-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center gap-2 border border-blue-500/20" title="PDF Export">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         <span class="hidden sm:inline" data-i18n="export_pdf">دانلود گزارش</span>
@@ -312,11 +310,11 @@
         ai_placeholder: "مثال: فردا عصر به مدیرم ایمیل بزنم...", ai_btn: "پردازش و استخراج خودکار", ai_loading: "درحال تحلیل...",
         title_placeholder: "عنوان وظیفه...", desc_placeholder: "توضیحات تکمیلی...", category: "دسته‌بندی:",
         lbl_date: "تاریخ سررسید:", lbl_time: "ساعت:", adv_lbl: "هشدار:", adv_days: "روز قبل",
-        subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...", 
+        subtasks_label: "چک‌لیست مراحل (ساب‌تسک):", subtask_placeholder: "مرحله جدید...",
         tag_work: "💼 کاری", tag_personal: "🏠 شخصی", tag_finance: "💳 مالی", tag_dev: "📚 توسعه", tag_general: "🎯 عمومی",
         pri_low: "عادی 🟢", pri_med: "متوسط 🟡", pri_high: "فوری 🔴", rec_none: "بدون تکرار", rec_daily: "روزانه", rec_weekly: "هفتگی", rec_monthly: "ماهانه",
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
-        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "تقویم گوگل", export_pdf: "دانلود گزارش",
+        empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر تمرکز", btn_gcal: "تقویم", export_pdf: "دانلود گزارش",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
         footer_made: "طراحی با", footer_by: "توسط", months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
@@ -328,7 +326,7 @@
         ai_placeholder: "e.g., Email my boss tomorrow evening...", ai_btn: "Auto Extract", ai_loading: "Analyzing...",
         title_placeholder: "Task Title...", desc_placeholder: "Additional details...", category: "Category:",
         lbl_date: "Due Date:", lbl_time: "Time:", adv_lbl: "Alert:", adv_days: "days before",
-        subtasks_label: "Sub-tasks:", subtask_placeholder: "New step...", 
+        subtasks_label: "Sub-tasks:", subtask_placeholder: "New step...",
         tag_work: "💼 Work", tag_personal: "🏠 Personal", tag_finance: "💳 Finance", tag_dev: "📚 Dev", tag_general: "🎯 General",
         pri_low: "Low 🟢", pri_med: "Medium 🟡", pri_high: "High 🔴", rec_none: "No Repeat", rec_daily: "Daily", rec_weekly: "Weekly", rec_monthly: "Monthly",
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
@@ -344,7 +342,7 @@
         ai_placeholder: "z.B. Morgen Abend meinem Chef schreiben...", ai_btn: "Extrahieren", ai_loading: "Analysieren...",
         title_placeholder: "Titel...", desc_placeholder: "Details...", category: "Kategorie:",
         lbl_date: "Datum:", lbl_time: "Zeit:", adv_lbl: "Alarm:", adv_days: "Tage vor",
-        subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...", 
+        subtasks_label: "Teilaufgaben:", subtask_placeholder: "Neuer Schritt...",
         tag_work: "💼 Arbeit", tag_personal: "🏠 Privat", tag_finance: "💳 Finanzen", tag_dev: "📚 Code", tag_general: "🎯 Allgemein",
         pri_low: "Niedrig 🟢", pri_med: "Mittel 🟡", pri_high: "Hoch 🔴", rec_none: "Nicht wdh.", rec_daily: "Täglich", rec_weekly: "Wöchentlich", rec_monthly: "Monatlich",
         submit_btn: "Erstellen", save_btn: "Speichern", filter_all: "Alle Aufgaben",
@@ -373,7 +371,7 @@
       document.getElementById('cal-headers').innerHTML = t('days').map(d => `<div>${d}</div>`).join('');
     }
 
-    // --- 2. AUTH & FILES ---
+    // --- 2. SECURITY (E2EE READ-ONLY FOR OLD TASKS) & AUTH ---
     let currentUser = JSON.parse(localStorage.getItem('nirvana_user'));
     if (!currentUser && localStorage.getItem('user_chat_id')) { currentUser = { email: "legacy", password: localStorage.getItem('user_chat_id'), chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" }; }
     let currentChatId = currentUser ? currentUser.chatId : null;
@@ -381,7 +379,6 @@
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
     let currentFilter = 'all'; let editingId = null; let tempSubtasks = []; let tempAttachment = null;
 
-    // توابع رمزگشایی فقط برای خواندن کارهای قدیمی که کاربر قبلاً رمزگذاری کرده حفظ شده است.
     function getSecret() { return (currentUser && currentUser.password) ? currentUser.password : "NirvanaSecretKey"; }
     function decryptText(cipher) {
       if(!cipher) return "";
@@ -418,7 +415,7 @@
 
     function handleFile(e) {
       const file = e.target.files[0]; if(!file) return;
-      if(file.size > 1 * 1024 * 1024) return alert("به دلیل محدودیت دیتابیس رایگان، حجم فایل نباید بیشتر از 1 مگابایت باشد.");
+      if(file.size > 1 * 1024 * 1024) return alert("حجم فایل نباید بیشتر از 1 مگابایت باشد.");
       const reader = new FileReader();
       reader.onload = (ev) => { tempAttachment = { name: file.name, type: file.type, data: ev.target.result }; const disp = document.getElementById('file-name-display'); disp.innerText = `📎 ${file.name}`; disp.classList.remove('hidden'); };
       reader.readAsDataURL(file);
@@ -514,6 +511,7 @@
               <div class="flex justify-between items-start mb-2">
                 <div class="flex gap-2">
                   <span class="text-xs bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300">${tagText}</span>
+                  ${r.isEncrypted ? '<span class="text-xs bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-1 rounded-md">🔒 E2EE</span>' : ''}
                 </div>
                 <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-black/30 px-2 py-1 rounded">${dateStr}</span>
               </div>
@@ -578,21 +576,53 @@
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         return alert(currentLang === 'fa' ? 'مرورگر شما از ضبط صدا پشتیبانی نمی‌کند. لطفاً در Chrome باز کنید.' : 'Voice recognition not supported. Open in Chrome.');
       }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; recognition = new SpeechRecognition();
-      recognition.lang = currentLang === 'fa' ? 'fa-IR' : (currentLang === 'de' ? 'de-DE' : 'en-US'); recognition.interimResults = false;
-      const btn = document.getElementById('mic-btn'); const text = document.getElementById('mic-text');
-      btn.classList.add('mic-pulse'); text.innerText = currentLang === 'fa' ? 'در حال شنیدن...' : 'Listening...'; 
       
-      try { recognition.start(); } catch (e) {
-        btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); alert('خطا در میکروفون. صفحه را رفرش کنید.');
+      // جلوگیری از کلیک‌های تکراری
+      if (recognition && document.getElementById('mic-text').innerText === 'در حال شنیدن...') return;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; 
+      recognition = new SpeechRecognition();
+      recognition.lang = currentLang === 'fa' ? 'fa-IR' : (currentLang === 'de' ? 'de-DE' : 'en-US'); 
+      recognition.interimResults = false;
+      
+      const btn = document.getElementById('mic-btn'); 
+      const text = document.getElementById('mic-text');
+      
+      btn.classList.add('mic-pulse'); 
+      text.innerText = currentLang === 'fa' ? 'در حال شنیدن...' : 'Listening...'; 
+      
+      try { 
+        recognition.start(); 
+      } catch (e) {
+        btn.classList.remove('mic-pulse'); 
+        text.innerText = t('btn_mic'); 
+        console.error(e);
       }
 
-      recognition.onresult = function(e) { document.getElementById('ai-input').value = e.results[0][0].transcript; processAI(); };
-      recognition.onspeechend = function() { recognition.stop(); btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); };
+      recognition.onresult = function(e) { 
+        if(e.results && e.results[0] && e.results[0][0]) {
+            document.getElementById('ai-input').value = e.results[0][0].transcript; 
+            processAI(); 
+        }
+      };
+      
+      // بستن صحیح روی موبایل
+      recognition.onend = function() { 
+        btn.classList.remove('mic-pulse'); 
+        text.innerText = t('btn_mic'); 
+      };
+      
+      // سیستم دیباگ صوتی موبایل
       recognition.onerror = function(e) { 
-        btn.classList.remove('mic-pulse'); text.innerText = t('btn_mic'); 
-        if (e.error === 'not-allowed') alert(currentLang === 'fa' ? 'دسترسی میکروفون مسدود است! لطفاً دسترسی (Allow) را در مرورگر فعال کنید.' : 'Mic access blocked.');
-        else if (e.error === 'network') alert('خطای اینترنت در پردازش صدا.');
+        btn.classList.remove('mic-pulse'); 
+        text.innerText = t('btn_mic'); 
+        if (e.error === 'not-allowed') {
+            alert(currentLang === 'fa' ? 'دسترسی میکروفون مسدود است! روی قفل کنار آدرس سایت بزنید و Allow کنید.' : 'Mic access blocked.');
+        } else if (e.error === 'network') {
+            alert(currentLang === 'fa' ? 'برای تایپ صوتی اینترنت پایدار نیاز است.' : 'Network error.');
+        } else if (e.error !== 'no-speech') {
+            alert(currentLang === 'fa' ? 'سیستم صوتی گوشی شما خطا داد: ' + e.error + '\n(مطمئن شوید اپلیکیشن Google در گوشی نصب و فعال است)' : 'Audio error: ' + e.error);
+        }
       };
     }
 
@@ -603,7 +633,10 @@
 
     async function processAI() {
       const text = document.getElementById('ai-input').value.trim(); if (!text) return;
-      document.getElementById('ai-btn').disabled = true; const btnText = document.getElementById('ai-btn-text'); btnText.innerText = t('ai_loading');
+      document.getElementById('ai-btn').disabled = true; 
+      const btnText = document.getElementById('ai-btn-text');
+      btnText.innerText = t('ai_loading');
+      
       const now = new Date(); const jNow = jalaali.toJalaali(now);
       
       const prompt = `You are a strict data extractor. Today's Date -> Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
@@ -617,14 +650,18 @@
         let data = await res.json();
         
         if (data.error) {
+            console.error("API Error:", data.error);
             alert("خطای سرور ابری: " + (data.error.message || "لطفاً API Key خود را بررسی کنید."));
             return;
         }
 
-        if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts[0]) throw new Error("پاسخ نامعتبر از سرور هوش مصنوعی");
+        if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts[0]) {
+            throw new Error("پاسخ نامعتبر از سرور هوش مصنوعی");
+        }
 
         let aiResult = data.candidates[0].content.parts[0].text;
         
+        // Anti-crash JSON extractor
         const startIndex = aiResult.indexOf('{'); const endIndex = aiResult.lastIndexOf('}');
         if (startIndex === -1 || endIndex === -1) throw new Error("متن دریافتی قابلیت تبدیل به زمان را نداشت.");
         aiResult = aiResult.substring(startIndex, endIndex + 1);
@@ -632,11 +669,10 @@
         const p = JSON.parse(aiResult);
         let td; if(currentLang==='fa'){ const g=jalaali.toGregorian(p.y,p.m,p.d); td=new Date(g.gy,g.gm-1,g.gd,p.h||0,p.min||0); } else { td=new Date(p.y,p.m-1,p.d,p.h||0,p.min||0); }
         
-        let finalTitle = p.title;
-
-        const payload = { action: 'add', id: Date.now(), title: finalTitle, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', isEncrypted: false, attachment: null, completed: false };
+        const payload = { action: 'add', id: Date.now(), title: p.title, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', isEncrypted: false, attachment: null, completed: false };
         currentData.push(payload); renderList(); pushToQueue('POST', payload); document.getElementById('ai-input').value = ''; switchTab('manual');
       } catch (e) { 
+        console.error(e);
         alert('در درک متن شما مشکلی پیش آمد. لطفاً به صورت دستی ثبت کنید.'); 
       } finally { 
         btnText.innerText = t('ai_btn'); document.getElementById('ai-btn').disabled = false; 
@@ -690,7 +726,7 @@
       currentData.forEach(r => {
         const target = new Date(r.datetime).getTime();
         if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ Nirvana", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+          new Notification("⏰ Nirvana Reminder", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
         }
       });
     }, 30000);
