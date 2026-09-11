@@ -14,9 +14,11 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        // مسیریاب هوشمند اوپن‌روتر: همیشه به بهترین سرور رایگان و فعال وصل می‌شود
         model: "openrouter/auto", 
-        messages: [{ role: "user", content: prompt }]
+        messages: [{ role: "user", content: prompt }],
+        // 🌟 این خط دقیقاً همان چیزی است که ارور شما را برطرف می‌کند
+        // به سرور می‌گوییم ما کل ۱۳۱ هزار توکن را نمی‌خواهیم، فقط ۳۰۰ تا کافیست.
+        max_tokens: 300 
       })
     });
     
