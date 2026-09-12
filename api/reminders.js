@@ -90,8 +90,13 @@ export default async function handler(req, res) {
         if (action === 'complete') {
           r.completed = typeof body.completed === 'boolean' ? body.completed : !r.completed;
         } else {
-          const delayMin = Math.min(Math.max(parseInt(body.minutes) || 60, 1), 24 * 60);
-          r.datetime = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
+          // until را مرورگر با ساعت محلی کاربر حساب می‌کند (مثلاً «فردا صبح ۹»)
+          const nowMs = Date.now();
+          const until = body.until ? new Date(body.until).getTime() : NaN;
+          const target = Number.isFinite(until) && until > nowMs - 60 * 1000 && until < nowMs + 60 * 24 * 60 * 60 * 1000
+            ? until
+            : nowMs + Math.min(Math.max(parseInt(body.minutes) || 60, 1), 24 * 60) * 60 * 1000;
+          r.datetime = new Date(target).toISOString();
           r.sent = false;
           r.completed = false;
         }

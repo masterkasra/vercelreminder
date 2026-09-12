@@ -60,6 +60,23 @@ self.addEventListener('push', event => {
   }));
 });
 
+const SNOOZE_ACTIONS = { snooze: '1h', snooze10: '10m', tonight: 'tonight', tomorrow: 'tomorrow' };
+
+// با ساعت محلی دستگاه؛ همان منطق snoozeTarget در index.html و lib/bot.js
+function snoozeTarget(preset, now = new Date()) {
+  const ms = now.getTime();
+  if (preset === '10m') return new Date(ms + 10 * 60 * 1000);
+  if (preset === 'tonight') {
+    const tonight = new Date(ms); tonight.setHours(20, 0, 0, 0);
+    return tonight.getTime() - ms < 30 * 60 * 1000 ? new Date(ms + 2 * 60 * 60 * 1000) : tonight;
+  }
+  if (preset === 'tomorrow') {
+    const tomorrow = new Date(ms); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(9, 0, 0, 0);
+    return tomorrow;
+  }
+  return new Date(ms + 60 * 60 * 1000);
+}
+
 async function authHeaders() {
   try {
     const cache = await caches.open(AUTH_CACHE);
@@ -75,10 +92,11 @@ self.addEventListener('notificationclick', event => {
   const data = notification.data || {};
   notification.close();
 
-  if ((event.action === 'done' || event.action === 'snooze') && data.id != null) {
+  const snoozePreset = SNOOZE_ACTIONS[event.action];
+  if ((event.action === 'done' || snoozePreset) && data.id != null) {
     const body = event.action === 'done'
       ? { action: 'complete', id: data.id, completed: true }
-      : { action: 'snooze', id: data.id, minutes: 60 };
+      : { action: 'snooze', id: data.id, until: snoozeTarget(snoozePreset).toISOString() };
     event.waitUntil((async () => {
       try {
         const res = await fetch('/api/reminders', {

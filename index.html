@@ -54,6 +54,27 @@
 
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-400/20 dark:bg-emerald-900/20 blur-[120px] dark:blur-[150px] rounded-full pointer-events-none -z-10 transition-all duration-700"></div>
 
+  <!-- Settings Modal -->
+  <div id="settings-modal" onclick="if (event.target === this) closeSettings()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl max-w-sm w-full relative">
+      <button onclick="closeSettings()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-800 dark:hover:text-white">✖</button>
+      <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-500 mb-6" data-i18n="settings_title">تنظیمات</h3>
+      <label class="flex items-start justify-between gap-4 pb-4 border-b border-black/5 dark:border-white/10 cursor-pointer">
+        <span>
+          <span class="block text-sm font-bold text-slate-800 dark:text-white" data-i18n="summary_title">خلاصه صبحگاهی در تلگرام</span>
+          <span class="block text-xs leading-6 text-slate-500 dark:text-slate-400 mt-1" data-i18n="summary_desc">هر روز کارهای امروز و عقب‌افتاده‌ها در تلگرام برایتان ارسال می‌شود.</span>
+        </span>
+        <input type="checkbox" id="set-summary" class="w-5 h-5 mt-1 accent-emerald-500 flex-shrink-0" />
+      </label>
+      <div class="flex items-center justify-between gap-4 py-4">
+        <span class="text-sm font-bold text-slate-700 dark:text-slate-300" data-i18n="summary_hour">ساعت ارسال</span>
+        <select id="set-summary-hour" class="input-premium rounded-lg px-3 py-2 text-sm"></select>
+      </div>
+      <p class="text-xs leading-6 text-slate-500 dark:text-slate-400 mb-6" data-i18n="bot_commands_hint">دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما</p>
+      <button onclick="saveSettings()" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-colors" data-i18n="save_btn">ذخیره تغییرات</button>
+    </div>
+  </div>
+
   <!-- Pomodoro Modal -->
   <div id="pomo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
     <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center relative">
@@ -96,6 +117,7 @@
         <input type="email" id="login-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
         <input type="password" id="login-password" required placeholder="رمز عبور" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
         <button type="submit" class="w-full bg-slate-900 text-white dark:bg-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:-translate-y-1 transition-all">ورود به سیستم</button>
+        <button type="button" onclick="showForgot()" class="w-full text-xs font-bold text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors">رمز عبور را فراموش کرده‌اید؟</button>
       </form>
 
       <form id="register-form" onsubmit="handleAuth(event, 'register')" class="space-y-4 hidden">
@@ -110,6 +132,17 @@
           <p id="bot-hint" class="hidden text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">برای دریافت Chat ID به <a id="bot-link" target="_blank" rel="noopener" class="font-bold text-emerald-600 dark:text-emerald-400 underline"></a> پیام /start بدهید. کد تأیید هم همان‌جا ارسال می‌شود.</p>
         </div>
         <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:bg-emerald-400 hover:-translate-y-1 transition-all">ثبت‌نام و ورود</button>
+      </form>
+
+      <form id="forgot-form" onsubmit="requestPasswordReset(event)" class="space-y-4 hidden">
+        <p id="forgot-message" class="text-sm text-center leading-7 text-slate-600 dark:text-slate-300">ایمیل حساب را وارد کنید؛ کد بازیابی به تلگرامِ متصل به حساب ارسال می‌شود.</p>
+        <input type="email" id="forgot-email" required placeholder="ایمیل" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        <div id="reset-fields" class="space-y-4 hidden">
+          <input type="text" id="reset-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="کد ۶ رقمی" class="w-full input-premium rounded-xl px-4 py-3.5 text-center text-xl tracking-[0.3em] font-mono" />
+          <input type="password" id="reset-password" minlength="6" autocomplete="new-password" placeholder="رمز عبور جدید (حداقل ۶ کاراکتر)" class="w-full input-premium rounded-xl px-4 py-3.5 text-sm" />
+        </div>
+        <button type="submit" id="forgot-submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg hover:bg-emerald-400 transition-all">ارسال کد بازیابی</button>
+        <button type="button" onclick="switchAuthTab('login')" class="w-full text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white">بازگشت به ورود</button>
       </form>
 
       <form id="verify-form" onsubmit="submitVerification(event)" class="space-y-4 hidden">
@@ -152,6 +185,9 @@
         <button id="notif-btn" onclick="onNotificationButton()" class="relative p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Notifications">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500"></span>
+        </button>
+        <button onclick="openSettings()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Settings">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </button>
         <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Toggle Theme">
           <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -282,13 +318,27 @@
       </form>
     </div>
     
-    <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide" id="filter-bar">
+    <div id="filter-bar">
+      <div class="relative mb-3">
+        <svg class="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input id="search-input" type="search" oninput="onSearchInput(this.value)" data-placeholder="search_placeholder" placeholder="جستجو در عنوان، توضیحات و مراحل..." class="w-full input-premium rounded-xl ps-10 pe-4 py-2.5 text-sm" />
+      </div>
+      <div class="flex gap-2 overflow-x-auto pb-3 scrollbar-hide" id="status-bar">
+        <button data-status="all" onclick="setStatusFilter('all')" class="status-btn px-4 py-1.5 text-xs font-bold rounded-full flex-shrink-0 transition-colors bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400"><span data-i18n="st_all">همه</span></button>
+        <button data-status="today" onclick="setStatusFilter('today')" class="status-btn px-4 py-1.5 text-xs font-bold rounded-full flex-shrink-0 transition-colors bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400"><span data-i18n="st_today">امروز</span><span data-count="today" class="hidden ms-1.5 px-1.5 rounded-full bg-black/10 dark:bg-white/20 text-[10px]"></span></button>
+        <button data-status="week" onclick="setStatusFilter('week')" class="status-btn px-4 py-1.5 text-xs font-bold rounded-full flex-shrink-0 transition-colors bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400"><span data-i18n="st_week">۷ روز آینده</span><span data-count="week" class="hidden ms-1.5 px-1.5 rounded-full bg-black/10 dark:bg-white/20 text-[10px]"></span></button>
+        <button data-status="overdue" onclick="setStatusFilter('overdue')" class="status-btn px-4 py-1.5 text-xs font-bold rounded-full flex-shrink-0 transition-colors bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400"><span data-i18n="st_overdue">عقب‌افتاده</span><span data-count="overdue" class="hidden ms-1.5 px-1.5 rounded-full bg-rose-500 text-white text-[10px]"></span></button>
+        <button data-status="done" onclick="setStatusFilter('done')" class="status-btn px-4 py-1.5 text-xs font-bold rounded-full flex-shrink-0 transition-colors bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400"><span data-i18n="st_done">انجام‌شده</span><span data-count="done" class="hidden ms-1.5 px-1.5 rounded-full bg-black/10 dark:bg-white/20 text-[10px]"></span></button>
+      </div>
+    <div class="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide">
       <button onclick="setFilter('all')" class="filter-btn active px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 dark:bg-white/20 text-white flex-shrink-0 transition-colors" data-i18n="filter_all">همه وظایف</button>
       <button onclick="setFilter('work')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_work">💼 کاری</button>
       <button onclick="setFilter('personal')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_personal">🏠 شخصی</button>
       <button onclick="setFilter('finance')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_finance">💳 مالی</button>
       <button onclick="setFilter('dev')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_dev">📚 توسعه</button>
       <button onclick="setFilter('general')" class="filter-btn px-4 py-1.5 text-xs font-bold rounded-full bg-black/5 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 flex-shrink-0 transition-colors" data-i18n="tag_general">🎯 عمومی</button>
+    </div>
+
     </div>
 
     <div id="reminders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-12"></div>
@@ -340,6 +390,11 @@
         notif_ios: "در آیفون/آیپد اعلان فقط وقتی کار می‌کند که سایت را از منوی Share با گزینه Add to Home Screen نصب کنید و از آیکون صفحه اصلی باز کنید (iOS 16.4 یا جدیدتر).",
         notif_test_title: "اعلان‌ها فعال است ✅", notif_test_body: "یادآورها در موعدشان همین‌جا نمایش داده می‌شوند.", notif_test_local_only: "\n(Web Push روی سرور تنظیم نشده؛ اعلان فقط وقتی سایت باز است می‌آید)",
         notif_advance: "⏳ هشدار زودهنگام", notif_due: "⏰ یادآور رسید!", notif_done: "✅ انجام شد", notif_snooze: "💤 ۱ ساعت بعد", notif_encrypted: "🔒 پیام رمزنگاری شده",
+        notif_snooze10: "💤 ۱۰ دقیقه", notif_tonight: "🌙 امشب", notif_tomorrow: "☀️ فردا صبح",
+        search_placeholder: "جستجو در عنوان، توضیحات و مراحل...", st_all: "همه", st_today: "امروز", st_week: "۷ روز آینده", st_overdue: "عقب‌افتاده", st_done: "انجام‌شده", badge_overdue: "⚠️ عقب‌افتاده",
+        btn_snooze: "تعویق", snz_10m: "۱۰ دقیقه بعد", snz_1h: "۱ ساعت بعد", snz_tonight: "امشب ۲۰:۰۰", snz_tomorrow: "فردا صبح ۹:۰۰",
+        settings_title: "تنظیمات", summary_title: "خلاصه صبحگاهی در تلگرام", summary_desc: "هر روز کارهای امروز و عقب‌افتاده‌ها در تلگرام برایتان ارسال می‌شود.", summary_hour: "ساعت ارسال", settings_error: "ذخیره تنظیمات ناموفق بود.",
+        bot_commands_hint: "دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما",
 months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
@@ -362,6 +417,11 @@ months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مردا
         notif_ios: "On iPhone/iPad, notifications only work after Share → Add to Home Screen, opening the app from the home-screen icon (iOS 16.4+).",
         notif_test_title: "Notifications enabled ✅", notif_test_body: "Reminders will show up here when they are due.", notif_test_local_only: "\n(Web Push is not configured on the server; notifications only arrive while the site is open)",
         notif_advance: "⏳ Early alert", notif_due: "⏰ Reminder due!", notif_done: "✅ Done", notif_snooze: "💤 In 1 hour", notif_encrypted: "🔒 Encrypted message",
+        notif_snooze10: "💤 10 min", notif_tonight: "🌙 Tonight", notif_tomorrow: "☀️ Tomorrow",
+        search_placeholder: "Search titles, notes and steps...", st_all: "All", st_today: "Today", st_week: "Next 7 days", st_overdue: "Overdue", st_done: "Done", badge_overdue: "⚠️ Overdue",
+        btn_snooze: "Snooze", snz_10m: "In 10 minutes", snz_1h: "In 1 hour", snz_tonight: "Tonight 20:00", snz_tomorrow: "Tomorrow 9:00",
+        settings_title: "Settings", summary_title: "Morning summary on Telegram", summary_desc: "Every day, today's and overdue tasks are sent to you on Telegram.", summary_hour: "Send at", settings_error: "Could not save settings.",
+        bot_commands_hint: "Bot commands: /today today's tasks, /list all open tasks, /summary summary settings, /help help",
 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
@@ -384,6 +444,11 @@ months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', '
         notif_ios: "Auf iPhone/iPad funktionieren Benachrichtigungen nur nach Teilen → Zum Home-Bildschirm, geöffnet über das Symbol (iOS 16.4+).",
         notif_test_title: "Benachrichtigungen aktiv ✅", notif_test_body: "Erinnerungen erscheinen hier, sobald sie fällig sind.", notif_test_local_only: "\n(Web Push ist auf dem Server nicht eingerichtet; nur bei geöffneter Seite)",
         notif_advance: "⏳ Vorwarnung", notif_due: "⏰ Erinnerung fällig!", notif_done: "✅ Erledigt", notif_snooze: "💤 In 1 Stunde", notif_encrypted: "🔒 Verschlüsselt",
+        notif_snooze10: "💤 10 Min", notif_tonight: "🌙 Heute Abend", notif_tomorrow: "☀️ Morgen",
+        search_placeholder: "Titel, Notizen und Schritte durchsuchen...", st_all: "Alle", st_today: "Heute", st_week: "Nächste 7 Tage", st_overdue: "Überfällig", st_done: "Erledigt", badge_overdue: "⚠️ Überfällig",
+        btn_snooze: "Verschieben", snz_10m: "In 10 Minuten", snz_1h: "In 1 Stunde", snz_tonight: "Heute 20:00", snz_tomorrow: "Morgen 9:00",
+        settings_title: "Einstellungen", summary_title: "Morgenübersicht in Telegram", summary_desc: "Jeden Tag werden heutige und überfällige Aufgaben per Telegram gesendet.", summary_hour: "Senden um", settings_error: "Einstellungen konnten nicht gespeichert werden.",
+        bot_commands_hint: "Bot-Befehle: /today heute, /list alle offenen Aufgaben, /summary Übersicht, /help Hilfe",
 months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
     };
@@ -434,6 +499,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
       document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
       document.getElementById('verify-form').classList.add('hidden');
+      document.getElementById('forgot-form').classList.add('hidden');
       document.getElementById('auth-login-tab').className = tab === 'login' ? active : inactive;
       document.getElementById('auth-reg-tab').className = tab === 'register' ? active : inactive;
     }
@@ -518,6 +584,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       if (localStorage.getItem('nirvana_sync_owner') !== String(data.user.chatId)) {
         ['nirvana_sync_queue', 'nirvana_tasks_cache', 'nirvana_notified'].forEach(k => localStorage.removeItem(k));
       }
+      localStorage.removeItem('nirvana_tz_sent');
       localStorage.setItem('nirvana_token', data.token); localStorage.setItem('nirvana_user', JSON.stringify(data.user));
       window.location.reload();
     }
@@ -630,7 +697,9 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
-      let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
+      const now = Date.now();
+      updateStatusCounts(now);
+      let filtered = currentData.filter(r => (currentFilter === 'all' || r.tag === currentFilter) && matchesStatus(r, currentStatus, now) && matchesSearch(r));
       updateGamification();
       // Attachment contents aren't cached: a few files would blow the ~5MB localStorage quota and break rendering
       try { localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData.map(r => r.attachment && r.attachment.data ? { ...r, attachment: { name: r.attachment.name, type: r.attachment.type } } : r))); } catch (e) { console.warn('Task cache not saved:', e); }
@@ -653,6 +722,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
                 <div class="flex gap-2">
                   <span class="text-xs bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300">${tagText}</span>
                   ${r.isEncrypted ? '<span class="text-xs bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-1 rounded-md">🔒 E2EE</span>' : ''}
+                  ${!r.completed && new Date(r.datetime).getTime() < now ? `<span class="text-xs bg-rose-500/10 text-rose-500 border border-rose-500/20 px-2 py-1 rounded-md">${t('badge_overdue')}</span>` : ''}
                 </div>
                 <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-black/5 dark:bg-black/30 px-2 py-1 rounded">${dateStr}</span>
               </div>
@@ -665,6 +735,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
               <button onclick="toggleCompleteLocally(${rid})" class="flex-grow py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
               <button onclick="openPomo(${rid})" class="p-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 transition-colors" title="${t('btn_pomo')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
               <button onclick="exportToGCal(${rid})" class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors" title="${t('btn_gcal')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>
+              ${!r.completed ? `<select onchange="if (this.value) snoozeLocally(${rid}, this.value)" class="w-10 p-2 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 text-xs font-bold cursor-pointer appearance-none text-center" title="${t('btn_snooze')}" aria-label="${t('btn_snooze')}"><option value="">💤</option><option value="10m">${t('snz_10m')}</option><option value="1h">${t('snz_1h')}</option><option value="tonight">${t('snz_tonight')}</option><option value="tomorrow">${t('snz_tomorrow')}</option></select>` : ''}
               <button onclick="editReminder(${rid})" class="p-2 rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400 transition-colors" title="${t('btn_edit')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
               <button onclick="deleteLocally(${rid})" class="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors" title="${t('btn_del')}"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
             </div>
@@ -673,6 +744,113 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     }
 
     function setFilter(tag) { currentFilter = tag; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); if (b.getAttribute('onclick').includes(`'${tag}'`)) { b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); } }); renderList(); }
+    // --- Search, quick status filters & snooze ---
+    let currentStatus = (() => { try { return localStorage.getItem('nirvana_status_filter') || 'all'; } catch (e) { return 'all'; } })();
+    let searchQuery = ''; let searchTimer = null;
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Treat Arabic/Persian letter variants and zero-width non-joiners as the same when searching
+    function normalizeSearch(value) { return String(value || '').toLowerCase().replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/[‌\s]+/g, ' ').trim(); }
+    function matchesSearch(r) {
+      if (!searchQuery) return true;
+      const title = r.isEncrypted ? decryptText(r.title) : r.title;
+      const desc = r.isEncrypted ? decryptText(r.desc) : r.desc;
+      const haystack = normalizeSearch([title, desc, t(`tag_${r.tag}`), ...(r.subtasks || []).map(st => st.text)].join(' '));
+      return searchQuery.split(' ').every(word => haystack.includes(word));
+    }
+    function matchesStatus(r, status, now) {
+      if (status === 'all') return true;
+      if (status === 'done') return Boolean(r.completed);
+      if (r.completed) return false;
+      const due = new Date(r.datetime).getTime();
+      const startOfToday = new Date(now); startOfToday.setHours(0, 0, 0, 0);
+      const start = startOfToday.getTime();
+      if (status === 'today') return due >= start && due < start + DAY_MS;
+      if (status === 'week') return due >= start && due < start + 7 * DAY_MS;
+      if (status === 'overdue') return due < now;
+      return true;
+    }
+    function onSearchInput(value) { clearTimeout(searchTimer); searchTimer = setTimeout(() => { searchQuery = normalizeSearch(value); renderList(); }, 150); }
+    function setStatusFilter(status) { currentStatus = status; try { localStorage.setItem('nirvana_status_filter', status); } catch (e) {} paintStatusButtons(); renderList(); }
+    function paintStatusButtons() {
+      const on = ['bg-emerald-500', 'text-white'], off = ['bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'];
+      document.querySelectorAll('.status-btn').forEach(b => { const active = b.dataset.status === currentStatus; b.classList.remove(...(active ? off : on)); b.classList.add(...(active ? on : off)); });
+    }
+    function updateStatusCounts(now) {
+      document.querySelectorAll('[data-count]').forEach(el => { const n = currentData.filter(r => matchesStatus(r, el.dataset.count, now)).length; el.textContent = n || ''; el.classList.toggle('hidden', !n); });
+    }
+
+    // Same rules as snoozeTarget in sw.js and lib/bot.js; uses the device's local time
+    function snoozeTarget(preset, now = new Date()) {
+      const ms = now.getTime();
+      if (preset === '10m') return new Date(ms + 10 * 60 * 1000);
+      if (preset === '1h') return new Date(ms + 60 * 60 * 1000);
+      if (preset === 'tonight') { const d = new Date(ms); d.setHours(20, 0, 0, 0); return d.getTime() - ms < 30 * 60 * 1000 ? new Date(ms + 2 * 60 * 60 * 1000) : d; }
+      if (preset === 'tomorrow') { const d = new Date(ms); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; }
+      return null;
+    }
+    function snoozeLocally(id, preset) {
+      const until = snoozeTarget(preset); const idx = currentData.findIndex(r => r.id === id);
+      if (!until || idx === -1) return;
+      Object.assign(currentData[idx], { datetime: until.toISOString(), completed: false, sent: false });
+      renderList(); if (!document.getElementById('calendar-view').classList.contains('hidden')) renderCalendar();
+      pushToQueue('POST', { action: 'snooze', id, until: until.toISOString() });
+    }
+
+    // --- Settings (morning summary) ---
+    async function openSettings() {
+      const hourSelect = document.getElementById('set-summary-hour');
+      if (!hourSelect.options.length) hourSelect.innerHTML = Array.from({ length: 24 }, (_, h) => `<option value="${h}">${String(h).padStart(2, '0')}:00</option>`).join('');
+      document.getElementById('settings-modal').classList.remove('hidden');
+      try {
+        const res = await apiFetch('/api/settings'); if (!res.ok) return;
+        const s = await res.json();
+        document.getElementById('set-summary').checked = Boolean(s.dailySummary); hourSelect.value = String(s.summaryHour);
+      } catch (e) {}
+    }
+    function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+    async function saveSettings() {
+      const body = { dailySummary: document.getElementById('set-summary').checked, summaryHour: parseInt(document.getElementById('set-summary-hour').value), tzOffsetMinutes: new Date().getTimezoneOffset() };
+      try { const res = await apiFetch('/api/settings', { method: 'POST', body: JSON.stringify(body) }); if (!res.ok) throw new Error(res.status); closeSettings(); }
+      catch (e) { alert(t('settings_error')); }
+    }
+    // The server formats Telegram times and the morning summary in the user's timezone
+    async function syncTimezone() {
+      const tz = String(new Date().getTimezoneOffset());
+      try { if (localStorage.getItem('nirvana_tz_sent') === tz) return; } catch (e) {}
+      try { const res = await apiFetch('/api/settings', { method: 'POST', body: JSON.stringify({ tzOffsetMinutes: Number(tz) }) }); if (res.ok) localStorage.setItem('nirvana_tz_sent', tz); } catch (e) {}
+    }
+
+    // --- Password reset via Telegram code ---
+    let resetStage = 'request';
+    function showForgot() {
+      ['login-form', 'register-form', 'verify-form'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('forgot-form').classList.remove('hidden');
+      document.getElementById('forgot-email').value = document.getElementById('login-email').value;
+      setResetStage('request');
+    }
+    function setResetStage(stage) {
+      resetStage = stage;
+      document.getElementById('reset-fields').classList.toggle('hidden', stage !== 'reset');
+      ['reset-code', 'reset-password'].forEach(id => { document.getElementById(id).required = stage === 'reset'; }); // hidden required inputs would block the first submit
+      document.getElementById('forgot-email').readOnly = stage === 'reset';
+      document.getElementById('forgot-submit').innerText = stage === 'reset' ? 'تغییر رمز و ورود' : 'ارسال کد بازیابی';
+    }
+    async function requestPasswordReset(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value;
+      if (resetStage === 'request') {
+        const data = await postAuth({ action: 'forgot', email });
+        if (!data) return;
+        document.getElementById('forgot-message').innerText = data.message || '';
+        setResetStage('reset'); document.getElementById('reset-code').focus();
+        return;
+      }
+      const code = document.getElementById('reset-code').value.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).trim();
+      const data = await postAuth({ action: 'reset', email, code, newPassword: document.getElementById('reset-password').value });
+      if (data) completeLogin(data);
+    }
+
     function pushToQueue(method, payload) { offlineQueue.push({ method, payload, timestamp: Date.now() }); try { localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); } catch (e) { console.warn('Sync queue not persisted:', e); } processSyncQueue(); }
     
     function saveReminder(e) {
@@ -913,7 +1091,8 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
           if (notified[tag]) return;
           notified[tag] = now; changed = true;
           const actions = [{ action: 'done', title: t('notif_done') }];
-          if (type === 'due') actions.push({ action: 'snooze', title: t('notif_snooze') });
+          // Browsers show only Notification.maxActions buttons (usually 2), so order matters
+          if (type === 'due') actions.push({ action: 'snooze', title: t('notif_snooze') }, { action: 'snooze10', title: t('notif_snooze10') }, { action: 'tonight', title: t('notif_tonight') }, { action: 'tomorrow', title: t('notif_tomorrow') });
           showNotification(type === 'adv' ? t('notif_advance') : t('notif_due'), {
             body: r.isEncrypted ? t('notif_encrypted') : (r.title || ''), tag, icon: NOTIFY_ICON, badge: NOTIFY_BADGE,
             lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr', requireInteraction: r.priority === 'high',
@@ -944,7 +1123,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       syncAuthTokenToServiceWorker(authToken);
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
       if (currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
-      fetchRemindersFromServer(); updateConnectionStatus(); initNotifications();
+      paintStatusButtons(); fetchRemindersFromServer(); updateConnectionStatus(); initNotifications(); syncTimezone();
     } else { document.getElementById('auth-screen').classList.remove('hidden'); loadBotHint(); }
 
     function updateConnectionStatus() {

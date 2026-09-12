@@ -2,11 +2,12 @@ import jalaali from 'jalaali-js';
 import { getRedis, readJSON, updateJSON, scanKeys } from '../lib/db.js';
 import { sendPush } from '../lib/push.js';
 import { tg, hasBotToken, webhookSecret } from '../lib/telegram.js';
+import { getChatSettings } from '../lib/settings.js';
+import { buildTaskList, dueKeyboard, localHour, localDateKey, escapeHtml, BOT_COMMANDS, PUSH_DUE_ACTIONS } from '../lib/bot.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TEHRAN_OFFSET_MS = 3.5 * 60 * 60 * 1000; // ایران از ۱۴۰۱ ساعت تابستانی ندارد
-
-const escapeHtml = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const BOT_COMMANDS_VERSION = 'v1';
 
 // یک ماه جلالی جلوتر با همان ساعت به وقت تهران؛ اگر آن روز در ماه بعد نبود، آخرین روز ماه
 function addJalaliMonth(date) {
@@ -45,19 +46,49 @@ async function sendTelegram(chatId, text, replyMarkup) {
   }
 }
 
-// وب‌هوک فعلی ربات را یک بار با secret_token دوباره ثبت می‌کند تا درخواست‌های جعلی به /api/webhook رد شوند
-async function ensureWebhookSecret(redis) {
-  if (!hasBotToken() || await redis.get('config:webhook_secured')) return;
+// تنظیمات یک‌باره ربات: secret_token وب‌هوک (رد درخواست‌های جعلی) و فهرست دستورها در منوی تلگرام
+async function ensureBotSetup(redis) {
+  if (!hasBotToken()) return;
   try {
-    const info = await (await tg('getWebhookInfo')).json();
-    const url = info && info.result && info.result.url;
-    if (!url) return;
-    const res = await tg('setWebhook', { url, secret_token: webhookSecret() });
-    if (res.ok) await redis.set('config:webhook_secured', '1');
-    else console.error('setWebhook failed', res.status, await res.text());
+    if (!(await redis.get('config:webhook_secured'))) {
+      const info = await (await tg('getWebhookInfo')).json();
+      const url = info && info.result && info.result.url;
+      if (url) {
+        const res = await tg('setWebhook', { url, secret_token: webhookSecret() });
+        if (res.ok) await redis.set('config:webhook_secured', '1');
+        else console.error('setWebhook failed', res.status, await res.text());
+      }
+    }
+    if ((await redis.get('config:bot_commands')) !== BOT_COMMANDS_VERSION) {
+      const res = await tg('setMyCommands', { commands: BOT_COMMANDS });
+      if (res.ok) await redis.set('config:bot_commands', BOT_COMMANDS_VERSION);
+    }
   } catch (err) {
-    console.error('ensureWebhookSecret failed', err);
+    console.error('ensureBotSetup failed', err);
   }
+}
+
+// خلاصه صبحگاهی: یک بار در روز، از ساعت انتخابی تا دو ساعت بعد (اگر cron مدتی قطع بود، عصر ارسال نشود)
+async function maybeSendSummary(chatId, key, now) {
+  if (!hasBotToken()) return false;
+  const settings = await getChatSettings(chatId);
+  const tz = settings.tzOffsetMinutes;
+  const hour = localHour(now, tz);
+  if (!settings.dailySummary || hour < settings.summaryHour || hour > settings.summaryHour + 2) return false;
+  const today = localDateKey(now, tz);
+  if (settings.lastSummaryDate === today) return false;
+
+  let claimed = false; // قبل از ارسال ثبت می‌شود تا دو اجرای هم‌زمان cron دوبار نفرستند
+  await updateJSON(`settings:${chatId}`, {}, current => {
+    claimed = current.lastSummaryDate !== today;
+    return claimed ? { ...current, lastSummaryDate: today } : undefined;
+  });
+  if (!claimed) return false;
+
+  const list = buildTaskList(await readJSON(key, []), 't', now, tz);
+  if (list.empty) return false; // روزهای بدون کار پیام نمی‌فرستیم
+  await sendTelegram(chatId, `☀️ <b>صبح بخیر!</b>\n\n${list.text}\n\n<i>خاموش کردن خلاصه: /summary off</i>`, list.reply_markup);
+  return true;
 }
 
 export default async function handler(req, res) {
@@ -68,11 +99,11 @@ export default async function handler(req, res) {
 
   try {
     const redis = await getRedis();
-    await ensureWebhookSecret(redis);
+    await ensureBotSetup(redis);
     const keys = await scanKeys('reminders:*');
     const now = Date.now();
     const host = req.headers['x-forwarded-host'] || req.headers.host;
-    let messagesSent = 0, pushesSent = 0;
+    let messagesSent = 0, pushesSent = 0, summariesSent = 0;
 
     for (const key of keys) {
       const chatId = key.slice('reminders:'.length);
@@ -109,14 +140,13 @@ export default async function handler(req, res) {
         }
 
         if (!r.sent && targetTime <= now) {
-          const keyboard = { inline_keyboard: [[{ text: '✅ انجام شد', callback_data: `complete_${r.id}` }], [{ text: '💤 تاخیر ۱ ساعت', callback_data: `snooze_${r.id}` }]] };
           const msg = `⏰ <b>یادآور رسید!</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}\n📝 توضیحات: ${escapeHtml(msgDesc)}`;
-          const done = await sendTelegram(chatId, msg, r.isEncrypted ? undefined : keyboard);
+          const done = await sendTelegram(chatId, msg, r.isEncrypted ? undefined : dueKeyboard(r.id));
           if (subs.length) {
+            // مرورگر فقط به تعداد Notification.maxActions (معمولاً ۲) دکمه نشان می‌دهد؛ ترتیب مهم است
             expiredEndpoints.push(...await sendPush(subs, {
               title: '⏰ یادآور رسید!', body: msgTitle, tag: `nirvana-${r.id}-due-${targetTime}`,
-              requireInteraction: r.priority === 'high', data: { id: r.id },
-              actions: [{ action: 'done', title: '✅ انجام شد' }, { action: 'snooze', title: '💤 ۱ ساعت بعد' }]
+              requireInteraction: r.priority === 'high', data: { id: r.id }, actions: PUSH_DUE_ACTIONS
             }, host));
             pushesSent++;
           }
@@ -124,7 +154,7 @@ export default async function handler(req, res) {
           if (done) {
             messagesSent++;
             const fields = { sent: true };
-            // recurrenceSpawned جلوی ساخت تکرار تکراری بعد از «تاخیر ۱ ساعت» را می‌گیرد
+            // recurrenceSpawned جلوی ساخت تکرار تکراری بعد از تعویق را می‌گیرد
             if (r.recurring && r.recurring !== 'none' && !r.recurrenceSpawned) {
               const next = nextOccurrence(r.datetime, r.recurring, now);
               if (next) {
@@ -162,7 +192,9 @@ export default async function handler(req, res) {
       if (expiredEndpoints.length) {
         await updateJSON(`push:${chatId}`, [], current => current.filter(s => !expiredEndpoints.includes(s.endpoint)));
       }
+
+      if (await maybeSendSummary(chatId, key, now)) summariesSent++;
     }
-    return res.status(200).json({ success: true, sent: messagesSent, pushes: pushesSent });
+    return res.status(200).json({ success: true, sent: messagesSent, pushes: pushesSent, summaries: summariesSent });
   } catch (error) { return res.status(500).json({ error: error.message }); }
 }
