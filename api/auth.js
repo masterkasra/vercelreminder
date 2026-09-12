@@ -5,6 +5,7 @@ import { tg, getBotUsername, hasBotToken } from '../lib/telegram.js';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CHAT_ID_RE = /^-?\d{1,20}$/;
 const CODE_TTL = 10 * 60;
+const BOT_MISSING_ERROR = 'ربات تلگرام روی سرور تنظیم نشده است (TELEGRAM_BOT_TOKEN)؛ تأیید Chat ID ممکن نیست.';
 
 const clip = (value, max) => String(value ?? '').trim().slice(0, max);
 const sha256 = value => crypto.createHash('sha256').update(String(value)).digest('hex');
@@ -106,7 +107,8 @@ export default async function handler(req, res) {
         firstName: clip(body.firstName, 100), lastName: clip(body.lastName, 100), phone: clip(body.phone, 30),
         job: clip(body.job, 100), country: clip(body.country, 100)
       };
-      if (!hasBotToken()) return finishLogin(redis, newUser, res);
+      // بدون ربات مالکیت Chat ID تأییدشدنی نیست؛ ثبت‌نام بدون تأیید اجازه دسترسی به یادآورهای Chat ID دیگران را می‌داد
+      if (!hasBotToken()) return res.status(503).json({ error: BOT_MISSING_ERROR });
       // حساب فقط بعد از وارد کردن کد ساخته می‌شود
       const sent = await sendCode(email, chatId, { pendingUser: newUser });
       if (sent.error) return res.status(sent.status).json({ error: sent.error });
@@ -125,7 +127,8 @@ export default async function handler(req, res) {
         delete user.password;
         await redis.set(userKey, JSON.stringify(user));
       }
-      if (user.chatVerified || !hasBotToken()) return finishLogin(redis, user, res);
+      if (user.chatVerified) return finishLogin(redis, user, res);
+      if (!hasBotToken()) return res.status(503).json({ error: BOT_MISSING_ERROR });
 
       const sent = await sendCode(email, user.chatId, {});
       if (sent.error) return res.status(sent.status).json({ error: sent.error });
