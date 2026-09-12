@@ -1,21 +1,10 @@
-import { createClient } from 'redis';
-import webpush from 'web-push';
 import jalaali from 'jalaali-js';
-
-const client = createClient({ url: process.env.REDIS_URL });
-client.on('error', err => console.error('Redis Error:', err));
+import { getRedis, readJSON, updateJSON, scanKeys } from '../lib/db.js';
+import { sendPush } from '../lib/push.js';
+import { tg, hasBotToken, webhookSecret } from '../lib/telegram.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TEHRAN_OFFSET_MS = 3.5 * 60 * 60 * 1000; // ایران از ۱۴۰۱ ساعت تابستانی ندارد
-
-const pushEnabled = Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
-if (pushEnabled) {
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT || 'mailto:nirvana-reminder@example.com',
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
-}
 
 const escapeHtml = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -42,12 +31,10 @@ function nextOccurrence(iso, recurring, now) {
 }
 
 // true یعنی دیگر نباید دوباره تلاش کرد
-async function sendTelegram(token, chatId, text, replyMarkup) {
+async function sendTelegram(chatId, text, replyMarkup) {
+  if (!hasBotToken()) return true;
   try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML', reply_markup: replyMarkup })
-    });
+    const res = await tg('sendMessage', { chat_id: chatId, text, parse_mode: 'HTML', reply_markup: replyMarkup });
     if (res.ok) return true;
     console.error('Telegram error', chatId, res.status, await res.text());
     // 400 (چت نامعتبر) و 403 (ربات بلاک شده) با تکرار درست نمی‌شوند
@@ -58,18 +45,19 @@ async function sendTelegram(token, chatId, text, replyMarkup) {
   }
 }
 
-// آدرس اشتراک‌های منقضی‌شده را برمی‌گرداند
-async function sendPush(subs, payload) {
-  const expired = [];
-  await Promise.all(subs.map(async sub => {
-    try {
-      await webpush.sendNotification(sub, JSON.stringify(payload), { TTL: 60 * 60 });
-    } catch (err) {
-      if (err.statusCode === 404 || err.statusCode === 410) expired.push(sub.endpoint);
-      else console.error('Push error', err.statusCode, err.body || err.message);
-    }
-  }));
-  return expired;
+// وب‌هوک فعلی ربات را یک بار با secret_token دوباره ثبت می‌کند تا درخواست‌های جعلی به /api/webhook رد شوند
+async function ensureWebhookSecret(redis) {
+  if (!hasBotToken() || await redis.get('config:webhook_secured')) return;
+  try {
+    const info = await (await tg('getWebhookInfo')).json();
+    const url = info && info.result && info.result.url;
+    if (!url) return;
+    const res = await tg('setWebhook', { url, secret_token: webhookSecret() });
+    if (res.ok) await redis.set('config:webhook_secured', '1');
+    else console.error('setWebhook failed', res.status, await res.text());
+  } catch (err) {
+    console.error('ensureWebhookSecret failed', err);
+  }
 }
 
 export default async function handler(req, res) {
@@ -78,19 +66,18 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (!token && !pushEnabled) return res.status(500).json({ error: 'Token missing' });
-
   try {
-    if (!client.isOpen) await client.connect();
-    const keys = await client.keys('reminders:*');
+    const redis = await getRedis();
+    await ensureWebhookSecret(redis);
+    const keys = await scanKeys('reminders:*');
     const now = Date.now();
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
     let messagesSent = 0, pushesSent = 0;
 
     for (const key of keys) {
-      const chatId = key.split(':')[1];
-      const reminders = JSON.parse(await client.get(key) || '[]');
-      const subs = pushEnabled ? JSON.parse(await client.get(`push:${chatId}`) || '[]') : [];
+      const chatId = key.slice('reminders:'.length);
+      const reminders = await readJSON(key, []);
+      const subs = await readJSON(`push:${chatId}`, []);
       const updates = new Map(); // id -> { datetime, fields }
       const newOccurrences = [];
       const expiredEndpoints = [];
@@ -110,12 +97,12 @@ export default async function handler(req, res) {
         const msgDesc = r.isEncrypted ? 'برای مشاهده جزئیات وارد اپلیکیشن شوید.' : (r.desc || '-');
 
         if (r.advanceNotice > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
-          const done = token ? await sendTelegram(token, chatId, `⏳ <b>هشدار زودهنگام</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}`) : true;
+          const done = await sendTelegram(chatId, `⏳ <b>هشدار زودهنگام</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}`);
           if (subs.length) {
             expiredEndpoints.push(...await sendPush(subs, {
               title: '⏳ هشدار زودهنگام', body: msgTitle, tag: `nirvana-${r.id}-adv-${targetTime}`,
-              data: { id: r.id, chatId }, actions: [{ action: 'done', title: '✅ انجام شد' }]
-            }));
+              data: { id: r.id }, actions: [{ action: 'done', title: '✅ انجام شد' }]
+            }, host));
             pushesSent++;
           }
           if (done) { markUpdate(r, { advanceSent: true }); messagesSent++; }
@@ -124,13 +111,13 @@ export default async function handler(req, res) {
         if (!r.sent && targetTime <= now) {
           const keyboard = { inline_keyboard: [[{ text: '✅ انجام شد', callback_data: `complete_${r.id}` }], [{ text: '💤 تاخیر ۱ ساعت', callback_data: `snooze_${r.id}` }]] };
           const msg = `⏰ <b>یادآور رسید!</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}\n📝 توضیحات: ${escapeHtml(msgDesc)}`;
-          const done = token ? await sendTelegram(token, chatId, msg, r.isEncrypted ? undefined : keyboard) : true;
+          const done = await sendTelegram(chatId, msg, r.isEncrypted ? undefined : keyboard);
           if (subs.length) {
             expiredEndpoints.push(...await sendPush(subs, {
               title: '⏰ یادآور رسید!', body: msgTitle, tag: `nirvana-${r.id}-due-${targetTime}`,
-              requireInteraction: r.priority === 'high', data: { id: r.id, chatId },
+              requireInteraction: r.priority === 'high', data: { id: r.id },
               actions: [{ action: 'done', title: '✅ انجام شد' }, { action: 'snooze', title: '💤 ۱ ساعت بعد' }]
-            }));
+            }, host));
             pushesSent++;
           }
 
@@ -141,13 +128,18 @@ export default async function handler(req, res) {
             if (r.recurring && r.recurring !== 'none' && !r.recurrenceSpawned) {
               const next = nextOccurrence(r.datetime, r.recurring, now);
               if (next) {
-                newOccurrences.push({
+                const copy = {
                   ...r,
-                  id: Date.now() * 1000 + Math.floor(Math.random() * 1000), // عدد صحیح، تا دکمه‌های تلگرام با parse درست کار کنند
+                  id: Date.now() * 1000 + Math.floor(Math.random() * 1000), // عدد صحیح، تا دکمه‌های تلگرام درست کار کنند
                   datetime: next.toISOString(),
                   subtasks: (r.subtasks || []).map(st => ({ ...st, done: false })),
                   sent: false, advanceSent: false, completed: false, recurrenceSpawned: false
-                });
+                };
+                if (r.attachment) {
+                  const file = await redis.get(`attachment:${chatId}:${r.id}`);
+                  if (file) await redis.set(`attachment:${chatId}:${copy.id}`, file); else copy.attachment = null;
+                }
+                newOccurrences.push(copy);
                 fields.recurrenceSpawned = true;
               }
             }
@@ -157,20 +149,18 @@ export default async function handler(req, res) {
       }
 
       if (updates.size || newOccurrences.length) {
-        // دوباره خوانده می‌شود تا تغییراتی که کاربر حین ارسال پیام‌ها ثبت کرده از بین نرود
-        const fresh = JSON.parse(await client.get(key) || '[]');
-        for (const item of fresh) {
-          const u = updates.get(item.id);
-          if (u && item.datetime === u.datetime) Object.assign(item, u.fields);
-        }
-        fresh.push(...newOccurrences);
-        await client.set(key, JSON.stringify(fresh));
+        await updateJSON(key, [], current => {
+          for (const item of current) {
+            const u = updates.get(item.id);
+            // اگر کاربر حین ارسال پیام‌ها زمان را عوض کرده، علامت «ارسال شد» روی زمان جدید اعمال نمی‌شود
+            if (u && item.datetime === u.datetime) Object.assign(item, u.fields);
+          }
+          return [...current, ...newOccurrences];
+        });
       }
 
       if (expiredEndpoints.length) {
-        const pushKey = `push:${chatId}`;
-        const current = JSON.parse(await client.get(pushKey) || '[]');
-        await client.set(pushKey, JSON.stringify(current.filter(s => !expiredEndpoints.includes(s.endpoint))));
+        await updateJSON(`push:${chatId}`, [], current => current.filter(s => !expiredEndpoints.includes(s.endpoint)));
       }
     }
     return res.status(200).json({ success: true, sent: messagesSent, pushes: pushesSent });

@@ -7,13 +7,15 @@
   <link rel="manifest" href="/manifest.json" />
   <title>Nirvana | Enterprise Cloud Assistant</title>
   
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { darkMode: 'class', theme: { extend: {} } }</script>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
   
   <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
     body { font-family: 'Vazirmatn', system-ui, sans-serif; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
@@ -104,9 +106,20 @@
         <div class="flex gap-2"><input type="text" id="reg-job" placeholder="شغل" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /><input type="text" id="reg-country" placeholder="کشور" class="w-1/2 input-premium rounded-xl px-4 py-3 text-sm" /></div>
         <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl mt-2">
           <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">شناسه تلگرام (Chat ID):</label>
-          <input type="number" id="reg-chatid" required placeholder="مثال: 123456789" class="w-full input-premium rounded-lg px-3 py-2 text-sm" />
+          <input type="text" inputmode="numeric" id="reg-chatid" required placeholder="مثال: 123456789" class="w-full input-premium rounded-lg px-3 py-2 text-sm" />
+          <p id="bot-hint" class="hidden text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">برای دریافت Chat ID به <a id="bot-link" target="_blank" rel="noopener" class="font-bold text-emerald-600 dark:text-emerald-400 underline"></a> پیام /start بدهید. کد تأیید هم همان‌جا ارسال می‌شود.</p>
         </div>
         <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg mt-4 hover:bg-emerald-400 hover:-translate-y-1 transition-all">ثبت‌نام و ورود</button>
+      </form>
+
+      <form id="verify-form" onsubmit="submitVerification(event)" class="space-y-4 hidden">
+        <p class="text-sm text-center leading-7 text-slate-600 dark:text-slate-300">یک کد ۶ رقمی به تلگرام شما ارسال شد.<br>برای تأیید مالکیت Chat ID آن را وارد کنید.</p>
+        <input type="text" id="verify-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="••••••" class="w-full input-premium rounded-xl px-4 py-3.5 text-center text-2xl tracking-[0.5em] font-mono" />
+        <button type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-4 rounded-xl shadow-lg hover:bg-emerald-400 transition-all">تأیید و ورود</button>
+        <div class="flex justify-between text-xs font-bold">
+          <button type="button" onclick="resendCode()" class="text-emerald-600 dark:text-emerald-400 hover:underline">ارسال دوباره کد</button>
+          <button type="button" onclick="switchAuthTab('login')" class="text-slate-500 hover:text-slate-800 dark:hover:text-white">بازگشت</button>
+        </div>
       </form>
     </div>
   </div>
@@ -222,8 +235,8 @@
             </div>
             <div class="flex flex-wrap gap-2">
               <select id="t-day" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <select id="t-month" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
-              <select id="t-year" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
+              <select id="t-month" onchange="refreshDayOptions()" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
+              <select id="t-year" onchange="refreshDayOptions()" class="flex-1 input-premium rounded-lg px-2 py-2 text-center text-sm appearance-none"></select>
               <span class="text-slate-400 self-center">|</span>
               <select id="t-hour" class="flex-1 input-premium rounded-lg px-1 py-2 text-center text-sm appearance-none"></select>
               <span class="text-slate-400 self-center">:</span>
@@ -395,13 +408,15 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     }
 
     // --- 2. SECURITY (Fallback for old encrypted tasks) & AUTH ---
-    let currentUser = JSON.parse(localStorage.getItem('nirvana_user'));
-    if (!currentUser && localStorage.getItem('user_chat_id')) { currentUser = { email: "legacy", password: localStorage.getItem('user_chat_id'), chatId: localStorage.getItem('user_chat_id'), firstName: "کاربر" }; }
+    localStorage.removeItem('user_chat_id'); // the old chat-id-only login is no longer accepted by the API
+    let authToken = localStorage.getItem('nirvana_token');
+    let currentUser = null;
+    try { currentUser = authToken ? JSON.parse(localStorage.getItem('nirvana_user')) : null; } catch (e) { currentUser = null; }
     let currentChatId = currentUser ? currentUser.chatId : null;
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
     let currentFilter = 'all'; let editingId = null; let tempSubtasks = []; let tempAttachment = null;
-    let isSyncing = false; let lastRenderedSnapshot = null;
+    let isSyncing = false; let lastRenderedSnapshot = null; let pendingAuth = null;
 
     // Everything user-supplied (including titles sent to the Telegram bot) must be escaped before going into innerHTML
     function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
@@ -409,37 +424,110 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     function getSecret() { return (currentUser && currentUser.password) ? currentUser.password : "NirvanaSecretKey"; }
     function decryptText(cipher) {
       if(!cipher) return "";
-      try { const bytes = CryptoJS.AES.decrypt(cipher, getSecret()); return bytes.toString(CryptoJS.enc.Utf8) || "🔒 Encrypted"; } 
+      try { const bytes = CryptoJS.AES.decrypt(cipher, getSecret()); return bytes.toString(CryptoJS.enc.Utf8) || "🔒 Encrypted"; }
       catch(e) { return "🔒 Encrypted"; }
     }
 
     function switchAuthTab(tab) {
-      if (tab === 'login') { document.getElementById('login-form').classList.remove('hidden'); document.getElementById('register-form').classList.add('hidden'); document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all"; document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; } 
-      else { document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.remove('hidden'); document.getElementById('auth-reg-tab').className = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all"; document.getElementById('auth-login-tab').className = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all"; }
+      const active = "flex-1 px-4 py-2 text-sm font-bold rounded-lg bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow transition-all";
+      const inactive = "flex-1 px-4 py-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all";
+      document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+      document.getElementById('verify-form').classList.add('hidden');
+      document.getElementById('auth-login-tab').className = tab === 'login' ? active : inactive;
+      document.getElementById('auth-reg-tab').className = tab === 'register' ? active : inactive;
+    }
+
+    // Every API call carries the session token; a 401 means the session expired or was revoked
+    async function apiFetch(path, options = {}) {
+      const res = await fetch(path, { ...options, headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}), ...(options.headers || {}) } });
+      if (res.status === 401 && authToken) handleSessionExpired();
+      return res;
+    }
+
+    function handleSessionExpired() {
+      if (!authToken) return;
+      authToken = null;
+      localStorage.removeItem('nirvana_token'); localStorage.removeItem('nirvana_user');
+      syncAuthTokenToServiceWorker(null).finally(() => {
+        alert(currentLang === 'fa' ? 'نشست شما منقضی شده است؛ لطفاً دوباره وارد شوید.' : 'Your session has expired. Please log in again.');
+        window.location.reload();
+      });
+    }
+
+    // The service worker can't read localStorage, so the token is mirrored into Cache Storage for the notification buttons
+    async function syncAuthTokenToServiceWorker(token) {
+      if (!('caches' in window)) return;
+      try {
+        const cache = await caches.open('nirvana-auth');
+        if (token) await cache.put('/__nirvana_auth', new Response(token)); else await cache.delete('/__nirvana_auth');
+      } catch (e) {}
+    }
+
+    async function loadBotHint() {
+      try {
+        const { botUsername } = await (await fetch('/api/auth')).json();
+        if (!botUsername) return;
+        const link = document.getElementById('bot-link');
+        link.href = `https://t.me/${encodeURIComponent(botUsername)}`; link.innerText = '@' + botUsername;
+        document.getElementById('bot-hint').classList.remove('hidden');
+      } catch (e) {}
+    }
+
+    async function postAuth(payload) {
+      const loading = document.getElementById('auth-loading'); loading.classList.remove('hidden');
+      try {
+        const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (data.error) { alert(data.error); return null; }
+        return data;
+      } catch (err) { alert("Server Error."); return null; }
+      finally { loading.classList.add('hidden'); }
     }
 
     async function handleAuth(e, action) {
-      e.preventDefault(); document.getElementById('auth-loading').classList.remove('hidden');
-      let payload = { action };
-      if (action === 'login') { payload.email = document.getElementById('login-email').value; payload.password = document.getElementById('login-password').value; } 
-      else { payload.email = document.getElementById('reg-email').value; payload.password = document.getElementById('reg-password').value; payload.firstName = document.getElementById('reg-fname').value; payload.lastName = document.getElementById('reg-lname').value; payload.phone = document.getElementById('reg-phone').value; payload.job = document.getElementById('reg-job').value; payload.country = document.getElementById('reg-country').value; payload.chatId = document.getElementById('reg-chatid').value; }
+      if (e) e.preventDefault();
+      let payload;
+      if (!e && pendingAuth) payload = pendingAuth; // "resend code" repeats the original login/register request
+      else if (action === 'login') payload = { action, email: document.getElementById('login-email').value, password: document.getElementById('login-password').value };
+      else payload = { action, email: document.getElementById('reg-email').value, password: document.getElementById('reg-password').value, firstName: document.getElementById('reg-fname').value, lastName: document.getElementById('reg-lname').value, phone: document.getElementById('reg-phone').value, job: document.getElementById('reg-job').value, country: document.getElementById('reg-country').value, chatId: document.getElementById('reg-chatid').value.trim() };
 
-      try {
-        const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const data = await res.json(); document.getElementById('auth-loading').classList.add('hidden');
-        if (data.error) return alert(data.error);
-        localStorage.setItem('nirvana_user', JSON.stringify(data.user)); localStorage.setItem('user_chat_id', data.user.chatId); window.location.reload();
-      } catch (err) { document.getElementById('auth-loading').classList.add('hidden'); alert("Server Error."); }
+      const data = await postAuth(payload);
+      if (!data) return;
+      if (data.needsVerification) {
+        pendingAuth = payload;
+        document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('verify-form').classList.remove('hidden');
+        const codeInput = document.getElementById('verify-code'); codeInput.value = ''; codeInput.focus();
+        return;
+      }
+      completeLogin(data);
     }
-    
+
+    async function submitVerification(e) {
+      e.preventDefault();
+      if (!pendingAuth) return switchAuthTab('login');
+      const code = document.getElementById('verify-code').value.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).trim();
+      const data = await postAuth({ action: 'verify', email: pendingAuth.email, code });
+      if (data) completeLogin(data);
+    }
+    function resendCode() { if (pendingAuth) handleAuth(null, pendingAuth.action); }
+
+    function completeLogin(data) {
+      // Queued offline changes belong to one account; drop them if a different account logs in
+      if (localStorage.getItem('nirvana_sync_owner') !== String(data.user.chatId)) {
+        ['nirvana_sync_queue', 'nirvana_tasks_cache', 'nirvana_notified'].forEach(k => localStorage.removeItem(k));
+      }
+      localStorage.setItem('nirvana_token', data.token); localStorage.setItem('nirvana_user', JSON.stringify(data.user));
+      window.location.reload();
+    }
+
     async function logout() {
-        await removePushSubscription();
-        localStorage.removeItem('nirvana_notified');
-        localStorage.removeItem('nirvana_user');
-        localStorage.removeItem('user_chat_id'); 
-        localStorage.removeItem('nirvana_tasks_cache'); 
-        localStorage.removeItem('nirvana_sync_queue');
-        window.location.reload(); 
+      await removePushSubscription();
+      if (authToken) await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` }, body: JSON.stringify({ action: 'logout' }) }).catch(() => {});
+      authToken = null; await syncAuthTokenToServiceWorker(null);
+      ['nirvana_user', 'nirvana_token', 'nirvana_tasks_cache', 'nirvana_sync_queue', 'nirvana_sync_owner', 'nirvana_notified'].forEach(k => localStorage.removeItem(k));
+      window.location.reload();
     }
 
     function handleFile(e) {
@@ -450,7 +538,16 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       reader.readAsDataURL(file);
     }
 
-    function exportAnalyticsPDF() {
+    function loadScript(src) {
+      return new Promise((resolve, reject) => { const s = document.createElement('script'); s.src = src; s.onload = resolve; s.onerror = reject; document.head.appendChild(s); });
+    }
+
+    // html2pdf is ~900KB, so it is only downloaded when a report is actually exported
+    async function exportAnalyticsPDF() {
+      if (!window.html2pdf) {
+        try { await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'); }
+        catch (e) { return alert(currentLang === 'fa' ? 'دانلود کتابخانه PDF ناموفق بود؛ اتصال اینترنت را بررسی کنید.' : 'Could not load the PDF library.'); }
+      }
       const total = currentData.length; const done = currentData.filter(r=>r.completed).length; const pending = total - done;
       const element = document.createElement('div');
       element.innerHTML = `
@@ -464,6 +561,19 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
           <br><p style="font-size:10px; color:#888;">Generated by Nirvana.DEV</p>
         </div>`;
       html2pdf().set({ margin: 0.5, filename: 'Nirvana_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(element).save();
+    }
+
+    async function downloadAttachment(id) {
+      const local = currentData.find(r => r.id === id);
+      let file = local && local.attachment && local.attachment.data ? local.attachment : null; // not synced yet
+      if (!file) {
+        const res = await apiFetch(`/api/reminders?attachment=${encodeURIComponent(id)}`);
+        if (!res.ok) return alert(currentLang === 'fa' ? 'دانلود پیوست ناموفق بود.' : 'Attachment download failed.');
+        file = await res.json();
+      }
+      if (!String(file.data || '').startsWith('data:')) return;
+      const a = document.createElement('a'); a.href = file.data; a.download = file.name || 'attachment';
+      document.body.appendChild(a); a.click(); a.remove();
     }
 
     // --- 3. SUBTASKS & POMODORO & GCAL ---
@@ -521,7 +631,9 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     function renderList() {
       const container = document.getElementById('reminders-list'); container.innerHTML = '';
       let filtered = currentFilter === 'all' ? currentData : currentData.filter(r => r.tag === currentFilter);
-      updateGamification(); localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
+      updateGamification();
+      // Attachment contents aren't cached: a few files would blow the ~5MB localStorage quota and break rendering
+      try { localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData.map(r => r.attachment && r.attachment.data ? { ...r, attachment: { name: r.attachment.name, type: r.attachment.type } } : r))); } catch (e) { console.warn('Task cache not saved:', e); }
 
       if (filtered.length === 0) { container.classList.remove('grid'); return container.innerHTML = `<div class="w-full text-center py-16 border border-dashed border-black/10 dark:border-white/10 rounded-[2rem] text-slate-500"><p>${t('empty_list')}</p></div>`; }
       container.classList.add('grid'); const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
@@ -532,7 +644,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         const displayDesc = escapeHtml(r.isEncrypted ? decryptText(r.desc) : (r.desc || ''));
         
         let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${rid}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${escapeHtml(st.text)}</span></li>`; }); subtasksHTML += '</ul>'; }
-        let attachHTML = ''; if (r.attachment && String(r.attachment.data || '').startsWith('data:')) { attachHTML = `<a href="${escapeHtml(r.attachment.data)}" download="${escapeHtml(r.attachment.name)}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${escapeHtml(r.attachment.name)}</a>`; }
+        let attachHTML = ''; if (r.attachment) { attachHTML = `<button type="button" onclick="downloadAttachment(${rid})" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${escapeHtml(r.attachment.name)}</button>`; }
 
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
@@ -561,7 +673,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     }
 
     function setFilter(tag) { currentFilter = tag; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); if (b.getAttribute('onclick').includes(`'${tag}'`)) { b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); } }); renderList(); }
-    function pushToQueue(method, payload) { offlineQueue.push({ method, payload, timestamp: Date.now() }); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
+    function pushToQueue(method, payload) { offlineQueue.push({ method, payload, timestamp: Date.now() }); try { localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); } catch (e) { console.warn('Sync queue not persisted:', e); } processSyncQueue(); }
     
     function saveReminder(e) {
       e.preventDefault(); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
@@ -594,7 +706,15 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       if (currentLang === 'fa') { const j = jalaali.toJalaali(d); y = j.jy; m = j.jm; day = j.jd; yearOptions = Array.from({length: 10}, (_, i) => `<option value="${y - 2 + i}" ${i===2 ? 'selected' : ''}>${y - 2 + i}</option>`).join(''); } 
       else { y = d.getFullYear(); m = d.getMonth() + 1; day = d.getDate(); yearOptions = Array.from({length: 10}, (_, i) => `<option value="${y - 2 + i}" ${i===2 ? 'selected' : ''}>${y - 2 + i}</option>`).join(''); }
       dayOptions = Array.from({length: 31}, (_, i) => `<option value="${i+1}" ${i+1 === day ? 'selected' : ''}>${i+1}</option>`).join(''); monthOptions = t('months').map((name, i) => `<option value="${i+1}" ${i+1 === m ? 'selected' : ''}>${name}</option>`).join(''); hOptions = Array.from({length: 24}, (_, i) => `<option value="${i}" ${i === h ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join(''); mOptions = Array.from({length: 60}, (_, i) => `<option value="${i}" ${i === min ? 'selected' : ''}>${String(i).padStart(2, '0')}</option>`).join('');
-      document.getElementById('t-day').innerHTML = dayOptions; document.getElementById('t-month').innerHTML = monthOptions; document.getElementById('t-year').innerHTML = yearOptions; document.getElementById('t-hour').innerHTML = hOptions; document.getElementById('t-minute').innerHTML = mOptions;
+      document.getElementById('t-day').innerHTML = dayOptions; document.getElementById('t-month').innerHTML = monthOptions; document.getElementById('t-year').innerHTML = yearOptions; document.getElementById('t-hour').innerHTML = hOptions; document.getElementById('t-minute').innerHTML = mOptions; refreshDayOptions(day);
+    }
+    // Month lengths differ (Esfand has 29/30 days), so the day list follows the selected month instead of always offering 31
+    function refreshDayOptions(preferredDay) {
+      const daySelect = document.getElementById('t-day');
+      const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value);
+      const length = currentLang === 'fa' ? jalaali.jalaaliMonthLength(y, m) : new Date(y, m, 0).getDate();
+      const selected = Math.min(preferredDay || parseInt(daySelect.value) || 1, length);
+      daySelect.innerHTML = Array.from({ length }, (_, i) => `<option value="${i+1}" ${i+1 === selected ? 'selected' : ''}>${i+1}</option>`).join('');
     }
     function getSelectedDate() { const y = parseInt(document.getElementById('t-year').value); const m = parseInt(document.getElementById('t-month').value); const d = parseInt(document.getElementById('t-day').value); const h = parseInt(document.getElementById('t-hour').value); const min = parseInt(document.getElementById('t-minute').value); if (currentLang === 'fa') { const g = jalaali.toGregorian(y, m, d); return new Date(g.gy, g.gm - 1, g.gd, h, min); } else { return new Date(y, m - 1, d, h, min); } }
     function formatDateDisplay(isoString) { const d = new Date(isoString); if (currentLang === 'fa') { const j = jalaali.toJalaali(d); return `${String(j.jd).padStart(2, '0')} ${t('months')[j.jm-1]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } else { return `${String(d.getDate()).padStart(2, '0')} ${t('months')[d.getMonth()]} - ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; } }
@@ -659,17 +779,13 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       const btnText = document.getElementById('ai-btn-text'); btnText.innerText = t('ai_loading');
       
       const now = new Date(); const jNow = jalaali.toJalaali(now);
-      
-      const prompt = `You are a strict data extractor. Today's Date -> Year: ${currentLang==='fa'?jNow.jy:now.getFullYear()}, Month: ${currentLang==='fa'?jNow.jm:now.getMonth()+1}, Day: ${currentLang==='fa'?jNow.jd:now.getDate()}.
-      User Input: "${text}"
-      Return ONLY a pure JSON object. NO markdown, NO text outside JSON.
-      Format MUST match exactly:
-      {"title":"Task Name","y":2026,"m":12,"d":30,"h":12,"min":0,"priority":"medium","tag":"general"}`;
-      
+      const today = currentLang === 'fa' ? { y: jNow.jy, m: jNow.jm, d: jNow.jd } : { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
+
       try {
-        let res = await fetch("/api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt: prompt }) });
+        // The prompt is built on the server, so /api/ai can't be abused as a general-purpose proxy
+        let res = await apiFetch("/api/ai", { method: "POST", body: JSON.stringify({ text, lang: currentLang, today }) });
         let data = await res.json();
-        
+
         if (data.error) {
             console.error("API Error:", data.error);
             alert("خطای سرور ابری: " + (data.error.message || "لطفاً API Key خود را بررسی کنید."));
@@ -700,7 +816,8 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
 
     // --- 7. BROWSER NOTIFICATIONS ---
     const NOTIFY_GRACE_MS = 15 * 60 * 1000; // background tabs throttle timers, so anything due in the last 15 min still gets notified
-    const NOTIFY_ICON = 'https://cdn-icons-png.flaticon.com/512/819/819865.png';
+    const NOTIFY_ICON = '/icons/icon-192.png';
+    const NOTIFY_BADGE = '/icons/badge-96.png';
     const swRegistration = ('serviceWorker' in navigator)
       ? navigator.serviceWorker.register('/sw.js').catch(err => { console.warn('SW registration failed:', err); return null; })
       : Promise.resolve(null);
@@ -763,7 +880,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         const subKey = sub && sub.options && sub.options.applicationServerKey;
         if (sub && subKey && bufferToUrlBase64(subKey) !== publicKey.replace(/=+$/, '')) { await sub.unsubscribe(); sub = null; }
         if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
-        const res = await fetch(`/api/push?chat_id=${encodeURIComponent(currentChatId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'subscribe', subscription: sub.toJSON() }) });
+        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'subscribe', subscription: sub.toJSON() }) });
         return res.ok;
       } catch (err) { console.warn('Push subscription failed:', err); return false; }
     }
@@ -773,7 +890,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         const reg = await getActiveRegistration();
         const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
         if (!sub) return;
-        await fetch(`/api/push?chat_id=${encodeURIComponent(currentChatId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'unsubscribe', endpoint: sub.endpoint }) }).catch(() => {});
+        if (authToken) await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` }, body: JSON.stringify({ action: 'unsubscribe', endpoint: sub.endpoint }) }).catch(() => {});
         await sub.unsubscribe();
       } catch (err) { console.warn('Push unsubscribe failed:', err); }
     }
@@ -798,9 +915,9 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
           const actions = [{ action: 'done', title: t('notif_done') }];
           if (type === 'due') actions.push({ action: 'snooze', title: t('notif_snooze') });
           showNotification(type === 'adv' ? t('notif_advance') : t('notif_due'), {
-            body: r.isEncrypted ? t('notif_encrypted') : (r.title || ''), tag, icon: NOTIFY_ICON, badge: NOTIFY_ICON,
+            body: r.isEncrypted ? t('notif_encrypted') : (r.title || ''), tag, icon: NOTIFY_ICON, badge: NOTIFY_BADGE,
             lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr', requireInteraction: r.priority === 'high',
-            vibrate: [200, 100, 200], data: { id: r.id, chatId: currentChatId, url: '/' }, actions
+            vibrate: [200, 100, 200], data: { id: r.id, url: '/' }, actions
           });
         });
       });
@@ -822,11 +939,13 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
 
     // --- 8. BOOT & SYNC ---
     initSettings();
-    if (currentUser || currentChatId) { 
+    if (currentUser && authToken) {
+      localStorage.setItem('nirvana_sync_owner', String(currentChatId));
+      syncAuthTokenToServiceWorker(authToken);
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
-      if(currentUser && currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
-      fetchRemindersFromServer(); updateConnectionStatus(); initNotifications(); 
-    } else { document.getElementById('auth-screen').classList.remove('hidden'); }
+      if (currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
+      fetchRemindersFromServer(); updateConnectionStatus(); initNotifications();
+    } else { document.getElementById('auth-screen').classList.remove('hidden'); loadBotHint(); }
 
     function updateConnectionStatus() {
       const dot = document.getElementById('sync-dot'); const text = document.getElementById('sync-text');
@@ -836,23 +955,26 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus);
 
     async function processSyncQueue() {
-      if (isSyncing || offlineQueue.length === 0 || !navigator.onLine) return;
+      if (isSyncing || !authToken || offlineQueue.length === 0 || !navigator.onLine) return;
       isSyncing = true; // without this guard, parallel calls sent the same "add" twice and duplicated tasks
       const item = offlineQueue[0];
-      try { 
-        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.payload ? JSON.stringify(item.payload) : JSON.stringify(item.body) }); 
+      try {
+        const res = await apiFetch('/api/reminders', { method: item.method, body: JSON.stringify(item.payload || item.body) });
         isSyncing = false;
-        // 5xx is temporary: keep the item and retry on the next sync instead of silently dropping the change
-        if (res.status >= 500) return;
+        // 401 (kept until the user logs in again) and 5xx are temporary: keep the item and retry instead of dropping the change
+        if (res.status === 401 || res.status >= 500) return;
+        if (!res.ok) console.warn('Sync item rejected:', res.status, await res.text().catch(() => ''));
         offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue();
       } catch (e) { isSyncing = false; }
     }
 
-    async function fetchRemindersFromServer() { 
-      try { 
-        const res = await fetch(`/api/reminders?chat_id=${currentChatId}`); 
-        const data = await res.json(); 
-        if (Array.isArray(data)) { 
+    async function fetchRemindersFromServer() {
+      if (!authToken) return;
+      try {
+        const res = await apiFetch('/api/reminders');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data)) {
           const offlineIds = offlineQueue.map(q => (q.payload && q.payload.id) || (q.body && q.body.id));
           const serverData = data.filter(d => !offlineIds.includes(d.id));
           const localUnsynced = currentData.filter(d => offlineIds.includes(d.id));
@@ -861,13 +983,12 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
           currentData = merged;
           if (snapshot === lastRenderedSnapshot) return checkDueNotifications(); // periodic refresh: skip re-render when nothing changed
           lastRenderedSnapshot = snapshot;
-          renderList(); 
+          renderList();
           if (!document.getElementById('calendar-view').classList.contains('hidden')) renderCalendar();
           checkDueNotifications();
-        } 
-      } catch (e) { } 
+        }
+      } catch (e) { }
     }
-
   </script>
 </body>
 </html>

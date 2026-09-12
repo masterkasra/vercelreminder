@@ -1,10 +1,14 @@
-const CACHE_NAME = 'nirvana-reminder-v3';
-const APP_ICON = 'https://cdn-icons-png.flaticon.com/512/819/819865.png';
+const CACHE_NAME = 'nirvana-reminder-v4';
+const AUTH_CACHE = 'nirvana-auth'; // صفحه توکن ورود را اینجا می‌گذارد تا دکمه‌های اعلان بتوانند API را صدا بزنند
+const APP_ICON = '/icons/icon-192.png';
+const BADGE_ICON = '/icons/badge-96.png';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  'https://cdn.tailwindcss.com',
+  '/styles.css',
+  APP_ICON,
+  BADGE_ICON,
   'https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.min.js',
   'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css'
 ];
@@ -22,7 +26,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME && key !== AUTH_CACHE).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -46,7 +50,7 @@ self.addEventListener('push', event => {
     body: payload.body || '',
     tag: payload.tag || 'nirvana',
     icon: APP_ICON,
-    badge: APP_ICON,
+    badge: BADGE_ICON,
     dir: 'rtl',
     lang: 'fa',
     requireInteraction: Boolean(payload.requireInteraction),
@@ -56,22 +60,36 @@ self.addEventListener('push', event => {
   }));
 });
 
+async function authHeaders() {
+  try {
+    const cache = await caches.open(AUTH_CACHE);
+    const res = await cache.match('/__nirvana_auth');
+    return res ? { Authorization: `Bearer ${await res.text()}` } : {};
+  } catch (e) {
+    return {};
+  }
+}
+
 self.addEventListener('notificationclick', event => {
   const notification = event.notification;
   const data = notification.data || {};
   notification.close();
 
-  if ((event.action === 'done' || event.action === 'snooze') && data.id != null && data.chatId) {
+  if ((event.action === 'done' || event.action === 'snooze') && data.id != null) {
     const body = event.action === 'done'
       ? { action: 'complete', id: data.id, completed: true }
       : { action: 'snooze', id: data.id, minutes: 60 };
-    event.waitUntil(
-      fetch(`/api/reminders?chat_id=${encodeURIComponent(data.chatId)}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-      })
-        .then(() => broadcast({ type: 'reminders-changed' }))
-        .catch(err => console.error('Notification action failed:', err))
-    );
+    event.waitUntil((async () => {
+      try {
+        const res = await fetch('/api/reminders', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...(await authHeaders()) }, body: JSON.stringify(body)
+        });
+        if (res.status === 401) return focusOrOpen(data.url || '/'); // نشست منقضی شده؛ اپ را باز کن تا دوباره وارد شود
+        await broadcast({ type: 'reminders-changed' });
+      } catch (err) {
+        console.error('Notification action failed:', err);
+      }
+    })());
     return;
   }
 

@@ -2,9 +2,15 @@
   "name": "telegram-reminder-app",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.cjs -i ./src/input.css -o ./styles.css --minify"
+  },
   "dependencies": {
     "redis": "^4.6.13",
     "jalaali-js": "^1.2.6",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
   }
 }
