@@ -136,6 +136,10 @@
         <select id="lang-select" onchange="changeLanguage(this.value)" class="glass-panel text-xs rounded-xl px-3 py-2.5 outline-none font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
           <option value="fa">🇮🇷 فا</option><option value="en">🇬🇧 EN</option><option value="de">🇩🇪 DE</option>
         </select>
+        <button id="notif-btn" onclick="onNotificationButton()" class="relative p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+          <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500"></span>
+        </button>
         <button onclick="toggleTheme()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Toggle Theme">
           <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
         </button>
@@ -317,7 +321,13 @@
         submit_btn: "ایجاد وظیفه جدید", save_btn: "ذخیره تغییرات", filter_all: "همه وظایف",
         empty_list: "وظیفه‌ای یافت نشد.", btn_done: "انجام شد ✓", btn_undo: "بازگردانی", btn_edit: "ویرایش", btn_del: "حذف", btn_pomo: "تایمر", btn_gcal: "تقویم گوگل", export_pdf: "دانلود گزارش",
         view_list: "لیست", view_cal: "تقویم", pomo_title: "تایمر تمرکز", pomo_start: "شروع", pomo_reset: "توقف", pomo_custom_mins: "زمان (دقیقه):",
-        footer_made: "طراحی با", footer_by: "توسط", months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
+        footer_made: "طراحی با", footer_by: "توسط",
+        notif_title: "اعلان‌های مرورگر", notif_unsupported: "این مرورگر از اعلان پشتیبانی نمی‌کند.",
+        notif_denied: "اجازه اعلان برای این سایت مسدود شده است. روی آیکون قفل کنار آدرس سایت بزنید، Notifications را روی Allow بگذارید و صفحه را رفرش کنید.",
+        notif_ios: "در آیفون/آیپد اعلان فقط وقتی کار می‌کند که سایت را از منوی Share با گزینه Add to Home Screen نصب کنید و از آیکون صفحه اصلی باز کنید (iOS 16.4 یا جدیدتر).",
+        notif_test_title: "اعلان‌ها فعال است ✅", notif_test_body: "یادآورها در موعدشان همین‌جا نمایش داده می‌شوند.", notif_test_local_only: "\n(Web Push روی سرور تنظیم نشده؛ اعلان فقط وقتی سایت باز است می‌آید)",
+        notif_advance: "⏳ هشدار زودهنگام", notif_due: "⏰ یادآور رسید!", notif_done: "✅ انجام شد", notif_snooze: "💤 ۱ ساعت بعد", notif_encrypted: "🔒 پیام رمزنگاری شده",
+months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
         app_title: "Smart Cloud Reminder", sync_online: "Online", sync_offline: "Offline",
@@ -333,7 +343,13 @@
         submit_btn: "Create Task", save_btn: "Save Changes", filter_all: "All Tasks",
         empty_list: "No tasks found.", btn_done: "Done ✓", btn_undo: "Undo", btn_edit: "Edit", btn_del: "Delete", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Export Report",
         view_list: "List", view_cal: "Calendar", pomo_title: "Focus Timer", pomo_start: "Start", pomo_reset: "Stop", pomo_custom_mins: "Time (mins):",
-        footer_made: "Crafted with", footer_by: "by", months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        footer_made: "Crafted with", footer_by: "by",
+        notif_title: "Browser notifications", notif_unsupported: "This browser does not support notifications.",
+        notif_denied: "Notifications are blocked for this site. Click the lock icon next to the address, set Notifications to Allow, then reload.",
+        notif_ios: "On iPhone/iPad, notifications only work after Share → Add to Home Screen, opening the app from the home-screen icon (iOS 16.4+).",
+        notif_test_title: "Notifications enabled ✅", notif_test_body: "Reminders will show up here when they are due.", notif_test_local_only: "\n(Web Push is not configured on the server; notifications only arrive while the site is open)",
+        notif_advance: "⏳ Early alert", notif_due: "⏰ Reminder due!", notif_done: "✅ Done", notif_snooze: "💤 In 1 hour", notif_encrypted: "🔒 Encrypted message",
+months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
         app_title: "Smart Cloud Erinnerung", sync_online: "Online", sync_offline: "Offline",
@@ -349,7 +365,13 @@
         submit_btn: "Erstellen", save_btn: "Speichern", filter_all: "Alle Aufgaben",
         empty_list: "Keine Aufgaben.", btn_done: "Erledigt ✓", btn_undo: "Rückgängig", btn_edit: "Bearbeiten", btn_del: "Löschen", btn_pomo: "Timer", btn_gcal: "G-Cal", export_pdf: "Bericht",
         view_list: "Liste", view_cal: "Kalender", pomo_title: "Fokus-Timer", pomo_start: "Start", pomo_reset: "Stopp", pomo_custom_mins: "Zeit (min):",
-        footer_made: "Erstellt mit", footer_by: "von", months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
+        footer_made: "Erstellt mit", footer_by: "von",
+        notif_title: "Browser-Benachrichtigungen", notif_unsupported: "Dieser Browser unterstützt keine Benachrichtigungen.",
+        notif_denied: "Benachrichtigungen sind für diese Seite blockiert. Klicken Sie auf das Schloss neben der Adresse, erlauben Sie Benachrichtigungen und laden Sie neu.",
+        notif_ios: "Auf iPhone/iPad funktionieren Benachrichtigungen nur nach Teilen → Zum Home-Bildschirm, geöffnet über das Symbol (iOS 16.4+).",
+        notif_test_title: "Benachrichtigungen aktiv ✅", notif_test_body: "Erinnerungen erscheinen hier, sobald sie fällig sind.", notif_test_local_only: "\n(Web Push ist auf dem Server nicht eingerichtet; nur bei geöffneter Seite)",
+        notif_advance: "⏳ Vorwarnung", notif_due: "⏰ Erinnerung fällig!", notif_done: "✅ Erledigt", notif_snooze: "💤 In 1 Stunde", notif_encrypted: "🔒 Verschlüsselt",
+months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
     };
 
@@ -363,7 +385,7 @@
       if (isDark) { html.classList.add('dark'); document.getElementById('meta-theme-color').content = "#030712"; icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'; } 
       else { html.classList.remove('dark'); document.getElementById('meta-theme-color').content = "#f8fafc"; icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>'; }
     }
-    function changeLanguage(lang) { currentLang = lang; localStorage.setItem('nirvana_lang', lang); applyLanguage(); initDatePicker(); if(currentData.length>0){renderList(); renderCalendar();} }
+    function changeLanguage(lang) { currentLang = lang; localStorage.setItem('nirvana_lang', lang); applyLanguage(); updateNotificationButton(); initDatePicker(); if(currentData.length>0){renderList(); renderCalendar();} }
     function t(key) { return translations[currentLang][key] || key; }
     function applyLanguage() {
       document.documentElement.lang = currentLang; document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
@@ -379,6 +401,10 @@
     let currentData = JSON.parse(localStorage.getItem('nirvana_tasks_cache')) || [];
     let offlineQueue = JSON.parse(localStorage.getItem('nirvana_sync_queue')) || [];
     let currentFilter = 'all'; let editingId = null; let tempSubtasks = []; let tempAttachment = null;
+    let isSyncing = false; let lastRenderedSnapshot = null;
+
+    // Everything user-supplied (including titles sent to the Telegram bot) must be escaped before going into innerHTML
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch])); }
 
     function getSecret() { return (currentUser && currentUser.password) ? currentUser.password : "NirvanaSecretKey"; }
     function decryptText(cipher) {
@@ -406,8 +432,10 @@
       } catch (err) { document.getElementById('auth-loading').classList.add('hidden'); alert("Server Error."); }
     }
     
-    function logout() { 
-        localStorage.removeItem('nirvana_user'); 
+    async function logout() {
+        await removePushSubscription();
+        localStorage.removeItem('nirvana_notified');
+        localStorage.removeItem('nirvana_user');
         localStorage.removeItem('user_chat_id'); 
         localStorage.removeItem('nirvana_tasks_cache'); 
         localStorage.removeItem('nirvana_sync_queue');
@@ -432,7 +460,7 @@
           <p>تعداد کل وظایف: <b>${total}</b></p><p>انجام شده: <b style="color:green;">${done}</b></p><p>باقی‌مانده: <b style="color:red;">${pending}</b></p>
           <p>درصد موفقیت: <b>${total ? Math.round((done/total)*100) : 0}%</b></p>
           <br><h3>لیست کارهای باقی‌مانده:</h3>
-          <ul>${currentData.filter(r=>!r.completed).map(r=> `<li>${r.isEncrypted ? '🔒 [رمزنگاری شده E2EE]' : r.title} - ${r.priority}</li>`).join('')}</ul>
+          <ul>${currentData.filter(r=>!r.completed).map(r=> `<li>${r.isEncrypted ? '🔒 [رمزنگاری شده E2EE]' : escapeHtml(r.title)} - ${escapeHtml(r.priority)}</li>`).join('')}</ul>
           <br><p style="font-size:10px; color:#888;">Generated by Nirvana.DEV</p>
         </div>`;
       html2pdf().set({ margin: 0.5, filename: 'Nirvana_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } }).from(element).save();
@@ -440,7 +468,7 @@
 
     // --- 3. SUBTASKS & POMODORO & GCAL ---
     function addTempSubtask() { const input = document.getElementById('subtask-input'); if (!input.value.trim()) return; tempSubtasks.push({ text: input.value.trim(), done: false }); input.value = ''; renderTempSubtasks(); }
-    function renderTempSubtasks() { const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = ''; tempSubtasks.forEach((st, i) => { ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${st.text}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`; }); }
+    function renderTempSubtasks() { const ul = document.getElementById('temp-subtasks-list'); ul.innerHTML = ''; tempSubtasks.forEach((st, i) => { ul.innerHTML += `<li class="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded"><span>${escapeHtml(st.text)}</span><button type="button" onclick="removeTempSubtask(${i})" class="text-rose-500">✖</button></li>`; }); }
     function removeTempSubtask(idx) { tempSubtasks.splice(idx, 1); renderTempSubtasks(); }
     function toggleSubtaskLocally(taskId, subIdx) { const tIdx = currentData.findIndex(r => r.id === taskId); if (tIdx > -1 && currentData[tIdx].subtasks) { currentData[tIdx].subtasks[subIdx].done = !currentData[tIdx].subtasks[subIdx].done; renderList(); pushToQueue('POST', { action: 'edit', ...currentData[tIdx] }); } }
 
@@ -499,12 +527,12 @@
       container.classList.add('grid'); const borderColors = { high: 'border-l-rose-500', medium: 'border-l-amber-500', low: 'border-l-emerald-500' };
 
       filtered.sort((a, b) => new Date(a.datetime) - new Date(b.datetime)).forEach(r => {
-        const dateStr = formatDateDisplay(r.datetime); const tagText = t(`tag_${r.tag}`);
-        const displayTitle = r.isEncrypted ? decryptText(r.title) : r.title;
-        const displayDesc = r.isEncrypted ? decryptText(r.desc) : (r.desc || '');
+        const rid = Number(r.id); const dateStr = formatDateDisplay(r.datetime); const tagText = escapeHtml(t(`tag_${r.tag}`));
+        const displayTitle = escapeHtml(r.isEncrypted ? decryptText(r.title) : r.title);
+        const displayDesc = escapeHtml(r.isEncrypted ? decryptText(r.desc) : (r.desc || ''));
         
-        let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${r.id}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${st.text}</span></li>`; }); subtasksHTML += '</ul>'; }
-        let attachHTML = ''; if (r.attachment) { attachHTML = `<a href="${r.attachment.data}" download="${r.attachment.name}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${r.attachment.name}</a>`; }
+        let subtasksHTML = ''; if (r.subtasks && r.subtasks.length > 0) { subtasksHTML = '<ul class="mt-3 space-y-2">'; r.subtasks.forEach((st, idx) => { subtasksHTML += `<li class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"><input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtaskLocally(${rid}, ${idx})" class="w-4 h-4 text-emerald-500 rounded cursor-pointer"><span class="${st.done ? 'line-through opacity-50' : ''}">${escapeHtml(st.text)}</span></li>`; }); subtasksHTML += '</ul>'; }
+        let attachHTML = ''; if (r.attachment && String(r.attachment.data || '').startsWith('data:')) { attachHTML = `<a href="${escapeHtml(r.attachment.data)}" download="${escapeHtml(r.attachment.name)}" class="mt-3 inline-block bg-blue-500/10 text-blue-500 text-xs px-3 py-1 rounded border border-blue-500/20">📎 دانلود پیوست: ${escapeHtml(r.attachment.name)}</a>`; }
 
         container.innerHTML += `
           <div class="glass-panel rounded-2xl p-5 border-l-4 ${borderColors[r.priority]} flex flex-col justify-between transition-all relative ${r.completed ? 'opacity-40 grayscale' : ''}">
@@ -522,11 +550,11 @@
               ${attachHTML}
             </div>
             <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-black/5 dark:border-white/5">
-              <button onclick="toggleCompleteLocally(${r.id})" class="flex-grow py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
-              <button onclick="openPomo(${r.id})" class="p-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 transition-colors" title="${t('btn_pomo')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
-              <button onclick="exportToGCal(${r.id})" class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors" title="${t('btn_gcal')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>
-              <button onclick="editReminder(${r.id})" class="p-2 rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400 transition-colors" title="${t('btn_edit')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-              <button onclick="deleteLocally(${r.id})" class="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors" title="${t('btn_del')}"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
+              <button onclick="toggleCompleteLocally(${rid})" class="flex-grow py-2 rounded-xl text-xs font-bold transition-colors ${r.completed ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">${r.completed ? t('btn_undo') : t('btn_done')}</button>
+              <button onclick="openPomo(${rid})" class="p-2 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 transition-colors" title="${t('btn_pomo')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+              <button onclick="exportToGCal(${rid})" class="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors" title="${t('btn_gcal')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>
+              <button onclick="editReminder(${rid})" class="p-2 rounded-xl bg-slate-500/10 text-slate-600 dark:text-slate-400 transition-colors" title="${t('btn_edit')}"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+              <button onclick="deleteLocally(${rid})" class="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-colors" title="${t('btn_del')}"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg></button>
             </div>
           </div>`;
       });
@@ -543,7 +571,7 @@
       
       const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: finalTitle, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: advVal, recurring: document.getElementById('recurring').value, tag: tag, desc: finalDesc, subtasks: [...tempSubtasks], isEncrypted: false, attachment: tempAttachment, completed: false };
       
-      if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = payload; cancelEdit(); } else { currentData.push(payload); }
+      if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = { ...currentData[idx], ...payload, completed: currentData[idx].completed }; cancelEdit(); } else { currentData.push(payload); }
       renderList(); pushToQueue('POST', payload); if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); tempAttachment = null; document.getElementById('file-name-display').classList.add('hidden'); initDatePicker(); document.getElementById('advance').value = 0; }
     }
 
@@ -670,12 +698,134 @@
       }
     }
 
-    // --- 7. BOOT & SYNC ---
+    // --- 7. BROWSER NOTIFICATIONS ---
+    const NOTIFY_GRACE_MS = 15 * 60 * 1000; // background tabs throttle timers, so anything due in the last 15 min still gets notified
+    const NOTIFY_ICON = 'https://cdn-icons-png.flaticon.com/512/819/819865.png';
+    const swRegistration = ('serviceWorker' in navigator)
+      ? navigator.serviceWorker.register('/sw.js').catch(err => { console.warn('SW registration failed:', err); return null; })
+      : Promise.resolve(null);
+
+    function notificationsSupported() { return 'Notification' in window; }
+    function isIOS() { return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+
+    async function getActiveRegistration() {
+      if (!(await swRegistration)) return null;
+      return Promise.race([navigator.serviceWorker.ready, new Promise(resolve => setTimeout(() => resolve(null), 4000))]);
+    }
+
+    async function showNotification(title, options) {
+      const reg = await getActiveRegistration();
+      if (reg) { try { return await reg.showNotification(title, options); } catch (err) { console.warn('SW showNotification failed:', err); } }
+      // Desktop-only fallback: Android Chrome throws on `new Notification`, and actions are only allowed on SW notifications
+      try { const { actions, ...rest } = options; new Notification(title, rest); } catch (err) { console.warn('Notification failed:', err); }
+    }
+
+    function requestNotificationPermission() {
+      // Older Safari only supports the callback form
+      return new Promise(resolve => { const p = Notification.requestPermission(resolve); if (p && p.then) p.then(resolve); });
+    }
+
+    function updateNotificationButton() {
+      const perm = notificationsSupported() ? Notification.permission : 'unsupported';
+      const color = perm === 'granted' ? 'bg-emerald-500' : perm === 'default' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500';
+      document.getElementById('notif-dot').className = `absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${color}`;
+      document.getElementById('notif-btn').title = t('notif_title');
+    }
+
+    // Browsers only show the permission prompt from a user click, which is why this lives behind the bell button
+    async function onNotificationButton() {
+      if (!notificationsSupported()) return alert(isIOS() ? t('notif_ios') : t('notif_unsupported'));
+      if (Notification.permission === 'default') await requestNotificationPermission();
+      updateNotificationButton();
+      if (Notification.permission === 'denied') return alert(t('notif_denied'));
+      if (Notification.permission !== 'granted') return;
+      const pushReady = await ensurePushSubscription();
+      await showNotification(t('notif_test_title'), { body: t('notif_test_body') + (pushReady ? '' : t('notif_test_local_only')), tag: 'nirvana-test', icon: NOTIFY_ICON, lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr' });
+      checkDueNotifications();
+    }
+
+    function urlBase64ToUint8Array(base64) {
+      const raw = atob((base64 + '='.repeat((4 - base64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
+      return Uint8Array.from(raw, c => c.charCodeAt(0));
+    }
+    function bufferToUrlBase64(buffer) {
+      return btoa(String.fromCharCode(...new Uint8Array(buffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    // Web Push lets the server cron notify this browser even when the site is closed (needs VAPID keys on Vercel)
+    async function ensurePushSubscription() {
+      if (!currentChatId || !notificationsSupported() || Notification.permission !== 'granted') return false;
+      try {
+        const reg = await getActiveRegistration(); if (!reg || !reg.pushManager) return false;
+        const { publicKey } = await (await fetch('/api/push')).json();
+        if (!publicKey) return false;
+        let sub = await reg.pushManager.getSubscription();
+        const subKey = sub && sub.options && sub.options.applicationServerKey;
+        if (sub && subKey && bufferToUrlBase64(subKey) !== publicKey.replace(/=+$/, '')) { await sub.unsubscribe(); sub = null; }
+        if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
+        const res = await fetch(`/api/push?chat_id=${encodeURIComponent(currentChatId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'subscribe', subscription: sub.toJSON() }) });
+        return res.ok;
+      } catch (err) { console.warn('Push subscription failed:', err); return false; }
+    }
+
+    async function removePushSubscription() {
+      try {
+        const reg = await getActiveRegistration();
+        const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+        if (!sub) return;
+        await fetch(`/api/push?chat_id=${encodeURIComponent(currentChatId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'unsubscribe', endpoint: sub.endpoint }) }).catch(() => {});
+        await sub.unsubscribe();
+      } catch (err) { console.warn('Push unsubscribe failed:', err); }
+    }
+
+    function checkDueNotifications() {
+      if (!notificationsSupported() || Notification.permission !== 'granted') return;
+      const now = Date.now();
+      let notified; try { notified = JSON.parse(localStorage.getItem('nirvana_notified')) || {}; } catch (e) { notified = {}; }
+      let changed = false;
+      currentData.forEach(r => {
+        if (r.completed) return;
+        const target = new Date(r.datetime).getTime(); if (isNaN(target)) return;
+        const advanceAt = target - (parseInt(r.advanceNotice) || 0) * 86400000;
+        const due = [];
+        if (advanceAt < target && advanceAt <= now && now < target && now - advanceAt < NOTIFY_GRACE_MS) due.push('adv');
+        if (target <= now && now - target < NOTIFY_GRACE_MS) due.push('due');
+        due.forEach(type => {
+          // Same tag format as the server push (api/cron.js), so both collapse into a single notification
+          const tag = `nirvana-${r.id}-${type}-${target}`;
+          if (notified[tag]) return;
+          notified[tag] = now; changed = true;
+          const actions = [{ action: 'done', title: t('notif_done') }];
+          if (type === 'due') actions.push({ action: 'snooze', title: t('notif_snooze') });
+          showNotification(type === 'adv' ? t('notif_advance') : t('notif_due'), {
+            body: r.isEncrypted ? t('notif_encrypted') : (r.title || ''), tag, icon: NOTIFY_ICON, badge: NOTIFY_ICON,
+            lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr', requireInteraction: r.priority === 'high',
+            vibrate: [200, 100, 200], data: { id: r.id, chatId: currentChatId, url: '/' }, actions
+          });
+        });
+      });
+      if (changed) {
+        Object.keys(notified).forEach(k => { if (now - notified[k] > 7 * 86400000) delete notified[k]; });
+        localStorage.setItem('nirvana_notified', JSON.stringify(notified));
+      }
+    }
+
+    function initNotifications() {
+      updateNotificationButton();
+      if (notificationsSupported() && Notification.permission === 'granted') ensurePushSubscription();
+      if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'reminders-changed') fetchRemindersFromServer(); });
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { fetchRemindersFromServer(); processSyncQueue(); } });
+      setInterval(checkDueNotifications, 20000);
+      setInterval(() => { fetchRemindersFromServer(); processSyncQueue(); }, 2 * 60 * 1000); // picks up reminders added from Telegram
+      checkDueNotifications();
+    }
+
+    // --- 8. BOOT & SYNC ---
     initSettings();
     if (currentUser || currentChatId) { 
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
       if(currentUser && currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
-      fetchRemindersFromServer(); updateConnectionStatus(); 
+      fetchRemindersFromServer(); updateConnectionStatus(); initNotifications(); 
     } else { document.getElementById('auth-screen').classList.remove('hidden'); }
 
     function updateConnectionStatus() {
@@ -686,13 +836,16 @@
     window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus);
 
     async function processSyncQueue() {
-      if (offlineQueue.length === 0 || !navigator.onLine) return;
+      if (isSyncing || offlineQueue.length === 0 || !navigator.onLine) return;
+      isSyncing = true; // without this guard, parallel calls sent the same "add" twice and duplicated tasks
       const item = offlineQueue[0];
       try { 
         const res = await fetch(`/api/reminders?chat_id=${currentChatId}`, { method: item.method, headers: { 'Content-Type': 'application/json' }, body: item.payload ? JSON.stringify(item.payload) : JSON.stringify(item.body) }); 
-        if (res.ok) { offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
-        else { offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue(); }
-      } catch (e) {}
+        isSyncing = false;
+        // 5xx is temporary: keep the item and retry on the next sync instead of silently dropping the change
+        if (res.status >= 500) return;
+        offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue();
+      } catch (e) { isSyncing = false; }
     }
 
     async function fetchRemindersFromServer() { 
@@ -703,24 +856,18 @@
           const offlineIds = offlineQueue.map(q => (q.payload && q.payload.id) || (q.body && q.body.id));
           const serverData = data.filter(d => !offlineIds.includes(d.id));
           const localUnsynced = currentData.filter(d => offlineIds.includes(d.id));
-          currentData = [...serverData, ...localUnsynced];
+          const merged = [...serverData, ...localUnsynced];
+          const snapshot = JSON.stringify(merged);
+          currentData = merged;
+          if (snapshot === lastRenderedSnapshot) return checkDueNotifications(); // periodic refresh: skip re-render when nothing changed
+          lastRenderedSnapshot = snapshot;
           renderList(); 
           if (!document.getElementById('calendar-view').classList.contains('hidden')) renderCalendar();
+          checkDueNotifications();
         } 
       } catch (e) { } 
     }
 
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
-    setInterval(() => {
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
-      const now = new Date().getTime();
-      currentData.forEach(r => {
-        const target = new Date(r.datetime).getTime();
-        if (!r.completed && !r.nativeSent && target <= now && target > now - 60000) {
-          new Notification("⏰ Nirvana", { body: r.isEncrypted ? '🔒 پیام رمزنگاری شده' : r.title }); r.nativeSent = true; localStorage.setItem('nirvana_tasks_cache', JSON.stringify(currentData));
-        }
-      });
-    }, 30000);
   </script>
 </body>
 </html>

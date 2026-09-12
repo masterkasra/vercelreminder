@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "redis": "^4.6.13",
-    "jalaali-js": "^1.2.6"
+    "jalaali-js": "^1.2.6",
+    "web-push": "^3.6.7"
   }
 }
