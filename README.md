@@ -8,10 +8,11 @@
 
 [![CI](https://github.com/masterkasra/vercelreminder/actions/workflows/ci.yml/badge.svg)](https://github.com/masterkasra/vercelreminder/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-10b981.svg)](LICENSE)
+[![Website](https://img.shields.io/badge/website-anavrin2025.ir-10b981)](https://anavrin2025.ir)
 [![Live demo](https://img.shields.io/badge/live-vercelreminder--chi.vercel.app-111827?logo=vercel)](https://vercelreminder-chi.vercel.app)
 [![Telegram bot](https://img.shields.io/badge/Telegram-@Nirvana__Reminderbot-26A5E4?logo=telegram&logoColor=white)](https://t.me/Nirvana_Reminderbot)
 
-[Live app](https://vercelreminder-chi.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [فارسی](README.fa.md)
+[Website: anavrin2025.ir](https://anavrin2025.ir) · [Live app](https://vercelreminder-chi.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [فارسی](README.fa.md)
 
 </div>
 

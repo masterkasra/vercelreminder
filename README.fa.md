@@ -11,7 +11,7 @@
 [![CI](https://github.com/masterkasra/vercelreminder/actions/workflows/ci.yml/badge.svg)](https://github.com/masterkasra/vercelreminder/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-10b981.svg)](LICENSE)
 
-[نسخه آنلاین](https://vercelreminder-chi.vercel.app) · [ربات تلگرام](https://t.me/Nirvana_Reminderbot) · [English](README.md)
+[وب‌سایت: anavrin2025.ir](https://anavrin2025.ir) · [نسخه آنلاین](https://vercelreminder-chi.vercel.app) · [ربات تلگرام](https://t.me/Nirvana_Reminderbot) · [English](README.md)
 
 </div>
 
