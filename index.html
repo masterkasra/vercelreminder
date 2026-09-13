@@ -76,6 +76,7 @@
         <span class="block text-sm font-bold text-slate-800 dark:text-white mb-2" data-i18n="notif_status_title">وضعیت اعلان‌ها</span>
         <ul id="notif-status" class="text-xs leading-6 text-slate-600 dark:text-slate-400 space-y-1"></ul>
         <button type="button" id="test-push-btn" onclick="sendTestPush()" class="w-full mt-3 bg-black/5 dark:bg-white/10 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-sm hover:bg-black/10 dark:hover:bg-white/20 disabled:opacity-50 transition-colors" data-i18n="test_push_btn">📲 ارسال اعلان آزمایشی به همه دستگاه‌ها</button>
+        <button type="button" id="test-push-delayed-btn" onclick="sendTestPush(15)" class="w-full mt-2 bg-black/5 dark:bg-white/10 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-sm hover:bg-black/10 dark:hover:bg-white/20 disabled:opacity-50 transition-colors" data-i18n="test_push_delayed_btn">⏱ ارسال با ۱۵ ثانیه تأخیر (بعد اپ را ببندید)</button>
         <ul id="push-test-results" class="text-xs leading-6 mt-3 space-y-1 text-slate-600 dark:text-slate-400"></ul>
       </div>
       <p class="text-xs leading-6 text-slate-500 dark:text-slate-400 mb-6" data-i18n="bot_commands_hint">دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما</p>
@@ -409,7 +410,13 @@
         ns_push_ok: "✅ این دستگاه برای اعلان پس‌زمینه (وقتی سایت بسته است) ثبت شده", ns_push_missing: "⚠️ این دستگاه برای اعلان پس‌زمینه ثبت نشده", ns_devices: "📱 دستگاه‌های ثبت‌شده در حساب",
         ns_cron_ok: "✅ زمان‌بند سرور فعال است", ns_cron_late: "❌ زمان‌بند سرور اجرا نمی‌شود؛ یادآورها سر وقت ارسال نمی‌شوند", ns_cron_never: "❌ زمان‌بند سرور (cron) هنوز هیچ‌وقت اجرا نشده؛ یادآورها ارسال نمی‌شوند", ns_minutes_ago: "دقیقه پیش",
         test_push_btn: "📲 ارسال اعلان آزمایشی به همه دستگاه‌ها", test_push_sent: "📲 اعلان آزمایشی ارسال شد:", test_push_no_devices: "هیچ دستگاهی برای اعلان ثبت نشده؛ روی هر دستگاه (گوشی و لپ‌تاپ) یک بار این دکمه را بزنید.", test_push_failed: "ارسال اعلان آزمایشی ناموفق بود",
-        test_push_running: "⏳ در حال ارسال...", test_push_timeout: "سرور در ۴۵ ثانیه پاسخ نداد",
+        test_push_running: "⏳ در حال ارسال...",
+        ns_ios_hint: "📱 آیفون: اگر برای این دستگاه «پذیرفت» می‌بینید ولی اعلانی نمی‌آید، تقریباً همیشه حالت Focus / مزاحم نشوید روشن است (آیکون کنار ساعت). آن را خاموش کنید و در Settings ← Notifications ← اپ نیروانا، گزینه‌های Allow Notifications و Banners را روشن کنید.",
+        local_no_sw: "اعلان محلی: Service Worker فعال نیست؛ اپ را کامل ببندید و دوباره باز کنید", local_failed: "اعلان محلی خطا داد",
+        local_created: "اعلان محلی ساخته شد؛ اگر آن را نمی‌بینید، خود گوشی نمایشش را مخفی کرده (Focus / مزاحم نشوید یا تنظیمات اعلان اپ)",
+        local_not_listed: "اعلان محلی فرستاده شد ولی مرورگر آن را فهرست نکرد؛ اگر نمی‌بینید، تنظیمات اعلان گوشی را بررسی کنید",
+        test_push_delayed_btn: "⏱ ارسال با ۱۵ ثانیه تأخیر (بعد اپ را ببندید)", test_delayed_notice: "⏱ سرور تا ۱۵ ثانیه دیگر اعلان می‌فرستد؛ همین حالا اپ را ببندید یا گوشی را قفل کنید.",
+        test_delayed_background: "ℹ️ اگر اپ را بسته بودید این طبیعی است و سرور اعلان را می‌فرستد. اگر اعلان را ندیدید، مرکز اعلان‌ها و حالت Focus را بررسی کنید.", test_push_timeout: "سرور در ۴۵ ثانیه پاسخ نداد",
         test_local_title: "🔔 اعلان محلی (بدون سرور)", test_local_body: "این اعلان مستقیم از خود دستگاه است؛ اعلان «از سرور» باید چند ثانیه بعد برسد.",
         push_this_device: "این دستگاه", push_other_device: "دستگاه دیگر", push_accepted: "سرویس push پیام را پذیرفت", push_expired: "اشتراک منقضی شده بود و حذف شد",
         push_accepted_hint: "ℹ️ اگر برای این دستگاه «پذیرفت» آمد ولی اعلان «از سرور» نرسید، مشکل از اتصال خود دستگاه به سرویس اعلان است (اندروید: سرویس‌های گوگل و اجازه پس‌زمینه Chrome؛ آیفون: باز کردن از آیکون صفحه اصلی).",
@@ -446,7 +453,13 @@ months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مردا
         ns_push_ok: "✅ This device is registered for background notifications (site closed)", ns_push_missing: "⚠️ This device is not registered for background notifications", ns_devices: "📱 Devices registered on this account",
         ns_cron_ok: "✅ Server scheduler is running", ns_cron_late: "❌ Server scheduler is not running; reminders won't be sent on time", ns_cron_never: "❌ Server scheduler (cron) has never run; reminders won't be sent", ns_minutes_ago: "min ago",
         test_push_btn: "📲 Send a test notification to all devices", test_push_sent: "📲 Test notification sent:", test_push_no_devices: "No device is registered; tap this button once on each device (phone and laptop).", test_push_failed: "Sending the test notification failed",
-        test_push_running: "⏳ Sending...", test_push_timeout: "the server didn't answer within 45 seconds",
+        test_push_running: "⏳ Sending...",
+        ns_ios_hint: "📱 iPhone: if this device shows \"accepted\" but nothing appears, Focus / Do Not Disturb is almost always on (icon next to the clock). Turn it off, and in Settings → Notifications → the Nirvana app, enable Allow Notifications and Banners.",
+        local_no_sw: "Local notification: service worker isn't active; fully close and reopen the app", local_failed: "Local notification failed",
+        local_created: "Local notification was created; if you can't see it, the phone itself is hiding it (Focus / Do Not Disturb or the app's notification settings)",
+        local_not_listed: "Local notification was sent but the browser didn't list it; if you can't see it, check the phone's notification settings",
+        test_push_delayed_btn: "⏱ Send in 15 seconds (then close the app)", test_delayed_notice: "⏱ The server will send a notification in 15 seconds; close the app or lock the phone now.",
+        test_delayed_background: "ℹ️ If you left the app this is expected, and the server still sends the notification. If you didn't see it, check Notification Center and Focus mode.", test_push_timeout: "the server didn't answer within 45 seconds",
         test_local_title: "🔔 Local notification (no server)", test_local_body: "This one comes straight from this device; the one \"from server\" should follow in a few seconds.",
         push_this_device: "This device", push_other_device: "Other device", push_accepted: "accepted by the push service", push_expired: "subscription had expired and was removed",
         push_accepted_hint: "ℹ️ If this device shows \"accepted\" but the \"from server\" notification never appears, the device itself can't reach its push service (Android: Google services and Chrome background access; iPhone: open the app from the home-screen icon).",
@@ -483,7 +496,13 @@ months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', '
         ns_push_ok: "✅ Dieses Gerät ist für Hintergrund-Benachrichtigungen registriert", ns_push_missing: "⚠️ Dieses Gerät ist nicht für Hintergrund-Benachrichtigungen registriert", ns_devices: "📱 Registrierte Geräte im Konto",
         ns_cron_ok: "✅ Server-Zeitplaner läuft", ns_cron_late: "❌ Server-Zeitplaner läuft nicht; Erinnerungen kommen nicht pünktlich", ns_cron_never: "❌ Server-Zeitplaner (cron) lief noch nie; Erinnerungen werden nicht gesendet", ns_minutes_ago: "Min.",
         test_push_btn: "📲 Test-Benachrichtigung an alle Geräte", test_push_sent: "📲 Test-Benachrichtigung gesendet:", test_push_no_devices: "Kein Gerät registriert; auf jedem Gerät (Handy und Laptop) einmal diesen Button tippen.", test_push_failed: "Test-Benachrichtigung fehlgeschlagen",
-        test_push_running: "⏳ Wird gesendet...", test_push_timeout: "Server hat nicht innerhalb von 45 Sekunden geantwortet",
+        test_push_running: "⏳ Wird gesendet...",
+        ns_ios_hint: "📱 iPhone: Wenn dieses Gerät \"angenommen\" zeigt, aber nichts erscheint, ist fast immer Fokus / Nicht stören aktiv (Symbol neben der Uhr). Ausschalten und unter Einstellungen → Mitteilungen → Nirvana-App \"Mitteilungen erlauben\" und Banner aktivieren.",
+        local_no_sw: "Lokale Benachrichtigung: Service Worker nicht aktiv; App ganz schließen und neu öffnen", local_failed: "Lokale Benachrichtigung fehlgeschlagen",
+        local_created: "Lokale Benachrichtigung wurde erstellt; wenn sie nicht sichtbar ist, blendet das Handy sie aus (Fokus / Nicht stören oder Mitteilungseinstellungen der App)",
+        local_not_listed: "Lokale Benachrichtigung gesendet, aber vom Browser nicht gelistet; falls nicht sichtbar, Mitteilungseinstellungen des Handys prüfen",
+        test_push_delayed_btn: "⏱ In 15 Sekunden senden (dann App schließen)", test_delayed_notice: "⏱ Der Server sendet in 15 Sekunden eine Benachrichtigung; App jetzt schließen oder Handy sperren.",
+        test_delayed_background: "ℹ️ Wenn Sie die App verlassen haben, ist das normal und der Server sendet trotzdem. Falls nichts erschien, Mitteilungszentrale und Fokus-Modus prüfen.", test_push_timeout: "Server hat nicht innerhalb von 45 Sekunden geantwortet",
         test_local_title: "🔔 Lokale Benachrichtigung (ohne Server)", test_local_body: "Diese kommt direkt vom Gerät; die \"vom Server\" sollte in wenigen Sekunden folgen.",
         push_this_device: "Dieses Gerät", push_other_device: "Anderes Gerät", push_accepted: "vom Push-Dienst angenommen", push_expired: "Abo war abgelaufen und wurde entfernt",
         push_accepted_hint: "ℹ️ Wenn dieses Gerät \"angenommen\" zeigt, die Benachrichtigung \"vom Server\" aber nie erscheint, erreicht das Gerät seinen Push-Dienst nicht (Android: Google-Dienste und Chrome-Hintergrundzugriff; iPhone: App über das Home-Bildschirm-Symbol öffnen).",
@@ -880,6 +899,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       if (renderId !== notifStatusRender) return;
       const items = [perm === 'granted' ? t('ns_perm_ok') : perm === 'denied' ? t('ns_perm_denied') : perm === 'default' ? t('ns_perm_default') : (isIOS() ? t('notif_ios') : t('notif_unsupported'))];
       if (perm === 'granted') items.push(sub ? `${t('ns_push_ok')} — ${pushServiceName(sub.endpoint)}` : t('ns_push_missing'));
+      if (isIOS()) items.push(t('ns_ios_hint'));
       if (s) {
         items.push(`${t('ns_devices')}: ${s.pushDevices}`);
         const ago = s.cronLastRun ? Math.max(0, Math.round((Date.now() - s.cronLastRun) / 60000)) : null;
@@ -905,39 +925,57 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       return `❌ ${who}: ${r.error || r.status}`;
     }
 
+    // Shows a notification straight from this device's service worker and reports whether the browser really created it,
+    // so "iOS/Focus hid it" can be told apart from an API error
+    async function testLocalNotification() {
+      const reg = await getActiveRegistration();
+      if (!reg) return `❌ ${t('local_no_sw')}`;
+      try {
+        await reg.showNotification(t('test_local_title'), { body: t('test_local_body'), tag: 'nirvana-test-local', icon: NOTIFY_ICON, lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr' });
+      } catch (err) {
+        return `❌ ${t('local_failed')}: ${err.name || ''} ${err.message || err}`;
+      }
+      const created = reg.getNotifications ? await reg.getNotifications({ tag: 'nirvana-test-local' }).catch(() => null) : null;
+      return created && created.length ? `✅ ${t('local_created')}` : `⚠️ ${t('local_not_listed')}`;
+    }
+
     // Two-step test: a local notification from this device's service worker (no server involved),
     // then a real Web Push through the server to every device, with a per-device result
-    async function sendTestPush() {
-      const btn = document.getElementById('test-push-btn'); btn.disabled = true;
+    async function sendTestPush(delaySeconds = 0) {
+      const buttons = ['test-push-btn', 'test-push-delayed-btn'].map(id => document.getElementById(id)).filter(Boolean);
+      buttons.forEach(b => { b.disabled = true; });
       const out = document.getElementById('push-test-results');
       out.innerHTML = `<li>${escapeHtml(t('test_push_running'))}</li>`;
       try {
         if (notificationsSupported() && Notification.permission === 'default') { await requestNotificationPermission(); updateNotificationButton(); }
-        if (notificationsSupported() && Notification.permission === 'granted') {
-          await showNotification(t('test_local_title'), { body: t('test_local_body'), tag: 'nirvana-test-local', icon: NOTIFY_ICON, badge: NOTIFY_BADGE, lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr' });
-        }
+        let localLine = null;
+        if (!delaySeconds && notificationsSupported() && Notification.permission === 'granted') localLine = await testLocalNotification();
         await withTimeout(ensurePushSubscription(), 20000, false);
         const reg = await getActiveRegistration();
         const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
         const myId = sub ? await endpointId(sub.endpoint) : null;
 
-        const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
-        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test' }), signal: controller.signal }).finally(() => clearTimeout(timer));
+        if (delaySeconds) { out.innerHTML = `<li>${escapeHtml(t('test_delayed_notice'))}</li>`; showToast(t('test_delayed_notice'), 'info'); }
+        const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000 + delaySeconds * 1000);
+        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test', delaySeconds }), signal: controller.signal }).finally(() => clearTimeout(timer));
         if (res.status === 401) return;
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { out.innerHTML = ''; return showToast(`${t('test_push_failed')} (${res.status})${data.error ? ': ' + data.error : ''}`, 'error'); }
-        if (!data.devices) { out.innerHTML = ''; return showToast(t('test_push_no_devices'), 'error'); }
+        if (!data.devices) { out.innerHTML = localLine ? `<li>${escapeHtml(localLine)}</li>` : ''; return showToast(t('test_push_no_devices'), 'error'); }
 
         const lines = (data.results || []).map(r => describePushResult(r, r.id === myId));
+        if (localLine) lines.unshift(localLine);
         if (!sub) lines.unshift(`⚠️ ${t('ns_push_missing')}`);
         if ((data.results || []).some(r => r.id === myId && r.ok)) lines.push(t('push_accepted_hint'));
         out.innerHTML = lines.map(line => `<li>${escapeHtml(line)}</li>`).join('');
         showToast(`${t('test_push_sent')} ${data.delivered}/${data.devices}`, data.delivered ? 'success' : 'error');
       } catch (e) {
         out.innerHTML = '';
-        showToast(`${t('test_push_failed')}: ${e.name === 'AbortError' ? t('test_push_timeout') : e.message}`, 'error');
+        // Leaving the app during a delayed test suspends this request on iPhone; the server still sends the push
+        if (delaySeconds) showToast(t('test_delayed_background'), 'info');
+        else showToast(`${t('test_push_failed')}: ${e.name === 'AbortError' ? t('test_push_timeout') : e.message}`, 'error');
       } finally {
-        btn.disabled = false; refreshNotificationStatus();
+        buttons.forEach(b => { b.disabled = false; }); refreshNotificationStatus();
       }
     }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     const session = await requireSession(req, res);
     if (!session) return;
-    const { action, subscription, endpoint } = req.body || {};
+    const { action, subscription, endpoint, delaySeconds } = req.body || {};
     const pushKey = `push:${session.chatId}`;
 
     if (action === 'subscribe') {
@@ -35,6 +35,9 @@ export default async function handler(req, res) {
       if (!(await rateLimit(`ratelimit:pushtest:${session.chatId}`, 10, 60 * 60))) {
         return res.status(429).json({ error: 'اعلان آزمایشی زیاد ارسال شد؛ کمی بعد دوباره امتحان کنید.' });
       }
+      // آیفون وقتی خود اپ باز است بنر نشان نمی‌دهد؛ با تأخیر، کاربر فرصت دارد اپ را ببندد یا گوشی را قفل کند
+      const delay = Math.min(Math.max(parseInt(delaySeconds) || 0, 0), 20);
+      if (delay) await new Promise(resolve => setTimeout(resolve, delay * 1000));
       const subs = await readJSON(pushKey, []);
       const results = await sendPush(subs, {
         title: '🔔 اعلان آزمایشی (از سرور)',
