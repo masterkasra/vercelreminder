@@ -99,6 +99,7 @@ export default async function handler(req, res) {
 
   try {
     const redis = await getRedis();
+    await redis.set('config:last_cron_run', String(Date.now())); // در تنظیمات اپ نشان داده می‌شود
     await ensureBotSetup(redis);
     const keys = await scanKeys('reminders:*');
     const now = Date.now();
@@ -130,10 +131,10 @@ export default async function handler(req, res) {
         if (r.advanceNotice > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
           const done = await sendTelegram(chatId, `⏳ <b>هشدار زودهنگام</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}`);
           if (subs.length) {
-            expiredEndpoints.push(...await sendPush(subs, {
+            expiredEndpoints.push(...(await sendPush(subs, {
               title: '⏳ هشدار زودهنگام', body: msgTitle, tag: `nirvana-${r.id}-adv-${targetTime}`,
               data: { id: r.id }, actions: [{ action: 'done', title: '✅ انجام شد' }]
-            }, host));
+            }, host)).expired);
             pushesSent++;
           }
           if (done) { markUpdate(r, { advanceSent: true }); messagesSent++; }
@@ -144,10 +145,10 @@ export default async function handler(req, res) {
           const done = await sendTelegram(chatId, msg, r.isEncrypted ? undefined : dueKeyboard(r.id));
           if (subs.length) {
             // مرورگر فقط به تعداد Notification.maxActions (معمولاً ۲) دکمه نشان می‌دهد؛ ترتیب مهم است
-            expiredEndpoints.push(...await sendPush(subs, {
+            expiredEndpoints.push(...(await sendPush(subs, {
               title: '⏰ یادآور رسید!', body: msgTitle, tag: `nirvana-${r.id}-due-${targetTime}`,
               requireInteraction: r.priority === 'high', data: { id: r.id }, actions: PUSH_DUE_ACTIONS
-            }, host));
+            }, host)).expired);
             pushesSent++;
           }
 

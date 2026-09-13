@@ -54,6 +54,8 @@
 
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-emerald-400/20 dark:bg-emerald-900/20 blur-[120px] dark:blur-[150px] rounded-full pointer-events-none -z-10 transition-all duration-700"></div>
 
+  <div id="toast-root" class="fixed bottom-6 inset-x-0 z-[60] flex flex-col items-center gap-2 px-4 pointer-events-none"></div>
+
   <!-- Settings Modal -->
   <div id="settings-modal" onclick="if (event.target === this) closeSettings()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden">
     <div class="glass-panel p-6 sm:p-8 rounded-3xl max-w-sm w-full relative">
@@ -69,6 +71,11 @@
       <div class="flex items-center justify-between gap-4 py-4">
         <span class="text-sm font-bold text-slate-700 dark:text-slate-300" data-i18n="summary_hour">ساعت ارسال</span>
         <select id="set-summary-hour" class="input-premium rounded-lg px-3 py-2 text-sm"></select>
+      </div>
+      <div class="py-4 mb-4 border-y border-black/5 dark:border-white/10">
+        <span class="block text-sm font-bold text-slate-800 dark:text-white mb-2" data-i18n="notif_status_title">وضعیت اعلان‌ها</span>
+        <ul id="notif-status" class="text-xs leading-6 text-slate-600 dark:text-slate-400 space-y-1"></ul>
+        <button type="button" id="test-push-btn" onclick="sendTestPush()" class="w-full mt-3 bg-black/5 dark:bg-white/10 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-sm hover:bg-black/10 dark:hover:bg-white/20 disabled:opacity-50 transition-colors" data-i18n="test_push_btn">📲 ارسال اعلان آزمایشی به همه دستگاه‌ها</button>
       </div>
       <p class="text-xs leading-6 text-slate-500 dark:text-slate-400 mb-6" data-i18n="bot_commands_hint">دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما</p>
       <button onclick="saveSettings()" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-colors" data-i18n="save_btn">ذخیره تغییرات</button>
@@ -395,6 +402,12 @@
         btn_snooze: "تعویق", snz_10m: "۱۰ دقیقه بعد", snz_1h: "۱ ساعت بعد", snz_tonight: "امشب ۲۰:۰۰", snz_tomorrow: "فردا صبح ۹:۰۰",
         settings_title: "تنظیمات", summary_title: "خلاصه صبحگاهی در تلگرام", summary_desc: "هر روز کارهای امروز و عقب‌افتاده‌ها در تلگرام برایتان ارسال می‌شود.", summary_hour: "ساعت ارسال", settings_error: "ذخیره تنظیمات ناموفق بود.",
         bot_commands_hint: "دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما",
+        toast_saved: "✅ یادآور ثبت شد", toast_updated: "✅ تغییرات ذخیره شد", toast_ai_saved: "🤖 یادآور ثبت شد:", toast_snoozed: "💤 به تعویق افتاد تا", settings_saved: "✅ تنظیمات ذخیره شد",
+        toast_past: "⚠️ زمان انتخاب‌شده گذشته است؛ یادآور همین حالا ارسال می‌شود.", toast_sync_failed: "❌ ذخیره روی سرور ناموفق بود", toast_sync_retry: "📶 اتصال به سرور برقرار نشد؛ تغییرات نگه داشته شده و دوباره ارسال می‌شود.",
+        notif_status_title: "وضعیت اعلان‌ها", ns_perm_ok: "✅ اجازه اعلان در این دستگاه داده شده است", ns_perm_denied: "❌ اعلان در این دستگاه مسدود است؛ از تنظیمات سایت در مرورگر اجازه دهید", ns_perm_default: "⚠️ هنوز اجازه اعلان داده نشده؛ دکمه آزمایش پایین را بزنید",
+        ns_push_ok: "✅ این دستگاه برای اعلان پس‌زمینه (وقتی سایت بسته است) ثبت شده", ns_push_missing: "⚠️ این دستگاه برای اعلان پس‌زمینه ثبت نشده", ns_devices: "📱 دستگاه‌های ثبت‌شده در حساب",
+        ns_cron_ok: "✅ زمان‌بند سرور فعال است", ns_cron_late: "❌ زمان‌بند سرور اجرا نمی‌شود؛ یادآورها سر وقت ارسال نمی‌شوند", ns_cron_never: "❌ زمان‌بند سرور (cron) هنوز هیچ‌وقت اجرا نشده؛ یادآورها ارسال نمی‌شوند", ns_minutes_ago: "دقیقه پیش",
+        test_push_btn: "📲 ارسال اعلان آزمایشی به همه دستگاه‌ها", test_push_sent: "📲 اعلان آزمایشی ارسال شد:", test_push_no_devices: "هیچ دستگاهی برای اعلان ثبت نشده؛ روی هر دستگاه (گوشی و لپ‌تاپ) یک بار این دکمه را بزنید.", test_push_failed: "ارسال اعلان آزمایشی ناموفق بود",
 months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
@@ -422,6 +435,12 @@ months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مردا
         btn_snooze: "Snooze", snz_10m: "In 10 minutes", snz_1h: "In 1 hour", snz_tonight: "Tonight 20:00", snz_tomorrow: "Tomorrow 9:00",
         settings_title: "Settings", summary_title: "Morning summary on Telegram", summary_desc: "Every day, today's and overdue tasks are sent to you on Telegram.", summary_hour: "Send at", settings_error: "Could not save settings.",
         bot_commands_hint: "Bot commands: /today today's tasks, /list all open tasks, /summary summary settings, /help help",
+        toast_saved: "✅ Reminder saved", toast_updated: "✅ Changes saved", toast_ai_saved: "🤖 Reminder saved:", toast_snoozed: "💤 Snoozed until", settings_saved: "✅ Settings saved",
+        toast_past: "⚠️ That time is already past; the reminder will fire right away.", toast_sync_failed: "❌ Saving to the server failed", toast_sync_retry: "📶 Couldn't reach the server; your changes are kept and will be retried.",
+        notif_status_title: "Notification status", ns_perm_ok: "✅ Notifications are allowed on this device", ns_perm_denied: "❌ Notifications are blocked on this device; allow them in the browser's site settings", ns_perm_default: "⚠️ Notification permission not granted yet; tap the test button below",
+        ns_push_ok: "✅ This device is registered for background notifications (site closed)", ns_push_missing: "⚠️ This device is not registered for background notifications", ns_devices: "📱 Devices registered on this account",
+        ns_cron_ok: "✅ Server scheduler is running", ns_cron_late: "❌ Server scheduler is not running; reminders won't be sent on time", ns_cron_never: "❌ Server scheduler (cron) has never run; reminders won't be sent", ns_minutes_ago: "min ago",
+        test_push_btn: "📲 Send a test notification to all devices", test_push_sent: "📲 Test notification sent:", test_push_no_devices: "No device is registered; tap this button once on each device (phone and laptop).", test_push_failed: "Sending the test notification failed",
 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
@@ -449,6 +468,12 @@ months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', '
         btn_snooze: "Verschieben", snz_10m: "In 10 Minuten", snz_1h: "In 1 Stunde", snz_tonight: "Heute 20:00", snz_tomorrow: "Morgen 9:00",
         settings_title: "Einstellungen", summary_title: "Morgenübersicht in Telegram", summary_desc: "Jeden Tag werden heutige und überfällige Aufgaben per Telegram gesendet.", summary_hour: "Senden um", settings_error: "Einstellungen konnten nicht gespeichert werden.",
         bot_commands_hint: "Bot-Befehle: /today heute, /list alle offenen Aufgaben, /summary Übersicht, /help Hilfe",
+        toast_saved: "✅ Erinnerung gespeichert", toast_updated: "✅ Änderungen gespeichert", toast_ai_saved: "🤖 Erinnerung gespeichert:", toast_snoozed: "💤 Verschoben bis", settings_saved: "✅ Einstellungen gespeichert",
+        toast_past: "⚠️ Diese Zeit liegt in der Vergangenheit; die Erinnerung wird sofort gesendet.", toast_sync_failed: "❌ Speichern auf dem Server fehlgeschlagen", toast_sync_retry: "📶 Server nicht erreichbar; Änderungen bleiben erhalten und werden erneut gesendet.",
+        notif_status_title: "Benachrichtigungsstatus", ns_perm_ok: "✅ Benachrichtigungen sind auf diesem Gerät erlaubt", ns_perm_denied: "❌ Benachrichtigungen sind blockiert; in den Website-Einstellungen des Browsers erlauben", ns_perm_default: "⚠️ Noch keine Erlaubnis; unten auf den Test-Button tippen",
+        ns_push_ok: "✅ Dieses Gerät ist für Hintergrund-Benachrichtigungen registriert", ns_push_missing: "⚠️ Dieses Gerät ist nicht für Hintergrund-Benachrichtigungen registriert", ns_devices: "📱 Registrierte Geräte im Konto",
+        ns_cron_ok: "✅ Server-Zeitplaner läuft", ns_cron_late: "❌ Server-Zeitplaner läuft nicht; Erinnerungen kommen nicht pünktlich", ns_cron_never: "❌ Server-Zeitplaner (cron) lief noch nie; Erinnerungen werden nicht gesendet", ns_minutes_ago: "Min.",
+        test_push_btn: "📲 Test-Benachrichtigung an alle Geräte", test_push_sent: "📲 Test-Benachrichtigung gesendet:", test_push_no_devices: "Kein Gerät registriert; auf jedem Gerät (Handy und Laptop) einmal diesen Button tippen.", test_push_failed: "Test-Benachrichtigung fehlgeschlagen",
 months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
     };
@@ -744,6 +769,25 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     }
 
     function setFilter(tag) { currentFilter = tag; document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active', 'bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.add('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); if (b.getAttribute('onclick').includes(`'${tag}'`)) { b.classList.add('bg-slate-800', 'dark:bg-white/20', 'text-white'); b.classList.remove('bg-black/5', 'dark:bg-white/5', 'text-slate-600', 'dark:text-slate-400'); } }); renderList(); }
+    // --- Toasts: short confirmations so saves are never silent ---
+    let lastSyncRetryToast = 0;
+    function showToast(message, type = 'success') {
+      const root = document.getElementById('toast-root'); if (!root) return;
+      const colors = { success: 'bg-emerald-500 text-white', error: 'bg-rose-500 text-white', info: 'bg-slate-800 text-white dark:bg-white dark:text-slate-900' };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto max-w-md px-4 py-3 rounded-xl shadow-lg text-sm font-bold leading-6 transition-all duration-300 opacity-0 translate-y-2 ${colors[type] || colors.info}`;
+      el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      el.textContent = message;
+      root.appendChild(el);
+      requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
+      setTimeout(() => { el.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => el.remove(), 300); }, type === 'error' ? 7000 : 3500);
+    }
+    function notifySyncRetry() {
+      if (Date.now() - lastSyncRetryToast < 60 * 1000) return;
+      lastSyncRetryToast = Date.now();
+      showToast(t('toast_sync_retry'), 'info');
+    }
+
     // --- Search, quick status filters & snooze ---
     let currentStatus = (() => { try { return localStorage.getItem('nirvana_status_filter') || 'all'; } catch (e) { return 'all'; } })();
     let searchQuery = ''; let searchTimer = null;
@@ -795,6 +839,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       Object.assign(currentData[idx], { datetime: until.toISOString(), completed: false, sent: false });
       renderList(); if (!document.getElementById('calendar-view').classList.contains('hidden')) renderCalendar();
       pushToQueue('POST', { action: 'snooze', id, until: until.toISOString() });
+      showToast(`${t('toast_snoozed')} ${formatDateDisplay(until.toISOString())}`);
     }
 
     // --- Settings (morning summary) ---
@@ -802,17 +847,64 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       const hourSelect = document.getElementById('set-summary-hour');
       if (!hourSelect.options.length) hourSelect.innerHTML = Array.from({ length: 24 }, (_, h) => `<option value="${h}">${String(h).padStart(2, '0')}:00</option>`).join('');
       document.getElementById('settings-modal').classList.remove('hidden');
+      renderNotificationStatus(null);
       try {
-        const res = await apiFetch('/api/settings'); if (!res.ok) return;
+        const res = await apiFetch('/api/settings');
+        if (!res.ok) return;
         const s = await res.json();
         document.getElementById('set-summary').checked = Boolean(s.dailySummary); hourSelect.value = String(s.summaryHour);
+        renderNotificationStatus(s);
       } catch (e) {}
+    }
+
+    // Explains why a device might not get notifications: permission, push subscription, and whether the server cron is running
+    let notifStatusRender = 0;
+    async function renderNotificationStatus(s) {
+      const renderId = ++notifStatusRender;
+      const perm = notificationsSupported() ? Notification.permission : 'unsupported';
+      const reg = perm === 'granted' ? await getActiveRegistration().catch(() => null) : null;
+      const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
+      if (renderId !== notifStatusRender) return;
+      const items = [perm === 'granted' ? t('ns_perm_ok') : perm === 'denied' ? t('ns_perm_denied') : perm === 'default' ? t('ns_perm_default') : (isIOS() ? t('notif_ios') : t('notif_unsupported'))];
+      if (perm === 'granted') items.push(sub ? t('ns_push_ok') : t('ns_push_missing'));
+      if (s) {
+        items.push(`${t('ns_devices')}: ${s.pushDevices}`);
+        const ago = s.cronLastRun ? Math.max(0, Math.round((Date.now() - s.cronLastRun) / 60000)) : null;
+        items.push(ago === null ? t('ns_cron_never') : `${ago <= 3 ? t('ns_cron_ok') : t('ns_cron_late')} (${ago} ${t('ns_minutes_ago')})`);
+      }
+      document.getElementById('notif-status').innerHTML = items.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    }
+    async function refreshNotificationStatus() {
+      try { const res = await apiFetch('/api/settings'); if (res.ok) renderNotificationStatus(await res.json()); } catch (e) {}
+    }
+
+    // Sends a real Web Push through the server to every device on the account, independent of the cron
+    async function sendTestPush() {
+      const btn = document.getElementById('test-push-btn'); btn.disabled = true;
+      try {
+        if (notificationsSupported() && Notification.permission === 'default') { await requestNotificationPermission(); updateNotificationButton(); }
+        const subscribed = await ensurePushSubscription();
+        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test' }) });
+        if (res.status === 401) return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return showToast(`${t('test_push_failed')} (${res.status})${data.error ? ': ' + data.error : ''}`, 'error');
+        if (!data.devices) return showToast(t('test_push_no_devices'), 'error');
+        showToast(`${t('test_push_sent')} ${data.delivered}/${data.devices}${subscribed ? '' : ' — ' + t('ns_push_missing')}`, data.delivered ? 'success' : 'error');
+      } catch (e) {
+        showToast(`${t('test_push_failed')}: ${e.message}`, 'error');
+      } finally {
+        btn.disabled = false; refreshNotificationStatus();
+      }
     }
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
     async function saveSettings() {
       const body = { dailySummary: document.getElementById('set-summary').checked, summaryHour: parseInt(document.getElementById('set-summary-hour').value), tzOffsetMinutes: new Date().getTimezoneOffset() };
-      try { const res = await apiFetch('/api/settings', { method: 'POST', body: JSON.stringify(body) }); if (!res.ok) throw new Error(res.status); closeSettings(); }
-      catch (e) { alert(t('settings_error')); }
+      try {
+        const res = await apiFetch('/api/settings', { method: 'POST', body: JSON.stringify(body) });
+        if (res.status === 401) return;
+        if (!res.ok) { const detail = await res.json().then(d => d.error).catch(() => ''); throw new Error(`${res.status}${detail ? ' – ' + detail : ''}`); }
+        closeSettings(); showToast(t('settings_saved'));
+      } catch (e) { showToast(`${t('settings_error')} (${e.message})`, 'error'); }
     }
     // The server formats Telegram times and the morning summary in the user's timezone
     async function syncTimezone() {
@@ -854,7 +946,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
     function pushToQueue(method, payload) { offlineQueue.push({ method, payload, timestamp: Date.now() }); try { localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); } catch (e) { console.warn('Sync queue not persisted:', e); } processSyncQueue(); }
     
     function saveReminder(e) {
-      e.preventDefault(); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
+      e.preventDefault(); const wasEditing = Boolean(editingId); const targetDate = getSelectedDate(); const tagEl = document.querySelector('input[name="tag"]:checked'); const tag = tagEl ? tagEl.value : 'general';
       const advVal = parseInt(document.getElementById('advance').value) || 0;
       
       let finalTitle = document.getElementById('title').value; let finalDesc = document.getElementById('desc').value;
@@ -862,7 +954,10 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       const payload = { action: editingId ? 'edit' : 'add', id: editingId || Date.now(), title: finalTitle, datetime: targetDate.toISOString(), priority: document.getElementById('priority').value, advanceNotice: advVal, recurring: document.getElementById('recurring').value, tag: tag, desc: finalDesc, subtasks: [...tempSubtasks], isEncrypted: false, attachment: tempAttachment, completed: false };
       
       if(editingId) { const idx = currentData.findIndex(r=>r.id === editingId); if(idx>-1) currentData[idx] = { ...currentData[idx], ...payload, completed: currentData[idx].completed }; cancelEdit(); } else { currentData.push(payload); }
-      renderList(); pushToQueue('POST', payload); if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); tempAttachment = null; document.getElementById('file-name-display').classList.add('hidden'); initDatePicker(); document.getElementById('advance').value = 0; }
+      renderList(); pushToQueue('POST', payload);
+      showToast(wasEditing ? t('toast_updated') : `${t('toast_saved')} — ${formatDateDisplay(payload.datetime)}`);
+      if (targetDate.getTime() < Date.now()) showToast(t('toast_past'), 'info');
+      if(!editingId) { document.getElementById('manual-form').reset(); tempSubtasks = []; renderTempSubtasks(); tempAttachment = null; document.getElementById('file-name-display').classList.add('hidden'); initDatePicker(); document.getElementById('advance').value = 0; }
     }
 
     function editReminder(id) {
@@ -984,7 +1079,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         let td; if(currentLang==='fa'){ const g=jalaali.toGregorian(p.y,p.m,p.d); td=new Date(g.gy,g.gm-1,g.gd,p.h||0,p.min||0); } else { td=new Date(p.y,p.m-1,p.d,p.h||0,p.min||0); }
         
         const payload = { action: 'add', id: Date.now(), title: p.title, datetime: td.toISOString(), priority: p.priority||'medium', advanceNotice: 0, recurring: 'none', tag: p.tag||'general', subtasks: [], desc: '', isEncrypted: false, attachment: null, completed: false };
-        currentData.push(payload); renderList(); pushToQueue('POST', payload); document.getElementById('ai-input').value = ''; switchTab('manual');
+        currentData.push(payload); renderList(); pushToQueue('POST', payload); showToast(`${t('toast_ai_saved')} ${p.title} — ${formatDateDisplay(payload.datetime)}`); document.getElementById('ai-input').value = ''; switchTab('manual');
       } catch (e) { 
         console.error(e); alert('در درک متن شما مشکلی پیش آمد. لطفاً به صورت دستی ثبت کنید.'); 
       } finally { 
@@ -1141,10 +1236,16 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         const res = await apiFetch('/api/reminders', { method: item.method, body: JSON.stringify(item.payload || item.body) });
         isSyncing = false;
         // 401 (kept until the user logs in again) and 5xx are temporary: keep the item and retry instead of dropping the change
-        if (res.status === 401 || res.status >= 500) return;
-        if (!res.ok) console.warn('Sync item rejected:', res.status, await res.text().catch(() => ''));
+        if (res.status === 401) return;
+        if (res.status >= 500) { notifySyncRetry(); return; }
+        if (!res.ok) {
+          // The server rejected this change for good (e.g. validation or a firewall); tell the user instead of dropping it silently
+          const detail = await res.json().then(d => d.error).catch(() => '');
+          console.warn('Sync item rejected:', res.status, detail);
+          showToast(`${t('toast_sync_failed')} (${res.status})${detail ? ': ' + detail : ''}`, 'error');
+        }
         offlineQueue.shift(); localStorage.setItem('nirvana_sync_queue', JSON.stringify(offlineQueue)); processSyncQueue();
-      } catch (e) { isSyncing = false; }
+      } catch (e) { isSyncing = false; if (navigator.onLine) notifySyncRetry(); }
     }
 
     async function fetchRemindersFromServer() {
