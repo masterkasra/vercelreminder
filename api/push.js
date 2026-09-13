@@ -1,5 +1,5 @@
 import { readJSON, updateJSON, rateLimit, requireSession } from '../lib/db.js';
-import { getVapidKeys, sendPush } from '../lib/push.js';
+import { getVapidKeys, sendPush, recordPushResults } from '../lib/push.js';
 
 // ثبت/حذف اشتراک Web Push مرورگر تا cron بتواند وقتی سایت بسته است هم اعلان بفرستد
 export default async function handler(req, res) {
@@ -36,13 +36,17 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'اعلان آزمایشی زیاد ارسال شد؛ کمی بعد دوباره امتحان کنید.' });
       }
       const subs = await readJSON(pushKey, []);
-      const result = await sendPush(subs, {
-        title: '🔔 اعلان آزمایشی نیروانا',
+      const results = await sendPush(subs, {
+        title: '🔔 اعلان آزمایشی (از سرور)',
         body: 'اگر این پیام را می‌بینید، اعلان پس‌زمینه روی این دستگاه کار می‌کند.',
         tag: 'nirvana-test-push', data: { url: '/' }
       }, req.headers['x-forwarded-host'] || req.headers.host);
-      if (result.expired.length) await updateJSON(pushKey, [], current => current.filter(s => !result.expired.includes(s.endpoint)));
-      return res.status(200).json({ success: true, devices: subs.length, delivered: result.delivered, expired: result.expired.length, failed: result.failed });
+      await recordPushResults(session.chatId, results);
+      return res.status(200).json({
+        success: true, devices: subs.length, delivered: results.filter(r => r.ok).length,
+        // آدرس کامل اشتراک برگردانده نمی‌شود؛ فقط سرویس و شناسه کوتاه
+        results: results.map(({ id, service, ok, expired, status, error }) => ({ id, service, ok, expired, status: status || null, error: error || null }))
+      });
     }
 
     return res.status(400).json({ error: 'عملیات نامعتبر است.' });

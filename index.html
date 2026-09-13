@@ -76,6 +76,7 @@
         <span class="block text-sm font-bold text-slate-800 dark:text-white mb-2" data-i18n="notif_status_title">وضعیت اعلان‌ها</span>
         <ul id="notif-status" class="text-xs leading-6 text-slate-600 dark:text-slate-400 space-y-1"></ul>
         <button type="button" id="test-push-btn" onclick="sendTestPush()" class="w-full mt-3 bg-black/5 dark:bg-white/10 text-slate-800 dark:text-white font-bold py-2.5 rounded-xl text-sm hover:bg-black/10 dark:hover:bg-white/20 disabled:opacity-50 transition-colors" data-i18n="test_push_btn">📲 ارسال اعلان آزمایشی به همه دستگاه‌ها</button>
+        <ul id="push-test-results" class="text-xs leading-6 mt-3 space-y-1 text-slate-600 dark:text-slate-400"></ul>
       </div>
       <p class="text-xs leading-6 text-slate-500 dark:text-slate-400 mb-6" data-i18n="bot_commands_hint">دستورهای ربات: /today کارهای امروز، /list همه کارها، /summary تنظیم خلاصه، /help راهنما</p>
       <button onclick="saveSettings()" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-3.5 rounded-xl hover:bg-emerald-600 dark:hover:bg-emerald-400 transition-colors" data-i18n="save_btn">ذخیره تغییرات</button>
@@ -408,6 +409,10 @@
         ns_push_ok: "✅ این دستگاه برای اعلان پس‌زمینه (وقتی سایت بسته است) ثبت شده", ns_push_missing: "⚠️ این دستگاه برای اعلان پس‌زمینه ثبت نشده", ns_devices: "📱 دستگاه‌های ثبت‌شده در حساب",
         ns_cron_ok: "✅ زمان‌بند سرور فعال است", ns_cron_late: "❌ زمان‌بند سرور اجرا نمی‌شود؛ یادآورها سر وقت ارسال نمی‌شوند", ns_cron_never: "❌ زمان‌بند سرور (cron) هنوز هیچ‌وقت اجرا نشده؛ یادآورها ارسال نمی‌شوند", ns_minutes_ago: "دقیقه پیش",
         test_push_btn: "📲 ارسال اعلان آزمایشی به همه دستگاه‌ها", test_push_sent: "📲 اعلان آزمایشی ارسال شد:", test_push_no_devices: "هیچ دستگاهی برای اعلان ثبت نشده؛ روی هر دستگاه (گوشی و لپ‌تاپ) یک بار این دکمه را بزنید.", test_push_failed: "ارسال اعلان آزمایشی ناموفق بود",
+        test_push_running: "⏳ در حال ارسال...", test_push_timeout: "سرور در ۴۵ ثانیه پاسخ نداد",
+        test_local_title: "🔔 اعلان محلی (بدون سرور)", test_local_body: "این اعلان مستقیم از خود دستگاه است؛ اعلان «از سرور» باید چند ثانیه بعد برسد.",
+        push_this_device: "این دستگاه", push_other_device: "دستگاه دیگر", push_accepted: "سرویس push پیام را پذیرفت", push_expired: "اشتراک منقضی شده بود و حذف شد",
+        push_accepted_hint: "ℹ️ اگر برای این دستگاه «پذیرفت» آمد ولی اعلان «از سرور» نرسید، مشکل از اتصال خود دستگاه به سرویس اعلان است (اندروید: سرویس‌های گوگل و اجازه پس‌زمینه Chrome؛ آیفون: باز کردن از آیکون صفحه اصلی).",
 months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
       en: {
@@ -441,6 +446,10 @@ months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مردا
         ns_push_ok: "✅ This device is registered for background notifications (site closed)", ns_push_missing: "⚠️ This device is not registered for background notifications", ns_devices: "📱 Devices registered on this account",
         ns_cron_ok: "✅ Server scheduler is running", ns_cron_late: "❌ Server scheduler is not running; reminders won't be sent on time", ns_cron_never: "❌ Server scheduler (cron) has never run; reminders won't be sent", ns_minutes_ago: "min ago",
         test_push_btn: "📲 Send a test notification to all devices", test_push_sent: "📲 Test notification sent:", test_push_no_devices: "No device is registered; tap this button once on each device (phone and laptop).", test_push_failed: "Sending the test notification failed",
+        test_push_running: "⏳ Sending...", test_push_timeout: "the server didn't answer within 45 seconds",
+        test_local_title: "🔔 Local notification (no server)", test_local_body: "This one comes straight from this device; the one \"from server\" should follow in a few seconds.",
+        push_this_device: "This device", push_other_device: "Other device", push_accepted: "accepted by the push service", push_expired: "subscription had expired and was removed",
+        push_accepted_hint: "ℹ️ If this device shows \"accepted\" but the \"from server\" notification never appears, the device itself can't reach its push service (Android: Google services and Chrome background access; iPhone: open the app from the home-screen icon).",
 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
       de: {
@@ -474,6 +483,10 @@ months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', '
         ns_push_ok: "✅ Dieses Gerät ist für Hintergrund-Benachrichtigungen registriert", ns_push_missing: "⚠️ Dieses Gerät ist nicht für Hintergrund-Benachrichtigungen registriert", ns_devices: "📱 Registrierte Geräte im Konto",
         ns_cron_ok: "✅ Server-Zeitplaner läuft", ns_cron_late: "❌ Server-Zeitplaner läuft nicht; Erinnerungen kommen nicht pünktlich", ns_cron_never: "❌ Server-Zeitplaner (cron) lief noch nie; Erinnerungen werden nicht gesendet", ns_minutes_ago: "Min.",
         test_push_btn: "📲 Test-Benachrichtigung an alle Geräte", test_push_sent: "📲 Test-Benachrichtigung gesendet:", test_push_no_devices: "Kein Gerät registriert; auf jedem Gerät (Handy und Laptop) einmal diesen Button tippen.", test_push_failed: "Test-Benachrichtigung fehlgeschlagen",
+        test_push_running: "⏳ Wird gesendet...", test_push_timeout: "Server hat nicht innerhalb von 45 Sekunden geantwortet",
+        test_local_title: "🔔 Lokale Benachrichtigung (ohne Server)", test_local_body: "Diese kommt direkt vom Gerät; die \"vom Server\" sollte in wenigen Sekunden folgen.",
+        push_this_device: "Dieses Gerät", push_other_device: "Anderes Gerät", push_accepted: "vom Push-Dienst angenommen", push_expired: "Abo war abgelaufen und wurde entfernt",
+        push_accepted_hint: "ℹ️ Wenn dieses Gerät \"angenommen\" zeigt, die Benachrichtigung \"vom Server\" aber nie erscheint, erreicht das Gerät seinen Push-Dienst nicht (Android: Google-Dienste und Chrome-Hintergrundzugriff; iPhone: App über das Home-Bildschirm-Symbol öffnen).",
 months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
     };
@@ -866,7 +879,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
       if (renderId !== notifStatusRender) return;
       const items = [perm === 'granted' ? t('ns_perm_ok') : perm === 'denied' ? t('ns_perm_denied') : perm === 'default' ? t('ns_perm_default') : (isIOS() ? t('notif_ios') : t('notif_unsupported'))];
-      if (perm === 'granted') items.push(sub ? t('ns_push_ok') : t('ns_push_missing'));
+      if (perm === 'granted') items.push(sub ? `${t('ns_push_ok')} — ${pushServiceName(sub.endpoint)}` : t('ns_push_missing'));
       if (s) {
         items.push(`${t('ns_devices')}: ${s.pushDevices}`);
         const ago = s.cronLastRun ? Math.max(0, Math.round((Date.now() - s.cronLastRun) / 60000)) : null;
@@ -878,20 +891,51 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       try { const res = await apiFetch('/api/settings'); if (res.ok) renderNotificationStatus(await res.json()); } catch (e) {}
     }
 
-    // Sends a real Web Push through the server to every device on the account, independent of the cron
+    function pushServiceName(endpoint) { try { return new URL(endpoint).hostname; } catch (e) { return '?'; } }
+    const withTimeout = (promise, ms, fallback) => Promise.race([promise, new Promise(resolve => setTimeout(() => resolve(fallback), ms))]);
+    // Same short id as endpointId() in lib/push.js, so the result for this device can be labelled
+    async function endpointId(endpoint) {
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(endpoint));
+      return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12);
+    }
+    function describePushResult(r, isThisDevice) {
+      const who = `${isThisDevice ? t('push_this_device') : t('push_other_device')} (${r.service})`;
+      if (r.ok) return `✅ ${who}: ${t('push_accepted')}`;
+      if (r.expired) return `🗑 ${who}: ${t('push_expired')}`;
+      return `❌ ${who}: ${r.error || r.status}`;
+    }
+
+    // Two-step test: a local notification from this device's service worker (no server involved),
+    // then a real Web Push through the server to every device, with a per-device result
     async function sendTestPush() {
       const btn = document.getElementById('test-push-btn'); btn.disabled = true;
+      const out = document.getElementById('push-test-results');
+      out.innerHTML = `<li>${escapeHtml(t('test_push_running'))}</li>`;
       try {
         if (notificationsSupported() && Notification.permission === 'default') { await requestNotificationPermission(); updateNotificationButton(); }
-        const subscribed = await ensurePushSubscription();
-        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test' }) });
+        if (notificationsSupported() && Notification.permission === 'granted') {
+          await showNotification(t('test_local_title'), { body: t('test_local_body'), tag: 'nirvana-test-local', icon: NOTIFY_ICON, badge: NOTIFY_BADGE, lang: currentLang, dir: currentLang === 'fa' ? 'rtl' : 'ltr' });
+        }
+        await withTimeout(ensurePushSubscription(), 20000, false);
+        const reg = await getActiveRegistration();
+        const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
+        const myId = sub ? await endpointId(sub.endpoint) : null;
+
+        const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
+        const res = await apiFetch('/api/push', { method: 'POST', body: JSON.stringify({ action: 'test' }), signal: controller.signal }).finally(() => clearTimeout(timer));
         if (res.status === 401) return;
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) return showToast(`${t('test_push_failed')} (${res.status})${data.error ? ': ' + data.error : ''}`, 'error');
-        if (!data.devices) return showToast(t('test_push_no_devices'), 'error');
-        showToast(`${t('test_push_sent')} ${data.delivered}/${data.devices}${subscribed ? '' : ' — ' + t('ns_push_missing')}`, data.delivered ? 'success' : 'error');
+        if (!res.ok) { out.innerHTML = ''; return showToast(`${t('test_push_failed')} (${res.status})${data.error ? ': ' + data.error : ''}`, 'error'); }
+        if (!data.devices) { out.innerHTML = ''; return showToast(t('test_push_no_devices'), 'error'); }
+
+        const lines = (data.results || []).map(r => describePushResult(r, r.id === myId));
+        if (!sub) lines.unshift(`⚠️ ${t('ns_push_missing')}`);
+        if ((data.results || []).some(r => r.id === myId && r.ok)) lines.push(t('push_accepted_hint'));
+        out.innerHTML = lines.map(line => `<li>${escapeHtml(line)}</li>`).join('');
+        showToast(`${t('test_push_sent')} ${data.delivered}/${data.devices}`, data.delivered ? 'success' : 'error');
       } catch (e) {
-        showToast(`${t('test_push_failed')}: ${e.message}`, 'error');
+        out.innerHTML = '';
+        showToast(`${t('test_push_failed')}: ${e.name === 'AbortError' ? t('test_push_timeout') : e.message}`, 'error');
       } finally {
         btn.disabled = false; refreshNotificationStatus();
       }

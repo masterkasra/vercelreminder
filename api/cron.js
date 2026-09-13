@@ -1,6 +1,6 @@
 import jalaali from 'jalaali-js';
 import { getRedis, readJSON, updateJSON, scanKeys } from '../lib/db.js';
-import { sendPush } from '../lib/push.js';
+import { sendPush, recordPushResults } from '../lib/push.js';
 import { tg, hasBotToken, webhookSecret } from '../lib/telegram.js';
 import { getChatSettings } from '../lib/settings.js';
 import { buildTaskList, dueKeyboard, localHour, localDateKey, escapeHtml, BOT_COMMANDS, PUSH_DUE_ACTIONS } from '../lib/bot.js';
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
       const subs = await readJSON(`push:${chatId}`, []);
       const updates = new Map(); // id -> { datetime, fields }
       const newOccurrences = [];
-      const expiredEndpoints = [];
+      const pushResults = [];
       const markUpdate = (r, fields) => {
         const prev = updates.get(r.id);
         updates.set(r.id, { datetime: r.datetime, fields: { ...(prev ? prev.fields : {}), ...fields } });
@@ -131,10 +131,10 @@ export default async function handler(req, res) {
         if (r.advanceNotice > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
           const done = await sendTelegram(chatId, `⏳ <b>هشدار زودهنگام</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}`);
           if (subs.length) {
-            expiredEndpoints.push(...(await sendPush(subs, {
+            pushResults.push(...(await sendPush(subs, {
               title: '⏳ هشدار زودهنگام', body: msgTitle, tag: `nirvana-${r.id}-adv-${targetTime}`,
               data: { id: r.id }, actions: [{ action: 'done', title: '✅ انجام شد' }]
-            }, host)).expired);
+            }, host)));
             pushesSent++;
           }
           if (done) { markUpdate(r, { advanceSent: true }); messagesSent++; }
@@ -145,10 +145,10 @@ export default async function handler(req, res) {
           const done = await sendTelegram(chatId, msg, r.isEncrypted ? undefined : dueKeyboard(r.id));
           if (subs.length) {
             // مرورگر فقط به تعداد Notification.maxActions (معمولاً ۲) دکمه نشان می‌دهد؛ ترتیب مهم است
-            expiredEndpoints.push(...(await sendPush(subs, {
+            pushResults.push(...(await sendPush(subs, {
               title: '⏰ یادآور رسید!', body: msgTitle, tag: `nirvana-${r.id}-due-${targetTime}`,
               requireInteraction: r.priority === 'high', data: { id: r.id }, actions: PUSH_DUE_ACTIONS
-            }, host)).expired);
+            }, host)));
             pushesSent++;
           }
 
@@ -190,9 +190,7 @@ export default async function handler(req, res) {
         });
       }
 
-      if (expiredEndpoints.length) {
-        await updateJSON(`push:${chatId}`, [], current => current.filter(s => !expiredEndpoints.includes(s.endpoint)));
-      }
+      await recordPushResults(chatId, pushResults);
 
       if (await maybeSendSummary(chatId, key, now)) summariesSent++;
     }
