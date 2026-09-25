@@ -7,7 +7,7 @@ import { buildTaskList, dueKeyboard, localHour, localDateKey, escapeHtml, BOT_CO
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const TEHRAN_OFFSET_MS = 3.5 * 60 * 60 * 1000; // ایران از ۱۴۰۱ ساعت تابستانی ندارد
-const BOT_COMMANDS_VERSION = 'v1';
+const BOT_COMMANDS_VERSION = 'v2';
 
 // یک ماه جلالی جلوتر با همان ساعت به وقت تهران؛ اگر آن روز در ماه بعد نبود، آخرین روز ماه
 function addJalaliMonth(date) {

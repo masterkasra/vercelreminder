@@ -23,7 +23,7 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Syntax check
-        run: for f in api/*.js lib/*.js sw.js; do node --check "$f"; done
+        run: for f in api/*.js lib/*.js sw.js server.js; do node --check "$f"; done
 
       - name: API, bot, cron and service worker tests
         run: npm test
