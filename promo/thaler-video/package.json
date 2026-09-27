@@ -1,0 +1,13 @@
+{
+  "name": "thaler-promo-video",
+  "private": true,
+  "description": "30-second vertical promo for thaler.ir, rendered from HTML/GSAP with an original synthesized soundtrack.",
+  "scripts": {
+    "music": "python3 music.py",
+    "stills": "node render.mjs --stills 2.8,6.9,12.9,16.9,21.5,26.5",
+    "render": "python3 music.py && node render.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
