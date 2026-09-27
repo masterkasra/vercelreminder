@@ -10,7 +10,7 @@ import numpy as np
 from scipy.signal import butter, sosfilt, fftconvolve
 
 SR = 48000
-DUR = 30.0
+DUR = 32.0
 N = int(SR * (DUR + 1))
 rng = np.random.default_rng(2025)
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'music.wav')
@@ -91,10 +91,10 @@ PROG = ['D', 'A', 'Bm', 'G']
 chord_at = lambda bar: CHORDS[PROG[bar % 4]]
 ARP_PATTERN = [0, 2, 1, 3, 0, 2, 1, 3, 0, 2, 1, 3, 2, 1, 0, 1]
 
-groove = lambda t: (4.0 <= t < 23.0) or (24.0 <= t < 28.0)
+groove = lambda t: (4.0 <= t < 27.0) or (28.0 <= t < 30.0)
 
 # Pad: detuned saws through a low-pass, one chord per bar, swelling in over the intro.
-for bar in range(15):
+for bar in range(16):
     t0 = bar * BAR
     n = int((BAR + 1.2) * SR)
     sig = np.zeros(n)
@@ -102,22 +102,22 @@ for bar in range(15):
         for d in (-0.006, 0.0, 0.0065):
             sig += saw(f * (1 + d), n, rng.random())
         sig += 0.6 * np.sin(2 * np.pi * f / 2 * T(n))
-    bright = 900 if t0 < 4 else (1600 if t0 < 18 else 2300)
+    bright = 900 if t0 < 4 else (1600 if t0 < 22 else 2300)
     sig = lp(sig, bright) * env_adsr(n, 0.35, 0.45, hold=BAR)
     g = 0.030 * (0.55 + 0.45 * min(1, t0 / 4))
-    if t0 >= 28:
+    if t0 >= 30:
         g *= 1.2
     add('music', sig, t0, g, pan=0, verb=0.5)
 
 # Final chord rings out.
 n = int(3.0 * SR)
 sig = sum(saw(f * (1 + d), n) for f in CHORDS['D']['pad'] for d in (-0.006, 0.006))
-add('music', lp(sig, 2400) * np.exp(-T(n) / 1.1) * env_adsr(n, 0.02, 1), 28.0, 0.03, verb=0.8)
+add('music', lp(sig, 2400) * np.exp(-T(n) / 1.1) * env_adsr(n, 0.02, 1), 30.0, 0.03, verb=0.8)
 
 # Bass: pulsing eighth notes with a sub.
 for k in range(int(DUR / 0.25)):
     t0 = k * 0.25
-    if not groove(t0) or (22.0 <= t0 < 24.0 and t0 >= 23.5):
+    if not groove(t0) or (26.0 <= t0 < 28.0 and t0 >= 27.5):
         continue
     f = chord_at(int(t0 // BAR))['bass']
     n = int(0.26 * SR)
@@ -128,13 +128,13 @@ for k in range(int(DUR / 0.25)):
 arp = np.zeros((2, N))
 for k in range(int(DUR / 0.125)):
     t0 = k * 0.125
-    if t0 < 2.0 or t0 >= 28.0:
+    if t0 < 2.0 or t0 >= 30.0:
         continue
     ch = chord_at(int(t0 // BAR))
     f = ch['arp'][ARP_PATTERN[k % 16]]
     n = int(0.35 * SR)
     s = (np.sin(2 * np.pi * f * T(n)) + 0.25 * np.sin(2 * np.pi * 2 * f * T(n)) + 0.1 * saw(f, n)) * np.exp(-T(n) / 0.09)
-    g = 0.045 if t0 < 4 else (0.06 if t0 < 18 else 0.075)
+    g = 0.045 if t0 < 4 else (0.06 if t0 < 22 else 0.075)
     i = int(t0 * SR)
     gl, gr = pan_gains(0.35 if k % 2 else -0.35)
     arp[0, i:i + n] += s[: N - i] * g * gl
@@ -183,13 +183,13 @@ for k in range(int(DUR / 0.125)):
         continue
     if k % 4 == 2:
         add('drums', hat(0.06), t0, 0.13, pan=0.25)
-    elif t0 >= 18 or k % 2 == 0:
+    elif t0 >= 22 or k % 2 == 0:
         add('drums', hat(0.022), t0, 0.085 if k % 2 else 0.06, pan=-0.2)
 # Build into the call to action: clap roll that speeds up and swells.
 for k in range(8):
-    add('drums', clap(), 22.0 + k * 0.125, 0.07 + 0.02 * k, verb=0.3)
+    add('drums', clap(), 26.0 + k * 0.125, 0.07 + 0.02 * k, verb=0.3)
 for k in range(16):
-    add('drums', clap(), 23.0 + k * 0.0625, 0.12 + 0.012 * k, verb=0.3)
+    add('drums', clap(), 27.0 + k * 0.0625, 0.12 + 0.012 * k, verb=0.3)
 
 # Sidechain the music bus to the kick for the modern "pump".
 sc = np.ones(N)
@@ -257,44 +257,53 @@ riser(4.0, 1.6)
 whoosh(3.95, 0.7, 0.12)
 impact(4.0, 0.17)
 
-# website
-for i in range(4):
-    pop(4.85 + i * 0.12, 700 + 120 * i, 0.10, pan=(-0.3 if i % 2 else 0.3))
-for i in range(4):
-    bell(5.6 + i * 1.1, [1174.66, 1318.51, 1479.98, 1760.0][i], 0.035, decay=0.35)
-whoosh(10.0, 0.6)
+# spaced repetition: cards dealt, one flips, the word counter runs up
+for i in range(3):
+    pop(4.45 + i * 0.12, 600 + 90 * i, 0.10, pan=(-0.35, 0.35, 0.0)[i])
+whoosh(5.6, 0.45, 0.07, 800, 7000)
+for k in range(18):
+    tick(6.0 + k * 0.06 * (1 + k / 12), 0.025 + 0.002 * k, pan=0.1)
+bell(7.1, 1760.0, 0.06)
+bell(7.1, 2637.02, 0.03)
+whoosh(8.0, 0.6)
 
-# bots
-for t0, tap in ((10.0, 0), (14.02, 1)):
+# features: six cards pop in, then pairs light up
+for i in range(6):
+    pop(8.5 + i * 0.08, 650 + 80 * i, 0.08, pan=(-0.3 if i % 2 else 0.3))
+for t0, f in ((9.1, 1174.66), (10.1, 1318.51), (12.1, 1479.98)):
+    bell(t0, f, 0.035, pan=-0.2, decay=0.35)
+    bell(t0 + 0.05, f * 1.5, 0.025, pan=0.2, decay=0.35)
+whoosh(14.0, 0.6)
+
+# dictionary bot on Telegram, then Bale
+for t0 in (14.0, 18.02):
     pop(t0 + 0.72, 1100, 0.11, pan=-0.3)
     tick(t0 + 1.02, 0.04)
     pop(t0 + 1.52, 800, 0.12, pan=0.3)
-    for i in range(4):
-        tick(t0 + 1.82 + i * 0.08, 0.05, pan=0.2 - 0.1 * i)
-    tick(t0 + 2.75, 0.12)
-    pop(t0 + 2.76, 600, 0.09)
-whoosh(14.0, 0.45, 0.12, 400, 7000)
-whoosh(18.0, 0.6)
+    for i in range(6):
+        tick(t0 + 1.72 + i * 0.1, 0.035, pan=0.25 - 0.08 * i)
+    pop(t0 + 2.52, 1300, 0.08)
+    bell(t0 + 2.87, 1567.98, 0.03, pan=0.3, decay=0.3)
+whoosh(18.0, 0.45, 0.12, 400, 7000)
+whoosh(22.0, 0.6)
 
-# packages
-for i in range(3):
-    whoosh(18.55 + i * 0.2, 0.35, 0.06, 600, 6000)
+# plans
+for i in range(4):
+    whoosh(22.55 + i * 0.16, 0.35, 0.06, 600, 6000)
 for f, d in ((1318.51, 0), (1760.0, 0.09), (2637.02, 0.18)):  # "cha-ching" on the featured plan
-    bell(21.0 + d, f, 0.07, pan=0.2)
-pop(21.18, 1200, 0.1)
+    bell(25.0 + d, f, 0.07, pan=0.2)
+pop(25.18, 1200, 0.1)
 
 # call to action
-riser(24.0, 2.0)
-impact(24.0, 0.36)
+riser(28.0, 2.0)
+impact(28.0, 0.36)
 for k in range(13):
-    tick(24.95 + k * 0.85 / 13, 0.05 + 0.01 * (k % 3), pan=0.1)
-pop(25.4, 900, 0.1, pan=0.25)
-pop(25.55, 1000, 0.1, pan=-0.25)
-for k, f in enumerate([1174.66, 1479.98, 1760.0, 2349.32]):
-    bell(26.45 + k * 0.08, f, 0.03, pan=0.3)
-impact(28.0, 0.14)
+    tick(28.9 + k * 0.8 / 13, 0.05 + 0.01 * (k % 3), pan=0.1)
+pop(29.3, 900, 0.1, pan=0.25)
+pop(29.45, 1000, 0.1, pan=-0.25)
+impact(30.0, 0.14)
 for k, f in enumerate([2349.32, 1760.0, 1479.98, 1174.66, 880.0]):
-    bell(28.05 + k * 0.1, f, 0.035, pan=0.4 - 0.2 * k, decay=0.9)
+    bell(30.05 + k * 0.1, f, 0.035, pan=0.4 - 0.2 * k, decay=0.9)
 
 # ------------------------------------------------------------------ reverb + master
 ir_n = int(2.8 * SR)
