@@ -12,6 +12,7 @@
   },
   "keywords": ["pwa", "reminder", "telegram-bot", "web-push", "vercel", "redis", "jalali", "serverless"],
   "scripts": {
+    "start": "node server.js",
     "test": "node --import ./tests/register.mjs tests/api.test.mjs && node tests/sw.test.mjs",
     "build:css": "tailwindcss -c tailwind.config.cjs -i ./src/input.css -o ./styles.css --minify"
   },

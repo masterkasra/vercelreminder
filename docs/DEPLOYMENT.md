@@ -56,6 +56,16 @@ Vercel Cron on the Hobby plan runs at most once a day, so use an external schedu
 - **iPhone / iPad (iOS 16.4+):** open the site in Safari → Share → **Add to Home Screen**, open it from the icon, then allow notifications. Web Push does not work in a regular Safari tab.
 - If the test says the push service **accepted** the message but nothing appears, the device is hiding it: turn off **Focus / Do Not Disturb** and check the app in the system notification settings.
 
+## Alternative: Render (free, ads allowed)
+
+Vercel's Hobby plan is for non-commercial use only: donations are fine, but ads are not (see [MONETIZATION.md](MONETIZATION.md)). `server.js` runs the same `api/*.js` handlers and static files as a plain Node server, so the app also runs on Render's free plan, which has no such rule. It also runs on Koyeb, a VPS or Docker.
+
+1. On [render.com](https://render.com) → **New → Blueprint**, pick this repository. `render.yaml` creates a free Node web service.
+2. Fill in the environment variables it asks for (the same ones as on Vercel).
+3. Point the Telegram webhook at `https://<service>.onrender.com/api/webhook`, and the cron-job.org job at `https://<service>.onrender.com/api/cron`.
+
+A free Render service sleeps after 15 minutes without requests. The every-minute cron request keeps it awake, and 750 free hours a month cover one service running all month. `npm start` runs the same server locally (port `$PORT`, default 3000).
+
 ## Local development
 
 ```bash

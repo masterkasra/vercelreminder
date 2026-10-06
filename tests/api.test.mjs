@@ -9,10 +9,12 @@ process.env.OPENROUTER_API_KEY = 'OR';
 // --- mocks ---
 const tgCalls = [];
 const aiCalls = [];
+const tronTxs = new Map(); // txid -> TronGrid gettransactioninfobyid response
 let tgStatus = () => 200;
 let onTelegram = null;
 globalThis.fetch = async (url, opts) => {
   const body = opts && opts.body ? JSON.parse(opts.body) : {};
+  if (String(url).includes('trongrid')) return { ok: true, status: 200, json: async () => tronTxs.get(body.value) || {} };
   if (String(url).includes('openrouter')) {
     aiCalls.push(body);
     return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '{"title":"x","y":1405,"m":6,"d":22,"h":9,"min":0}' } }] }) };
@@ -56,6 +58,7 @@ const { default: webhook } = await import('../api/webhook.js');
 const { default: push } = await import('../api/push.js');
 const { default: ai } = await import('../api/ai.js');
 const { default: settingsApi } = await import('../api/settings.js');
+const { default: supportApi } = await import('../api/support.js');
 const toFa = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 const secretHeaders = () => ({ 'x-telegram-bot-api-secret-token': webhookSecret() });
 const say = (chat, text) => call(webhook, { method: 'POST', headers: secretHeaders(), body: { message: { chat: { id: chat }, text } } });
@@ -291,7 +294,7 @@ let tokenA;
   assert.equal(store.get('config:webhook_secured'), '1');
   assert.equal(store.get('config:last_cron_run'), String(NOW), 'last cron run recorded');
   assert.equal((await call(settingsApi, { token: tokenA })).body.cronLastRun, NOW, 'exposed in settings');
-  assert.deepEqual(tgCalls.find(c => c.method === 'setMyCommands').body.commands.map(c => c.command), ['today', 'list', 'summary', 'id', 'help'], 'bot menu registered');
+  assert.deepEqual(tgCalls.find(c => c.method === 'setMyCommands').body.commands.map(c => c.command), ['today', 'list', 'summary', 'id', 'donate', 'help'], 'bot menu registered');
 
   const msgs = tgCalls.filter(c => c.method === 'sendMessage');
   assert.equal(msgs.length, 3);
@@ -474,6 +477,92 @@ let tokenA;
   assert.ok(tgCalls.at(-1).body.text.includes('کاری ندارید') && !tgCalls.at(-1).body.reply_markup, 'empty list has no buttons');
   Date.now = realNow;
   console.log('✓ bot commands & buttons');
+}
+
+// ---------- support.js: donations, supporter badge, ads ----------
+{
+  const OUR = 'TBXSw8fM4jpQkGc6zZjsVABFpVN7UvXPdV';
+  const OTHER = 'TD5gsCwxykWsLN9aPrq2TAfNjByuZKYp4E';
+  const USDT_LOG_ADDRESS = 'a614f803b6fd780986a42c78ec9c7f77e6ded13c';
+  const TRANSFER = 'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  const topicFor = hex => '0'.repeat(24) + hex;
+  const transfer = (toHex, units, contract = USDT_LOG_ADDRESS) => ({
+    address: contract, topics: [TRANSFER, topicFor('33'.repeat(20)), topicFor(toHex)], data: units.toString(16).padStart(64, '0')
+  });
+  const tx = (id, logs, result = 'SUCCESS') => tronTxs.set(id, { id, receipt: { result }, log: logs });
+  const txid = n => String(n).repeat(64).slice(0, 64);
+
+  assert.equal((await call(supportApi)).status, 401, 'needs a session');
+  let info = (await call(supportApi, { token: tokenA })).body;
+  assert.deepEqual(info.wallets, [], 'no wallets until configured');
+  assert.deepEqual(info.stars, { botUsername: 'nirvana_bot', amounts: [50, 150, 500] }, 'stars on when the bot exists');
+  assert.equal(info.adsUnit, null);
+  assert.equal(info.supporter, null);
+
+  process.env.DONATE_USDT_TRC20 = OUR;
+  process.env.DONATE_TON = 'UQ-test-ton-address';
+  process.env.DONATE_USDT_BEP20 = 'not-an-address';
+  process.env.ADS_AADS_UNIT = '123456';
+  info = (await call(supportApi, { token: tokenA })).body;
+  assert.deepEqual(info.wallets.map(w => w.id), ['trc20', 'ton'], 'invalid addresses are ignored');
+  assert.equal(info.adsUnit, '123456', 'ads shown to non-supporters');
+  assert.equal(info.minUsdt, 2);
+
+  const verify = (id, token = tokenA) => call(supportApi, { method: 'POST', token, body: { action: 'verify-trc20', txid: id } });
+  assert.equal((await verify('xyz')).status, 400, 'malformed txid');
+  assert.equal((await verify(txid(1))).status, 404, 'unknown / unconfirmed tx');
+  tx(txid(2), [transfer('22'.repeat(20), 10_000_000)]);
+  assert.equal((await verify(txid(2))).status, 400, 'paid to someone else');
+  tx(txid(3), [transfer('11'.repeat(20), 10_000_000, 'ff'.repeat(20))]);
+  assert.equal((await verify(txid(3))).status, 400, 'a different token is not USDT');
+  tx(txid(4), [transfer('11'.repeat(20), 1_500_000)]);
+  const small = await verify(txid(4));
+  assert.equal(small.status, 400);
+  assert.ok(small.body.error.includes('1.5'), 'too small, amount reported');
+  tx(txid(5), [transfer('11'.repeat(20), 5_000_000)], 'REVERT');
+  assert.equal((await verify(txid(5))).status, 400, 'failed on-chain tx');
+
+  tx(txid(6), [transfer('11'.repeat(20), 5_000_000)]);
+  const ok = await verify('0x' + txid(6).toUpperCase());
+  assert.equal(ok.status, 200, JSON.stringify(ok.body));
+  assert.equal(ok.body.amount, 5);
+  assert.equal(ok.body.supporter.count, 1);
+  info = (await call(supportApi, { token: tokenA })).body;
+  assert.equal(info.adsUnit, null, 'supporters see no ads');
+  assert.equal(info.supporter.count, 1);
+  assert.equal((await verify(txid(6))).status, 409, 'a transaction is only counted once');
+
+  // Telegram Stars through the bot
+  await say(666, '/donate');
+  const menu = tgCalls.at(-1).body;
+  assert.deepEqual(menu.reply_markup.inline_keyboard[0].map(b => b.callback_data), ['donate_50', 'donate_150', 'donate_500']);
+  await say(666, '/start donate');
+  assert.ok(tgCalls.at(-1).body.reply_markup, '/start donate deep link opens the menu');
+  await press(666, 'donate_150');
+  const invoice = tgCalls.filter(c => c.method === 'sendInvoice').at(-1).body;
+  assert.equal(invoice.currency, 'XTR');
+  assert.deepEqual(invoice.prices, [{ label: 'حمایت', amount: 150 }]);
+  assert.equal(invoice.payload, 'donate:150');
+  const invoices = tgCalls.filter(c => c.method === 'sendInvoice').length;
+  await press(666, 'donate_7');
+  assert.equal(tgCalls.filter(c => c.method === 'sendInvoice').length, invoices, 'only offered amounts');
+
+  const checkout = q => call(webhook, { method: 'POST', headers: secretHeaders(), body: { pre_checkout_query: { id: 'pq', currency: 'XTR', ...q } } });
+  await checkout({ invoice_payload: 'donate:150', total_amount: 150 });
+  assert.deepEqual(tgCalls.at(-1), { method: 'answerPreCheckoutQuery', body: { pre_checkout_query_id: 'pq', ok: true } });
+  await checkout({ invoice_payload: 'donate:150', total_amount: 1 });
+  assert.equal(tgCalls.at(-1).body.ok, false, 'tampered amount rejected');
+
+  const paid = () => call(webhook, { method: 'POST', headers: secretHeaders(), body: { message: { chat: { id: 666 }, successful_payment: { currency: 'XTR', total_amount: 150, invoice_payload: 'donate:150', telegram_payment_charge_id: 'charge-1' } } } });
+  await paid();
+  assert.ok(tgCalls.at(-1).body.text.includes('💎'), 'thank-you message');
+  await paid();
+  const supporter = JSON.parse(store.get('supporter:666'));
+  assert.equal(supporter.payments.length, 1, 'same charge id recorded once');
+  assert.equal(supporter.payments[0].method, 'stars');
+
+  for (const k of ['DONATE_USDT_TRC20', 'DONATE_TON', 'DONATE_USDT_BEP20', 'ADS_AADS_UNIT']) delete process.env[k];
+  console.log('✓ support.js & Stars donations');
 }
 
 // ---------- deployment without a bot token ----------

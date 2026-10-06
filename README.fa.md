@@ -78,6 +78,16 @@ npx vercel dev
 
 راهنمای کامل انتشار روی Vercel، اتصال ربات تلگرام و زمان‌بند هر دقیقه در [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) آمده است. معماری در [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) و فهرست APIها در [docs/API.md](docs/API.md) توضیح داده شده‌اند.
 
+## درآمدزایی
+
+نیروانا رایگان می‌ماند و بدون حساب بانکی خارجی، Stripe یا PayPal درآمد دارد (جزئیات در [docs/MONETIZATION.md](docs/MONETIZATION.md)):
+
+- **حمایت با ⭐️ Telegram Stars**: دستور `/donate` در ربات و دکمه 💚 در اپ. Stars بعداً از طریق Fragment به TON تبدیل و برداشت می‌شود.
+- **حمایت با تتر / تون**: آدرس کیف‌پول‌ها با QR نمایش داده می‌شوند و پرداخت USDT روی TRC20 با TxID به‌صورت خودکار روی شبکه ترون تأیید می‌شود.
+- **تبلیغ A-ADS** (پرداخت با بیت‌کوین، بدون احراز هویت) فقط برای کاربرانی که حمایت نکرده‌اند.
+
+حامی‌ها نشان 💎 می‌گیرند و تبلیغی نمی‌بینند. پلن رایگان Vercel تبلیغ را مجاز نمی‌داند؛ برای تبلیغ، پروژه را روی پلن رایگان Render اجرا کنید ([راهنما](docs/DEPLOYMENT.md#alternative-render-free-ads-allowed)).
+
 ## تست
 
 ```bash

@@ -1,0 +1,30 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repo.
+# The free web service allows ads and payments (Vercel's free Hobby plan does not).
+# It sleeps after 15 minutes without traffic; the every-minute cron request (cron-job.org → /api/cron) keeps it awake.
+services:
+  - type: web
+    name: nirvana-reminder
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev --no-audit --no-fund
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: REDIS_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: DONATE_USDT_TRC20
+        sync: false
+      - key: DONATE_TON
+        sync: false
+      - key: DONATE_USDT_BEP20
+        sync: false
+      - key: ADS_AADS_UNIT
+        sync: false
