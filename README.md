@@ -12,7 +12,7 @@
 [![Live demo](https://img.shields.io/badge/live-vercelreminder--chi.vercel.app-111827?logo=vercel)](https://vercelreminder-chi.vercel.app)
 [![Telegram bot](https://img.shields.io/badge/Telegram-@Nirvana__Reminderbot-26A5E4?logo=telegram&logoColor=white)](https://t.me/Nirvana_Reminderbot)
 
-[Website: anavrin2025.ir](https://anavrin2025.ir) · [Live app](https://vercelreminder-chi.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [فارسی](README.fa.md)
+[Website: anavrin2025.ir](https://anavrin2025.ir) · [Live app](https://vercelreminder-chi.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [API](docs/API.md) · [Deployment](docs/DEPLOYMENT.md) · [Monetization](docs/MONETIZATION.md) · [فارسی](README.fa.md)
 
 </div>
 

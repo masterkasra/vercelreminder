@@ -84,6 +84,31 @@
     </div>
   </div>
 
+  <!-- Support Modal -->
+  <div id="support-modal" onclick="if (event.target === this) closeSupport()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel p-6 sm:p-8 rounded-3xl max-w-md w-full relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeSupport()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-800 dark:hover:text-white">✖</button>
+      <h3 class="text-xl font-bold text-emerald-600 dark:text-emerald-500 mb-2" data-i18n="support_title">حمایت از نیروانا 💚</h3>
+      <p class="text-sm leading-7 text-slate-600 dark:text-slate-300 mb-4" data-i18n="support_desc">نیروانا رایگان است.</p>
+      <div id="supporter-badge" class="hidden mb-4 p-3 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm font-bold"></div>
+      <div id="support-stars" class="hidden mb-5">
+        <a id="support-stars-link" target="_blank" rel="noopener" class="block w-full text-center bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition-colors" data-i18n="support_stars_btn">⭐️ حمایت با Telegram Stars</a>
+        <p class="text-xs leading-6 text-slate-500 dark:text-slate-400 mt-2" data-i18n="support_stars_hint">در ربات تلگرام مبلغ را انتخاب کنید.</p>
+      </div>
+      <div id="support-crypto" class="hidden">
+        <p class="text-sm font-bold text-slate-800 dark:text-white mb-1" data-i18n="support_crypto_title">کمک با ارز دیجیتال</p>
+        <p class="text-xs leading-6 text-amber-600 dark:text-amber-400 mb-3" data-i18n="support_network_warning">فقط روی همان شبکه بفرستید.</p>
+        <div id="support-wallets" class="space-y-3"></div>
+      </div>
+      <form id="support-verify" onsubmit="verifySupportTx(event)" class="hidden mt-4 p-4 rounded-2xl bg-black/5 dark:bg-white/5">
+        <label id="support-verify-label" for="support-txid" class="block text-xs leading-6 font-bold text-slate-700 dark:text-slate-300 mb-2"></label>
+        <input id="support-txid" dir="ltr" autocomplete="off" spellcheck="false" placeholder="TxID" class="w-full input-premium rounded-lg px-3 py-2 text-xs font-mono mb-2" />
+        <button id="support-verify-btn" type="submit" class="w-full bg-emerald-500 text-white dark:text-black font-bold py-2.5 rounded-xl text-sm hover:bg-emerald-600 dark:hover:bg-emerald-400 disabled:opacity-50 transition-colors" data-i18n="support_verify_btn">تأیید پرداخت</button>
+      </form>
+      <p id="support-empty" class="hidden text-sm leading-7 text-slate-500 dark:text-slate-400" data-i18n="support_empty">روش حمایت هنوز تنظیم نشده است.</p>
+    </div>
+  </div>
+
   <!-- Pomodoro Modal -->
   <div id="pomo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
     <div class="glass-panel p-8 rounded-3xl max-w-sm w-full text-center relative">
@@ -183,7 +208,7 @@
         </div>
       </div>
       
-      <div class="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto self-end sm:self-center">
+      <div class="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto lg:flex-shrink-0 self-end sm:self-center">
         <div class="flex bg-black/5 dark:bg-white/5 rounded-xl p-1">
           <button id="view-list-btn" onclick="switchView('list')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow" data-i18n="view_list">لیست</button>
           <button id="view-cal-btn" onclick="switchView('calendar')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all" data-i18n="view_cal">تقویم</button>
@@ -194,6 +219,9 @@
         <button id="notif-btn" onclick="onNotificationButton()" class="relative p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Notifications">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
           <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500"></span>
+        </button>
+        <button id="support-btn" onclick="openSupport()" class="hidden p-2.5 rounded-xl glass-panel text-rose-500 hover:bg-rose-500/10 transition-all" title="Support 💚">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.3 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.7 0 6 3.7 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>
         </button>
         <button onclick="openSettings()" class="p-2.5 rounded-xl glass-panel text-slate-700 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 transition-all" title="Settings">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -367,6 +395,12 @@
         <div id="cal-grid" class="calendar-grid"></div>
       </div>
     </div>
+
+    <div id="ad-slot" class="hidden mb-12">
+      <p class="text-[10px] text-center text-slate-400 mb-1" data-i18n="ad_label">تبلیغ</p>
+      <div id="ad-frame"></div>
+      <button onclick="openSupport()" class="block mx-auto mt-1 text-[11px] text-slate-500 dark:text-slate-400 underline" data-i18n="ad_remove">حذف تبلیغ با حمایت 💎</button>
+    </div>
   </div>
 
   <footer class="mt-auto py-8 text-center relative z-10 w-full">
@@ -419,6 +453,7 @@
         test_delayed_background: "ℹ️ اگر اپ را بسته بودید این طبیعی است و سرور اعلان را می‌فرستد. اگر اعلان را ندیدید، مرکز اعلان‌ها و حالت Focus را بررسی کنید.", test_push_timeout: "سرور در ۴۵ ثانیه پاسخ نداد",
         test_local_title: "🔔 اعلان محلی (بدون سرور)", test_local_body: "این اعلان مستقیم از خود دستگاه است؛ اعلان «از سرور» باید چند ثانیه بعد برسد.",
         push_this_device: "این دستگاه", push_other_device: "دستگاه دیگر", push_accepted: "سرویس push پیام را پذیرفت", push_expired: "اشتراک منقضی شده بود و حذف شد",
+        support_title: "حمایت از نیروانا 💚", support_desc: "نیروانا رایگان و بدون اشتراک است. اگر به کارتان می‌آید، با یک کمک کوچک هزینه سرور، ربات و هوش مصنوعی را پوشش دهید. حامی‌ها نشان 💎 می‌گیرند و تبلیغی نمی‌بینند.", support_stars_btn: "⭐️ حمایت با Telegram Stars", support_stars_hint: "ربات تلگرام باز می‌شود؛ مبلغ را انتخاب کنید و با Stars پرداخت کنید. نشان حامی خودکار فعال می‌شود.", support_crypto_title: "کمک با ارز دیجیتال (تتر / تون)", support_network_warning: "⚠️ فقط روی همان شبکه‌ای که کنار آدرس نوشته شده بفرستید؛ ارسال روی شبکه اشتباه قابل برگشت نیست.", support_copy: "📋 کپی", support_copied: "✅ آدرس کپی شد", support_verify_label: "بعد از ارسال USDT روی شبکه TRC20، شناسه تراکنش (TxID) را اینجا بگذارید تا نشان حامی فعال شود (حداقل {min} USDT):", support_verify_btn: "تأیید پرداخت", support_verifying: "⏳ در حال بررسی روی شبکه ترون...", support_failed: "تأیید ناموفق بود", support_thanks: "💎 ممنون! نشان حامی فعال شد.", support_is_supporter: "💎 شما حامی نیروانا هستید. ممنونیم!", support_empty: "روش حمایت هنوز روی سرور تنظیم نشده است.", ad_label: "تبلیغ", ad_remove: "حذف تبلیغ با حمایت 💎",
         push_accepted_hint: "ℹ️ اگر برای این دستگاه «پذیرفت» آمد ولی اعلان «از سرور» نرسید، مشکل از اتصال خود دستگاه به سرویس اعلان است (اندروید: سرویس‌های گوگل و اجازه پس‌زمینه Chrome؛ آیفون: باز کردن از آیکون صفحه اصلی).",
 months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'], days: ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']
       },
@@ -462,6 +497,7 @@ months: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مردا
         test_delayed_background: "ℹ️ If you left the app this is expected, and the server still sends the notification. If you didn't see it, check Notification Center and Focus mode.", test_push_timeout: "the server didn't answer within 45 seconds",
         test_local_title: "🔔 Local notification (no server)", test_local_body: "This one comes straight from this device; the one \"from server\" should follow in a few seconds.",
         push_this_device: "This device", push_other_device: "Other device", push_accepted: "accepted by the push service", push_expired: "subscription had expired and was removed",
+        support_title: "Support Nirvana 💚", support_desc: "Nirvana is free with no subscription. If it helps you, a small donation covers the server, bot and AI costs. Supporters get a 💎 badge and see no ads.", support_stars_btn: "⭐️ Support with Telegram Stars", support_stars_hint: "The Telegram bot opens; pick an amount and pay with Stars. The supporter badge is activated automatically.", support_crypto_title: "Donate with crypto (USDT / TON)", support_network_warning: "⚠️ Only send on the network shown next to the address; transfers on the wrong network cannot be recovered.", support_copy: "📋 Copy", support_copied: "✅ Address copied", support_verify_label: "After sending USDT on TRC20, paste the transaction ID (TxID) here to activate your supporter badge (minimum {min} USDT):", support_verify_btn: "Verify payment", support_verifying: "⏳ Checking the Tron network...", support_failed: "Verification failed", support_thanks: "💎 Thank you! Your supporter badge is active.", support_is_supporter: "💎 You are a Nirvana supporter. Thank you!", support_empty: "No donation method is configured on the server yet.", ad_label: "Ad", ad_remove: "Remove ads by supporting 💎",
         push_accepted_hint: "ℹ️ If this device shows \"accepted\" but the \"from server\" notification never appears, the device itself can't reach its push service (Android: Google services and Chrome background access; iPhone: open the app from the home-screen icon).",
 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       },
@@ -505,6 +541,7 @@ months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', '
         test_delayed_background: "ℹ️ Wenn Sie die App verlassen haben, ist das normal und der Server sendet trotzdem. Falls nichts erschien, Mitteilungszentrale und Fokus-Modus prüfen.", test_push_timeout: "Server hat nicht innerhalb von 45 Sekunden geantwortet",
         test_local_title: "🔔 Lokale Benachrichtigung (ohne Server)", test_local_body: "Diese kommt direkt vom Gerät; die \"vom Server\" sollte in wenigen Sekunden folgen.",
         push_this_device: "Dieses Gerät", push_other_device: "Anderes Gerät", push_accepted: "vom Push-Dienst angenommen", push_expired: "Abo war abgelaufen und wurde entfernt",
+        support_title: "Nirvana unterstützen 💚", support_desc: "Nirvana ist kostenlos und ohne Abo. Wenn es Ihnen hilft, deckt eine kleine Spende Server-, Bot- und KI-Kosten. Unterstützer erhalten ein 💎-Abzeichen und sehen keine Werbung.", support_stars_btn: "⭐️ Mit Telegram Stars unterstützen", support_stars_hint: "Der Telegram-Bot öffnet sich; Betrag wählen und mit Stars bezahlen. Das Abzeichen wird automatisch aktiviert.", support_crypto_title: "Mit Krypto spenden (USDT / TON)", support_network_warning: "⚠️ Nur über das angegebene Netzwerk senden; Überweisungen im falschen Netzwerk sind verloren.", support_copy: "📋 Kopieren", support_copied: "✅ Adresse kopiert", support_verify_label: "Nach dem Senden von USDT über TRC20 die Transaktions-ID (TxID) hier einfügen, um das Abzeichen zu aktivieren (mindestens {min} USDT):", support_verify_btn: "Zahlung prüfen", support_verifying: "⏳ Tron-Netzwerk wird geprüft...", support_failed: "Prüfung fehlgeschlagen", support_thanks: "💎 Danke! Ihr Unterstützer-Abzeichen ist aktiv.", support_is_supporter: "💎 Sie unterstützen Nirvana. Danke!", support_empty: "Auf dem Server ist noch keine Spendenmethode eingerichtet.", ad_label: "Anzeige", ad_remove: "Werbung entfernen durch Unterstützung 💎",
         push_accepted_hint: "ℹ️ Wenn dieses Gerät \"angenommen\" zeigt, die Benachrichtigung \"vom Server\" aber nie erscheint, erreicht das Gerät seinen Push-Dienst nicht (Android: Google-Dienste und Chrome-Hintergrundzugriff; iPhone: App über das Home-Bildschirm-Symbol öffnen).",
 months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], days: ['Son', 'Mon', 'Die', 'Mit', 'Don', 'Fre', 'Sam']
       }
@@ -520,7 +557,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       if (isDark) { html.classList.add('dark'); document.getElementById('meta-theme-color').content = "#030712"; icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'; } 
       else { html.classList.remove('dark'); document.getElementById('meta-theme-color').content = "#f8fafc"; icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>'; }
     }
-    function changeLanguage(lang) { currentLang = lang; localStorage.setItem('nirvana_lang', lang); applyLanguage(); updateNotificationButton(); initDatePicker(); if(currentData.length>0){renderList(); renderCalendar();} }
+    function changeLanguage(lang) { currentLang = lang; localStorage.setItem('nirvana_lang', lang); applyLanguage(); updateNotificationButton(); initDatePicker(); if (supportInfo) renderSupport(); if(currentData.length>0){renderList(); renderCalendar();} }
     function t(key) { return translations[currentLang][key] || key; }
     function applyLanguage() {
       document.documentElement.lang = currentLang; document.documentElement.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
@@ -1293,6 +1330,101 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       checkDueNotifications();
     }
 
+    // --- Support: Telegram Stars and crypto donations, optional A-ADS banner for non-supporters ---
+    let supportInfo = null;
+    async function loadSupport() {
+      try {
+        const res = await apiFetch('/api/support');
+        if (!res.ok) return;
+        supportInfo = await res.json();
+      } catch (e) { return; }
+      const available = Boolean(supportInfo.stars || supportInfo.wallets.length || supportInfo.supporter);
+      document.getElementById('support-btn').classList.toggle('hidden', !available);
+      paintWelcomeName(); renderAd();
+    }
+    function paintWelcomeName() {
+      const name = currentUser && currentUser.firstName ? `(${currentUser.firstName})` : '';
+      document.getElementById('welcome-name').innerText = `${name}${supportInfo && supportInfo.supporter ? ' 💎' : ''}`;
+    }
+    function renderAd() {
+      const frame = document.getElementById('ad-frame');
+      const unit = supportInfo && !supportInfo.supporter ? supportInfo.adsUnit : null;
+      document.getElementById('ad-slot').classList.toggle('hidden', !unit);
+      if (!unit) { frame.replaceChildren(); delete frame.dataset.unit; return; }
+      if (frame.dataset.unit === unit) return;
+      frame.dataset.unit = unit;
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('data-aa', unit);
+      iframe.src = `https://acceptable.a-ads.com/${encodeURIComponent(unit)}/?size=Adaptive`;
+      iframe.title = t('ad_label'); iframe.loading = 'lazy';
+      iframe.style.cssText = 'border:0;padding:0;width:100%;max-width:728px;height:100px;overflow:hidden;display:block;margin:auto;background:transparent';
+      frame.replaceChildren(iframe);
+    }
+    async function openSupport() {
+      document.getElementById('support-modal').classList.remove('hidden');
+      renderSupport();
+      await loadSupport(); // a Stars payment made in Telegram shows up here without a reload
+      renderSupport();
+    }
+    function closeSupport() { document.getElementById('support-modal').classList.add('hidden'); }
+    function renderSupport() {
+      const info = supportInfo || { wallets: [] };
+      const badge = document.getElementById('supporter-badge');
+      badge.textContent = t('support_is_supporter'); badge.classList.toggle('hidden', !info.supporter);
+      const bot = info.stars && info.stars.botUsername;
+      document.getElementById('support-stars').classList.toggle('hidden', !bot);
+      if (bot) document.getElementById('support-stars-link').href = `https://t.me/${encodeURIComponent(bot)}?start=donate`;
+      document.getElementById('support-crypto').classList.toggle('hidden', !info.wallets.length);
+      document.getElementById('support-wallets').innerHTML = info.wallets.map((w, i) => `
+        <div class="p-3 rounded-2xl border border-black/10 dark:border-white/10">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-xs font-bold text-slate-800 dark:text-white">${escapeHtml(w.label)}</span>
+            <button type="button" onclick="copyWallet(${i})" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline">${escapeHtml(t('support_copy'))}</button>
+          </div>
+          <div class="flex items-center gap-3">
+            <div data-qr="${i}" class="w-24 h-24 flex-shrink-0 bg-white rounded-lg"></div>
+            <code dir="ltr" class="text-[11px] leading-5 break-all font-mono text-slate-700 dark:text-slate-300">${escapeHtml(w.address)}</code>
+          </div>
+        </div>`).join('');
+      document.getElementById('support-verify').classList.toggle('hidden', !info.wallets.some(w => w.autoVerify));
+      document.getElementById('support-verify-label').textContent = t('support_verify_label').replace('{min}', info.minUsdt);
+      document.getElementById('support-empty').classList.toggle('hidden', Boolean(supportInfo === null || bot || info.wallets.length));
+      if (info.wallets.length) drawWalletQrs();
+    }
+    let qrLibrary = null;
+    async function drawWalletQrs() {
+      qrLibrary = qrLibrary || loadScript('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js');
+      try { await qrLibrary; } catch (e) { qrLibrary = null; return; }
+      document.querySelectorAll('[data-qr]').forEach(el => {
+        const wallet = supportInfo && supportInfo.wallets[Number(el.dataset.qr)];
+        if (!wallet) return;
+        const qr = qrcode(0, 'M'); qr.addData(wallet.address); qr.make();
+        const img = new Image(); img.src = qr.createDataURL(4, 2); img.alt = wallet.label; img.className = 'w-full h-full rounded-lg';
+        el.replaceChildren(img);
+      });
+    }
+    async function copyWallet(i) {
+      const address = supportInfo.wallets[i].address;
+      try { await navigator.clipboard.writeText(address); showToast(t('support_copied')); }
+      catch (e) { window.prompt(t('support_copy'), address); }
+    }
+    async function verifySupportTx(e) {
+      e.preventDefault();
+      const input = document.getElementById('support-txid'); const btn = document.getElementById('support-verify-btn');
+      const txid = input.value.trim(); if (!txid) return;
+      btn.disabled = true; btn.textContent = t('support_verifying');
+      try {
+        const res = await apiFetch('/api/support', { method: 'POST', body: JSON.stringify({ action: 'verify-trc20', txid }) });
+        if (res.status === 401) return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) return showToast(`${t('support_failed')}: ${data.error || res.status}`, 'error');
+        supportInfo = { ...supportInfo, supporter: data.supporter, adsUnit: null };
+        input.value = ''; showToast(t('support_thanks'));
+        renderSupport(); paintWelcomeName(); renderAd();
+      } catch (err) { showToast(`${t('support_failed')}: ${err.message}`, 'error'); }
+      finally { btn.disabled = false; btn.textContent = t('support_verify_btn'); }
+    }
+
     // --- 8. BOOT & SYNC ---
     initSettings();
     if (currentUser && authToken) {
@@ -1300,7 +1432,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
       syncAuthTokenToServiceWorker(authToken);
       initDatePicker(); document.getElementById('auth-screen').classList.add('hidden'); document.getElementById('app-screen').classList.remove('hidden');
       if (currentUser.firstName) { document.getElementById('welcome-name').innerText = `(${currentUser.firstName})`; }
-      paintStatusButtons(); fetchRemindersFromServer(); updateConnectionStatus(); initNotifications(); syncTimezone();
+      paintStatusButtons(); fetchRemindersFromServer(); updateConnectionStatus(); initNotifications(); syncTimezone(); loadSupport();
     } else { document.getElementById('auth-screen').classList.remove('hidden'); loadBotHint(); }
 
     function updateConnectionStatus() {

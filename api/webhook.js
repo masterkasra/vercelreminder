@@ -2,6 +2,7 @@ import { getRedis, readJSON, updateJSON } from '../lib/db.js';
 import { tg, webhookSecret } from '../lib/telegram.js';
 import { getChatSettings, updateChatSettings } from '../lib/settings.js';
 import { buildTaskList, snoozeTarget, whenLabel, reminderTitle, toLatinDigits, fa, HELP_TEXT } from '../lib/bot.js';
+import { supportConfig, recordSupport } from '../lib/support.js';
 
 const SNOOZE_ACTIONS = { snooze: '1h', snz10m: '10m', snz1h: '1h', snztonight: 'tonight', snztomorrow: 'tomorrow' };
 const TRASH_TTL = 24 * 60 * 60;
@@ -20,6 +21,8 @@ export default async function handler(req, res) {
     }
 
     if (update.callback_query) await handleCallback(redis, update.callback_query);
+    else if (update.pre_checkout_query) await handlePreCheckout(update.pre_checkout_query);
+    else if (update.message && update.message.successful_payment) await handlePayment(update.message);
     else if (update.message && update.message.text) await handleMessage(update.message);
   } catch (e) {
     console.error("Webhook Error", e);
@@ -39,6 +42,13 @@ async function handleCallback(redis, cb) {
   const { tzOffsetMinutes: tz } = await getChatSettings(chatId);
   const now = Date.now();
   const answer = text => tg('answerCallbackQuery', { callback_query_id: cb.id, text: text ? text.slice(0, 190) : undefined });
+
+  if (action === 'donate') {
+    const { starsEnabled, starsAmounts } = supportConfig();
+    if (!starsEnabled || !starsAmounts.includes(id)) return answer();
+    await sendStarsInvoice(chatId, id);
+    return answer();
+  }
 
   if (action === 'restore') {
     const trashKey = `trash:${chatId}:${id}`;
@@ -106,6 +116,7 @@ async function handleMessage(message) {
   const command = firstWord.startsWith('/') ? firstWord.split('@')[0].toLowerCase() : null; // «/today@my_bot» در گروه‌ها
   const arg = command ? text.slice(firstWord.length).trim().toLowerCase() : '';
 
+  if (command === '/donate' || (command === '/start' && arg === 'donate')) return send(donateMenu());
   if (command === '/start' || command === '/id') {
     return send({ text: `👋 سلام! شناسه تلگرام (Chat ID) شما:\n\n${chatId}\n\nاین عدد را در فرم ثبت‌نام سایت وارد کنید. کد تأیید هم در همین چت برایتان ارسال می‌شود.\n\nراهنمای دستورها: /help` });
   }
@@ -155,4 +166,41 @@ async function handleMessage(message) {
 
   if (command) return send({ text: `این دستور را نمی‌شناسم.\n\n${HELP_TEXT}` });
   return send({ text: `🤖 *راهنمای ثبت سریع:*\nبرای ثبت یادآور از داخل تلگرام، دقیقاً با فرمت زیر تایپ کنید:\n\n👉 *مثال:* خرید نان فردا ساعت 18:30\n👉 *مثال:* چک کردن ایمیل امروز ساعت 9\n\nهمه دستورها: /help`, parse_mode: 'Markdown' });
+}
+
+// ۳. حمایت با Telegram Stars (ارز XTR؛ توکن درگاه لازم نیست). Stars بعداً از Fragment به TON تبدیل و برداشت می‌شود.
+function donateMenu() {
+  const { starsEnabled, starsAmounts } = supportConfig();
+  if (!starsEnabled) return { text: '💚 ممنون از لطفتان! حمایت با Stars فعلاً فعال نیست.' };
+  return {
+    text: '💚 نیروانا رایگان است و با حمایت شما سرپا می‌ماند.\n\nمبلغ حمایت با ⭐️ Telegram Stars را انتخاب کنید. بعد از پرداخت، نشان 💎 حامی روی حسابتان فعال می‌شود و تبلیغی نمی‌بینید.',
+    reply_markup: { inline_keyboard: [starsAmounts.map(n => ({ text: `⭐️ ${fa(n)}`, callback_data: `donate_${n}` }))] }
+  };
+}
+
+function sendStarsInvoice(chatId, amount) {
+  return tg('sendInvoice', {
+    chat_id: chatId,
+    title: 'حمایت از نیروانا 💚',
+    description: `حمایت داوطلبانه ${fa(amount)} ستاره‌ای از یادآور رایگان نیروانا. ممنونیم!`,
+    payload: `donate:${amount}`,
+    currency: 'XTR',
+    prices: [{ label: 'حمایت', amount }]
+  });
+}
+
+// تلگرام تا ۱۰ ثانیه منتظر این پاسخ می‌ماند
+async function handlePreCheckout(q) {
+  const amount = Number(String(q.invoice_payload || '').split(':')[1]);
+  const ok = q.currency === 'XTR' && String(q.invoice_payload || '').startsWith('donate:') && amount === q.total_amount;
+  await tg('answerPreCheckoutQuery', ok
+    ? { pre_checkout_query_id: q.id, ok: true }
+    : { pre_checkout_query_id: q.id, ok: false, error_message: 'این پرداخت معتبر نیست.' });
+}
+
+async function handlePayment(message) {
+  const p = message.successful_payment;
+  if (p.currency !== 'XTR' || !String(p.invoice_payload || '').startsWith('donate:')) return;
+  await recordSupport(message.chat.id, { method: 'stars', amount: p.total_amount, currency: 'XTR', ref: p.telegram_payment_charge_id });
+  await tg('sendMessage', { chat_id: message.chat.id, text: `💎 ممنون! ${fa(p.total_amount)} ستاره دریافت شد و نشان حامی روی حسابتان فعال شد.` });
 }

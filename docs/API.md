@@ -61,6 +61,15 @@ Reminder fields:
 
 `tzOffsetMinutes` uses the same sign as JavaScript's `Date#getTimezoneOffset()` (Tehran = `-210`).
 
+## `/api/support` 🔒
+
+| Method | Body | Result |
+| --- | --- | --- |
+| `GET` | – | `{ wallets: [{ id, label, address, autoVerify? }], minUsdt, stars: { botUsername, amounts } \| null, adsUnit, supporter: { since, count } \| null }` |
+| `POST` | `{ action: "verify-trc20", txid }` | `{ ok, amount, supporter }`, or 400/404 with the reason, or 409 if the TxID was already claimed |
+
+`adsUnit` is always `null` for supporters. See [MONETIZATION.md](MONETIZATION.md).
+
 ## `/api/push`
 
 | Method | Body | Result |
@@ -98,5 +107,6 @@ On its first run it also re-registers the existing Telegram webhook with a `secr
 | `/today`, `/list` | Task list with ✅ done and 🗑 delete buttons (delete can be undone for 24 h) |
 | `/summary`, `/summary on\|off\|7` | Show or change the morning summary |
 | `/help` | Command list |
+| `/donate`, `/start donate` | Telegram Stars donation buttons → invoice in `XTR`; a successful payment grants the 💎 supporter badge |
 | `خرید نان فردا ساعت 18:30` | Quick add ("today"/"tomorrow" + time, Persian digits supported) |
 | Buttons on a due reminder | Done, snooze 10 min / 1 h / tonight 20:00 / tomorrow 09:00 |

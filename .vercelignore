@@ -1,4 +1,6 @@
 tests
 docs
 .github
+server.js
+render.yaml
 promo
