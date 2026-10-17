@@ -1,7 +1,9 @@
 // Renders index.html frame by frame in headless Chromium and encodes an Instagram/Telegram-ready MP4.
 //
-//   node render.mjs                 full video -> out/thaler-promo.mp4
-//   node render.mjs --stills 2,7,12 PNG stills only (quick visual check)
+//   node render.mjs                         promo (index.html) -> out/thaler-promo.mp4
+//   node render.mjs --page guide.html       tutorial (guide.html) -> out/thaler-guide.mp4
+//   node render.mjs --stills 2,7,12         PNG stills only (quick visual check)
+//   node render.mjs --page guide.html --cues   write the page's sound cues to out/guide-cues.json
 //
 // Env: FFMPEG (path to ffmpeg), WORKERS (parallel pages, default 3), CHROMIUM (browser binary).
 import { spawn } from 'node:child_process';
@@ -18,7 +20,11 @@ mkdirSync(out, { recursive: true });
 const FFMPEG = process.env.FFMPEG || 'ffmpeg';
 const WORKERS = +(process.env.WORKERS || 3);
 const args = process.argv.slice(2);
-const stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1].split(',').map(Number) : null;
+const opt = name => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
+const stills = opt('--stills') ? opt('--stills').split(',').map(Number) : null;
+const page = opt('--page') || 'index.html';
+const kind = page === 'index.html' ? 'promo' : page.replace(/\.html$/, '');
+const prefix = kind === 'promo' ? '' : `${kind}-`;
 
 const run = (cmd, argv, opts = {}) => new Promise((res, rej) => {
   const p = spawn(cmd, argv, { stdio: ['ignore', 'inherit', 'inherit'], ...opts });
@@ -30,11 +36,12 @@ const browser = await chromium.launch({
   args: ['--force-color-profile=srgb', '--disable-lcd-text', '--font-render-hinting=none'],
 });
 
+const pageFile = page;
 async function openPage() {
   const ctx = await browser.newContext({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   page.on('pageerror', e => console.error('page error:', e.message));
-  await page.goto(pathToFileURL(join(here, 'index.html')).href);
+  await page.goto(pathToFileURL(join(here, pageFile)).href);
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 30000 });
   const cdp = await ctx.newCDPSession(page);
   const shot = async () => Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true })).data, 'base64');
@@ -49,9 +56,18 @@ if (stills) {
   for (const t of stills) {
     const target = Math.round(t * meta.fps);
     for (; f <= target; f++) await page.evaluate(x => window.__seek(x), f / meta.fps);
-    writeFileSync(join(out, `still-${String(t).replace('.', '_')}.png`), await shot());
+    writeFileSync(join(out, `${prefix}still-${String(t).replace('.', '_')}.png`), await shot());
     console.log('still', t);
   }
+  await browser.close();
+  process.exit(0);
+}
+
+if (args.includes('--cues')) {
+  const { page: p } = await openPage();
+  const file = join(out, `${kind}-cues.json`);
+  writeFileSync(file, JSON.stringify(await p.evaluate(() => window.__cues), null, 1));
+  console.log('wrote', file);
   await browser.close();
   process.exit(0);
 }
@@ -96,8 +112,8 @@ await run(FFMPEG, ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i
 segs.forEach(s => rmSync(s));
 rmSync(list);
 
-const music = join(out, 'music.wav');
-const final = join(out, 'thaler-promo.mp4');
+const music = join(out, `${prefix}music.wav`);
+const final = join(out, `thaler-${kind}.mp4`);
 const muxArgs = ['-y', '-loglevel', 'error', '-i', silent];
 if (existsSync(music)) muxArgs.push('-i', music, '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=9', '-shortest');
 muxArgs.push('-c:v', 'copy', '-movflags', '+faststart', final);

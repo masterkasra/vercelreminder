@@ -13,6 +13,22 @@ It's made for Instagram Reels and the Telegram channel. The on-screen copy is Pe
 | 22–28 s | Four plans with counting prices; the 6-month plan gets the "پیشنهاد ما" highlight |
 | 28–32 s | Call to action: free start, the site address and both bot usernames |
 
+## Tutorial video (`guide.html`)
+
+A 60-second walkthrough of the site in 9 steps, in the same style. A finger cursor opens the side menu, taps into each section and shows what the section is for:
+1. placement test
+2. dashboard
+3. Leitner box and word bank
+4. speaking
+5. listening
+6. writing
+7. grammar and mock exams
+8. leagues and referrals
+9. smart assistant and support
+
+A progress bar and breadcrumb (منو ‹ گفتار ‹ شبیه‌ساز مکالمه) show where each feature lives.
+Its copy is in [`guide-content.js`](guide-content.js). Render it with `npm run render:guide` → `out/thaler-guide.mp4`.
+
 ## Change the text
 
 Everything the video says is in [`content.js`](content.js): brand, features, the bot chats, plans and prices, and the EN/DE subtitle cues.
@@ -35,7 +51,7 @@ Open `index.html?play` in Chrome for a live preview, or `index.html?t=21.5` to f
 ## Pieces
 
 - `index.html`: the composition. GSAP timeline, a canvas background, and `window.__seek(t)` for frame-exact rendering.
-- `music.py`: an original 120 BPM soundtrack (D major, one chord per 2 s bar, so every scene cut lands on a downbeat) plus sound effects placed on the animation's hits, synthesized with numpy (no samples).
+- `music.py`: original 120 BPM soundtracks in D major, one chord per 2 s bar so every cut lands on a downbeat, with sound effects on the animation's hits; synthesized with numpy, no samples. `python3 music.py guide` builds the tutorial track from the cue list `guide.html` exports.
 - `render.mjs`: captures every frame in headless Chromium and encodes H.264 High / AAC, loudness-normalized to −14 LUFS.
 
 Fonts: [Vazirmatn](https://github.com/rastikerdar/vazirmatn) and [Manrope](https://github.com/sharanda/manrope), both OFL (licences in `fonts/`).
