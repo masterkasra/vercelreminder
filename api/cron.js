@@ -20,6 +20,10 @@ function addJalaliMonth(date) {
 }
 
 // اولین تکرار بعد از الان (اگر cron مدتی خاموش بوده، تکرارهای عقب‌افتاده پشت سر هم ساخته نمی‌شوند)
+// کوتاه‌ترین فاصلهٔ تکرار (روز). اگر هشدار زودهنگام این‌قدر یا بیشتر باشد، فقط برای نسخهٔ بعدیِ همین یادآور هر روز تکرار می‌شود
+const RECURRENCE_MIN_DAYS = { daily: 1, weekly: 7, monthly: 28 };
+const advanceIsUseful = r => !(RECURRENCE_MIN_DAYS[r.recurring] <= r.advanceNotice);
+
 function nextOccurrence(iso, recurring, now) {
   let d = new Date(iso);
   for (let i = 0; i < 5000 && d.getTime() <= now; i++) {
@@ -128,7 +132,7 @@ export default async function handler(req, res) {
         const msgTitle = r.isEncrypted ? '🔒 [پیام قفل شده و محرمانه]' : (r.title || '');
         const msgDesc = r.isEncrypted ? 'برای مشاهده جزئیات وارد اپلیکیشن شوید.' : (r.desc || '-');
 
-        if (r.advanceNotice > 0 && !r.advanceSent && advanceTime <= now && targetTime > now) {
+        if (r.advanceNotice > 0 && advanceIsUseful(r) && !r.advanceSent && advanceTime <= now && targetTime > now) {
           const done = await sendTelegram(chatId, `⏳ <b>هشدار زودهنگام</b>\n\n📌 عنوان: ${escapeHtml(msgTitle)}`);
           if (subs.length) {
             pushResults.push(...(await sendPush(subs, {

@@ -1297,7 +1297,7 @@ months: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 
         const target = new Date(r.datetime).getTime(); if (isNaN(target)) return;
         const advanceAt = target - (parseInt(r.advanceNotice) || 0) * 86400000;
         const due = [];
-        if (advanceAt < target && advanceAt <= now && now < target && now - advanceAt < NOTIFY_GRACE_MS) due.push('adv');
+        if (advanceAt < target && !({ daily: 1, weekly: 7, monthly: 28 }[r.recurring] <= r.advanceNotice) && advanceAt <= now && now < target && now - advanceAt < NOTIFY_GRACE_MS) due.push('adv');
         if (target <= now && now - target < NOTIFY_GRACE_MS) due.push('due');
         due.forEach(type => {
           // Same tag format as the server push (api/cron.js), so both collapse into a single notification

@@ -580,5 +580,22 @@ let tokenA;
   console.log('✓ no bot token');
 }
 
+// ---------- early warning on repeating reminders ----------
+{
+  const DAY = 864e5, NOW = Date.parse('2025-09-22T06:31:00Z');
+  const run = async () => { tgCalls.length = 0; await call(cron); return tgCalls.filter(c => c.method === 'sendMessage').map(c => c.body.text); };
+  store.set('reminders:555', JSON.stringify([{ id: 1, title: 'cheque', datetime: new Date(NOW - 10 * DAY).toISOString(), recurring: 'daily', advanceNotice: 2, completed: false, sent: false }]));
+  for (let day = 0; day < 3; day++) {
+    Date.now = () => NOW + day * DAY;
+    const texts = [...await run(), ...await run()]; // the copy made by the first run is checked by the second
+    assert.ok(!texts.some(t => t.includes('هشدار زودهنگام')), `daily + early warning must not warn again every day (day ${day})`);
+  }
+  Date.now = () => NOW;
+  store.set('reminders:555', JSON.stringify([{ id: 2, title: 'weekly', datetime: new Date(NOW + 2 * DAY).toISOString(), recurring: 'weekly', advanceNotice: 3, completed: false, sent: false }]));
+  assert.ok((await run()).some(t => t.includes('هشدار زودهنگام')), 'weekly + 3 day warning still works');
+  store.delete('reminders:555');
+  console.log('✓ early warning on repeating reminders');
+}
+
 console.log('\nAll server tests passed');
 process.exit(0);
