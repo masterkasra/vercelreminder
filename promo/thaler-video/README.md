@@ -57,12 +57,12 @@ Open `index.html?play` in Chrome for a live preview, or `index.html?t=21.5` to f
 Fonts: [Vazirmatn](https://github.com/rastikerdar/vazirmatn) and [Manrope](https://github.com/sharanda/manrope), both OFL (licences in `fonts/`).
 Icons: [Lucide](https://lucide.dev) (ISC) and the Telegram mark from [Simple Icons](https://simpleicons.org) (CC0). Animation: [GSAP](https://gsap.com).
 
-## Telegram ad (`ad.html`, 20 s, 1080×1350)
+## Telegram ad (`ad.html`, 20 s; 16:9 for Telegram Ads, 4:5 for feeds)
 
 A short 4:5 ad for Telegram Ads (it also works as an Instagram feed post). The scenes are: hook ("دیروز خوندی، امروز یادت رفت؟"), then the **new Android app** (install, then open), then **instant card-to-card** payment (pay, then the plan activates), then all features, then the free-start CTA with www.thaler.ir.
 Every claim is on screen, so it works with autoplay on mute. The copy is in the `AD` object at the top of the page script.
 
-    npm run render:ad      # out/ad-music.wav + out/thaler-ad.mp4
+    npm run render:ad      # out/thaler-ad-wide.mp4 (1920×1080, what Telegram Ads accepts) + out/thaler-ad.mp4 (1080×1350)
     npm run stills:ad      # quick PNG checks
 
-`render.mjs` sizes the viewport from the page's `__meta`, so non-9:16 pages render at their own size.
+`ad.html#wide` switches the page to the 16:9 layout (copy on the right, visuals on the left). `render.mjs` passes a `#hash` through and sizes the viewport from the page's `__meta`.

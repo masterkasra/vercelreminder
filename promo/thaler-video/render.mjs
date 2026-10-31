@@ -22,8 +22,9 @@ const WORKERS = +(process.env.WORKERS || 3);
 const args = process.argv.slice(2);
 const opt = name => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
 const stills = opt('--stills') ? opt('--stills').split(',').map(Number) : null;
-const page = opt('--page') || 'index.html';
-const kind = page === 'index.html' ? 'promo' : page.replace(/\.html$/, '');
+const page = opt('--page') || 'index.html';            // may carry a layout hash, e.g. ad.html#wide
+const [pageFile, hash] = page.split('#');
+const kind = pageFile === 'index.html' ? 'promo' : pageFile.replace(/\.html$/, '') + (hash ? `-${hash}` : '');
 const prefix = kind === 'promo' ? '' : `${kind}-`;
 
 const run = (cmd, argv, opts = {}) => new Promise((res, rej) => {
@@ -36,17 +37,16 @@ const browser = await chromium.launch({
   args: ['--force-color-profile=srgb', '--disable-lcd-text', '--font-render-hinting=none'],
 });
 
-const pageFile = page;
 async function openPage() {
-  const ctx = await browser.newContext({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1920 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   page.on('pageerror', e => console.error('page error:', e.message));
-  await page.goto(pathToFileURL(join(here, pageFile)).href);
+  await page.goto(pathToFileURL(join(here, pageFile)).href + (hash ? `#${hash}` : ''));
   await page.waitForFunction(() => window.__ready === true, null, { timeout: 30000 });
   const cdp = await ctx.newCDPSession(page);
   const shot = async () => Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true })).data, 'base64');
   const meta = await page.evaluate(() => window.__meta);
-  if (meta.height !== 1920) await page.setViewportSize({ width: meta.width, height: meta.height });
+  await page.setViewportSize({ width: meta.width, height: meta.height });
   return { page, shot, meta };
 }
 

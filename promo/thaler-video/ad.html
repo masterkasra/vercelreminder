@@ -167,6 +167,20 @@ html, body { margin: 0; background: #000; }
 
 #sweep { position: absolute; top: -400px; left: -700px; width: 380px; height: 2800px; transform: rotate(18deg); opacity: 0; mix-blend-mode: screen; filter: blur(30px);
   background: linear-gradient(90deg, transparent, rgba(200,170,255,.25) 40%, rgba(255,255,255,.5) 50%, rgba(200,170,255,.25) 60%, transparent); }
+
+/* ---------- 16:9 layout (ad.html#wide → 1920×1080, required by Telegram Ads): copy on the right, visuals on the left ---------- */
+.wide #stage { width: 1920px; height: 1080px; }
+.wide #rays, .wide #coinGlow, .wide .shock, .wide #coinWrap { left: 960px; top: 250px; }
+.wide #bug { top: 44px; justify-content: flex-start; padding-right: 90px; }
+.wide #footer { bottom: 34px; }
+.wide .head { top: 330px; left: auto; right: 90px; width: 860px; text-align: right; }
+.wide #s1 .q { top: 330px; } .wide #s1 .wordmark { top: 400px; } .wide #s1 .latin { top: 655px; } .wide #s1 .hook { top: 730px; }
+.wide .phone { left: 270px; top: 170px; }
+.wide #b1 { left: 50px; top: 330px; } .wide #b2 { right: auto; left: 600px; top: 720px; }
+.wide .bankP { left: 120px; top: 150px; } .wide .bolt { left: 420px; top: 494px; } .wide .done { left: 50px; top: 575px; }
+.wide .tiles { left: 40px; top: 200px; } .wide #s4 .chip { top: 650px; left: auto; right: 90px; transform: none; }
+.wide #s5 .title { top: 420px; } .wide #s5 .sub { top: 590px; } .wide .price { top: 660px; } .wide .recap { top: 775px; }
+.wide .urlbar { left: 530px; top: 860px; } .wide .tap { top: 1008px; font-size: 28px; }
 </style>
 </head>
 <body>
@@ -210,7 +224,10 @@ const AD = {
     url: 'www.thaler.ir', tap: 'همین الان روی لینک بزن 👆' },
 };
 
-const W = 1080, H = 1350, FPS = 30, DURATION = 20;
+const WIDE = location.hash === '#wide';
+document.documentElement.classList.toggle('wide', WIDE);
+const W = WIDE ? 1920 : 1080, H = WIDE ? 1080 : 1350, FPS = 30, DURATION = 20;
+const CX = WIDE ? 960 : 540, CY = WIDE ? 250 : 380; // coin centre
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const ICONS = {
@@ -270,7 +287,7 @@ $('#s5').innerHTML = `<h2 class="title">${rich(K.title)}</h2><div class="sub">${
 function fitText() {
   const width = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; };
   const fit = (el, max) => { let fs = parseFloat(getComputedStyle(el).fontSize); while (width(el) > max && fs > 16) el.style.fontSize = (--fs) + 'px'; };
-  $$('.title, .sub, #s1 .q div, #s1 .hook div, .chip, .price').forEach(el => fit(el, 980));
+  $$('.title, .sub, #s1 .q div, #s1 .hook div, .chip, .price').forEach(el => fit(el, Math.min(980, el.closest('.head') ? el.closest('.head').clientWidth : 980)));
   $$('.ft h3, .ft p').forEach(el => fit(el, el.parentElement.clientWidth));
   const rc = $('.recap'); let fs = 27; while (rc.scrollWidth > rc.clientWidth + 1 && fs > 16) { fs--; $$('span', rc).forEach(s => (s.style.fontSize = fs + 'px')); }
 }
@@ -294,15 +311,16 @@ function palette(t) {
   const cur = PAL[i], prev = PAL[Math.max(0, i - 1)], k = i === 0 ? 1 : smooth(t - cur[0]);
   return [1, 2, 3].map(j => cur[j].map((v, c) => Math.round(prev[j][c] + (v - prev[j][c]) * k)));
 }
+$('#bg').width = W; $('#bg').height = H;
 const ctx = $('#bg').getContext('2d');
 function drawBg(t) {
   ctx.clearRect(0, 0, W, H);
   const [a, b, c] = palette(t);
   ctx.globalCompositeOperation = 'lighter';
   for (const [x, y, r, col, al] of [
-    [540 + 320 * Math.sin(t * .23), 370 + 180 * Math.cos(t * .31), 820, a, .26],
-    [300 + 260 * Math.cos(t * .19 + 1), 880 + 220 * Math.sin(t * .27), 760, b, .24],
-    [820 + 200 * Math.sin(t * .29 + 2), 1150 + 160 * Math.cos(t * .21), 700, c, .18]]) {
+    [W * .5 + 320 * Math.sin(t * .23), H * .27 + 180 * Math.cos(t * .31), 820, a, .26],
+    [W * .28 + 260 * Math.cos(t * .19 + 1), H * .65 + 220 * Math.sin(t * .27), 760, b, .24],
+    [W * .76 + 200 * Math.sin(t * .29 + 2), H * .85 + 160 * Math.cos(t * .21), 700, c, .18]]) {
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, `rgba(${col},${al})`); g.addColorStop(.45, `rgba(${col},${al * .35})`); g.addColorStop(1, `rgba(${col},0)`);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -316,7 +334,7 @@ function drawBg(t) {
     const bt = t - t0; if (bt <= 0 || bt > 2.2) continue;
     for (const p of burst) {
       if (bt > p.life) continue;
-      const k = 1 - Math.exp(-bt * 2.6), x = 540 + p.vx * k / 2.6, y = 380 + p.vy * k / 2.6 + 90 * bt * bt;
+      const k = 1 - Math.exp(-bt * 2.6), x = CX + p.vx * k / 2.6, y = CY + p.vy * k / 2.6 + 90 * bt * bt;
       ctx.fillStyle = `rgba(255,${200 + (p.r * 10 | 0)},140,${(1 - bt / p.life) * .9})`;
       ctx.beginPath(); ctx.arc(x, y, p.r, 0, 6.283); ctx.fill();
     }
@@ -352,7 +370,7 @@ const shock = t0 => {
 
 function build() {
   const slot = $('#bug .slot').getBoundingClientRect();
-  const bugX = slot.left + slot.width / 2 - 540, bugY = 92 - 380, bugS = 78 / 300;
+  const bugX = slot.left + slot.width / 2 - CX, bugY = slot.top + slot.height / 2 - CY, bugS = 78 / 300;
 
   // 1 · hook (visible from frame 0 so the thumbnail reads), words "forgotten", then the coin lands on the beat at 2 s
   tl.fromTo('#s1 .q .l1', { scale: 1.06 }, { scale: 1, duration: 1.2, ease: 'power2.out' }, 0);
