@@ -46,6 +46,7 @@ async function openPage() {
   const cdp = await ctx.newCDPSession(page);
   const shot = async () => Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true })).data, 'base64');
   const meta = await page.evaluate(() => window.__meta);
+  if (meta.height !== 1920) await page.setViewportSize({ width: meta.width, height: meta.height });
   return { page, shot, meta };
 }
 

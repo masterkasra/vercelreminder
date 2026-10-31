@@ -7,7 +7,9 @@
     "stills": "node render.mjs --stills 2.9,6.5,9.6,16.6,20.6,26,30.2",
     "render": "python3 music.py && node render.mjs",
     "stills:guide": "node render.mjs --page guide.html --stills 5.3,12.2,18.7,24.8,31.2,38.9,44.2,50.5,54.6",
-    "render:guide": "node render.mjs --page guide.html --cues && python3 music.py guide && node render.mjs --page guide.html"
+    "render:guide": "node render.mjs --page guide.html --cues && python3 music.py guide && node render.mjs --page guide.html",
+    "render:ad": "python3 -I music.py ad && node render.mjs --page ad.html",
+    "stills:ad": "node render.mjs --page ad.html --stills 0,3,5.4,7.2,9.2,10.9,14,19.5"
   },
   "devDependencies": {
     "playwright": "1.56.1"

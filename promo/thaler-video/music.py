@@ -359,5 +359,60 @@ def guide():
     m.write(os.path.join(HERE, 'out', 'guide-music.wav'))
 
 
+# ------------------------------------------------------------------ the Telegram ad (ad.html, 20 s, 4:5)
+def ad():
+    m = Mix(20.0)
+    m.bed(groove=lambda t: (4.0 <= t < 15.5) or (16.0 <= t < 18.0), end=18.0,
+          bright=lambda t: 900 if t < 4 else (1700 if t < 16 else 2300),
+          arp_gain=lambda t: 0.04 if t < 4 else (0.06 if t < 16 else 0.075),
+          dense_hats_from=12, bass_gap=[(15.5, 16.0)], roll_to=16.0)
+    # hook: the question punches in, the words blow away, the coin spins in and lands on 2 s
+    m.pop(0.35, 500, 0.12)
+    m.whoosh(1.5, 0.6, 0.09, 600, 8000)
+    n = int(0.6 * SR)
+    m.add('sfx', swept_bp(rng.standard_normal(n), 2000, 9000) * np.linspace(0, 1, n) ** 2, 1.4, 0.1, verb=0.5)
+    m.impact(2.0, 0.32)
+    for k, f in enumerate([1174.66, 1479.98, 1760.00, 2349.32, 1760.00, 2959.96]):
+        m.bell(2.3 + k * 0.11, f, 0.05, pan=-0.4 + 0.16 * k)
+    m.riser(4.0, 1.4)
+    m.whoosh(3.95, 0.7, 0.12)
+    m.impact(4.0, 0.17)
+    # Android app: phone rises, icons pop, install ticks, done chime, tap, app opens, three checks
+    m.whoosh(4.4, 0.5, 0.07, 400, 6000)
+    for i in range(3):
+        m.pop(4.5 + i * 0.07, 650 + 90 * i, 0.07, pan=(-0.3, 0.3, 0.0)[i])
+    for k in range(10):
+        m.tick(4.95 + k * 0.09, 0.025 + 0.002 * k, pan=0.15)
+    m.bell(5.88, 1760.0, 0.05, pan=0.2, decay=0.5)
+    m.bell(5.94, 2637.02, 0.025, pan=-0.2, decay=0.5)
+    m.pop(6.02, 1050, 0.11, pan=0.1)
+    m.whoosh(6.45, 0.5, 0.07, 500, 7000)
+    for i in range(3):
+        m.pop(6.97 + i * 0.2, 1200 + 150 * i, 0.08, pan=0.2)
+    m.whoosh(8.0, 0.6)
+    # card-to-card: card swoosh, number typing, bolt, cha-ching
+    m.whoosh(8.5, 0.5, 0.06, 500, 6000)
+    for k in range(12):
+        m.tick(8.6 + k * 0.055, 0.035, pan=0.1)
+    m.pop(9.35, 800, 0.07)
+    m.whoosh(9.75, 0.25, 0.08, 1500, 9000)
+    m.pop(9.72, 600, 0.12)
+    for f, d in ((1318.51, 0), (1760.0, 0.09), (2637.02, 0.18)):
+        m.bell(10.2 + d, f, 0.07, pan=0.2)
+    m.pop(10.38, 1200, 0.1)
+    m.whoosh(12.0, 0.6)
+    # features: eight tiles pop in, then a ripple of highlights
+    for i in range(8):
+        m.pop(12.4 + i * 0.07, 650 + 70 * i, 0.07, pan=(-0.3 if i % 2 else 0.3))
+    for i in range(8):
+        m.tick(13.42 + i * 0.14, 0.04, pan=-0.3 + 0.08 * i)
+    # call to action
+    m.outro(16.0, 18.0)
+    m.pop(16.7, 900, 0.1, pan=0.25)
+    m.whoosh(17.35, 0.4, 0.07, 600, 7000)
+    m.bell(17.6, 1760.0, 0.04, pan=-0.2, decay=0.5)
+    m.write(os.path.join(HERE, 'out', 'ad-music.wav'))
+
+
 if __name__ == '__main__':
-    {'promo': promo, 'guide': guide}[sys.argv[1] if len(sys.argv) > 1 else 'promo']()
+    {'promo': promo, 'guide': guide, 'ad': ad}[sys.argv[1] if len(sys.argv) > 1 else 'promo']()

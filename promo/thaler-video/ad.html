@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Thaler Telegram Ad</title>
+<!-- 20 s ad for Telegram Ads: hook → Android app (new) → instant card-to-card (new) → all features → free start.
+     Render: node render.mjs --page ad.html  (music: python3 -I music.py ad). Silent autoplay friendly: every claim is on screen. -->
+<style>
+@font-face { font-family: 'Vazirmatn'; src: url(fonts/Vazirmatn-Variable.ttf) format('truetype'); font-weight: 100 900; }
+@font-face { font-family: 'Manrope'; src: url(fonts/Manrope-Variable.woff2) format('woff2'); font-weight: 200 800; }
+:root {
+  --gold: #F7C548; --gold-2: #E39A2B; --gold-hi: #FFE9A8; --v1: #8B7CF6; --v2: #B48CFF;
+  --vgrad: linear-gradient(90deg, #8FA0FF 0%, #A98BFF 45%, #E68BE8 100%); --ggrad: linear-gradient(90deg, #FFE9A8, #F7C548 50%, #F0A63A);
+  --text: #F4F4FA; --muted: #A09EB8; --line: rgba(255,255,255,.12); --card: rgba(255,255,255,.05); --green: #34D399; --android: #3DDC84;
+}
+html, body { margin: 0; background: #000; }
+* { box-sizing: border-box; }
+#stage { position: relative; width: 1080px; height: 1350px; overflow: hidden; font-family: 'Vazirmatn', 'Noto Color Emoji', sans-serif; color: var(--text);
+  background: radial-gradient(120% 70% at 50% 0%, #1C1738 0%, #0B0A17 48%, #040409 100%); }
+#bg, #grain, #vignette { position: absolute; inset: 0; }
+#grain { opacity: .07; mix-blend-mode: overlay; }
+#vignette { background: radial-gradient(ellipse 80% 70% at 50% 45%, transparent 55%, rgba(0,0,0,.6) 100%); }
+.ltr { direction: ltr; unicode-bidi: isolate; font-family: 'Manrope', 'Vazirmatn'; }
+.g { background: var(--vgrad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gold { background: var(--ggrad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.icon { display: inline-block; }
+.icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+/* coin (shared by intro, brand bar and call to action) */
+#rays { position: absolute; left: 540px; top: 380px; width: 1700px; height: 1700px; margin: -850px 0 0 -850px; opacity: 0;
+  background: repeating-conic-gradient(from 0deg, rgba(200,170,255,.13) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask: radial-gradient(circle, #000 0%, rgba(0,0,0,.6) 25%, transparent 60%); mask: radial-gradient(circle, #000 0%, rgba(0,0,0,.6) 25%, transparent 60%); }
+#coinGlow { position: absolute; left: 540px; top: 380px; width: 760px; height: 760px; margin: -380px 0 0 -380px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(247,197,72,.5) 0%, rgba(160,120,255,.22) 35%, transparent 68%); }
+.shock { position: absolute; left: 540px; top: 380px; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; border: 4px solid var(--gold-hi); opacity: 0; box-shadow: 0 0 40px rgba(247,197,72,.6); }
+#coinWrap { position: absolute; left: 540px; top: 380px; width: 300px; height: 300px; margin: -150px 0 0 -150px; perspective: 1100px; z-index: 5; }
+.coin { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.coin .edge { position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(160deg, #D89A2A, #6E4304); }
+.coin .face { position: absolute; inset: 0; border-radius: 50%; backface-visibility: hidden; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(circle at 34% 28%, #FFF5CF 0%, #F9CF5B 26%, #DDA02A 60%, #99620E 100%);
+  box-shadow: inset 0 0 0 9px rgba(255,238,178,.6), inset 0 0 0 15px rgba(125,76,6,.35), inset 0 -22px 44px rgba(90,50,0,.5); }
+.coin .front { transform: translateZ(7px); } .coin .back { transform: rotateY(180deg) translateZ(7px); }
+.coin .face::before { content: ''; position: absolute; inset: 24px; border-radius: 50%; border: 4px dotted rgba(122,75,6,.55); }
+.coin .glyph { font-family: 'Manrope'; font-weight: 800; font-size: 118px; letter-spacing: -.03em; color: #B27414; text-shadow: 0 3px 0 #FFE8A6, 0 -2px 0 #6F4205, 0 8px 18px rgba(80,45,0,.35); }
+.coin .back .glyph { font-family: 'Vazirmatn'; font-weight: 900; font-size: 170px; margin-top: -18px; }
+.coin .shine { position: absolute; top: -20%; bottom: -20%; width: 45%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85) 50%, transparent); filter: blur(6px); transform: skewX(-18deg); }
+
+#bug { position: absolute; top: 60px; left: 0; right: 0; height: 64px; display: flex; justify-content: center; align-items: center; gap: 16px; opacity: 0; }
+#bug .slot { width: 78px; height: 78px; flex: none; }
+#bug .fa { font-size: 52px; font-weight: 900; line-height: 1; }
+#bug .en { font-family: 'Manrope'; font-weight: 700; font-size: 22px; letter-spacing: .42em; color: var(--muted); margin-top: 8px; }
+#footer { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; font-family: 'Manrope'; font-weight: 600; font-size: 30px; letter-spacing: .12em; color: rgba(255,255,255,.4); opacity: 0; }
+
+.scene { position: absolute; inset: 0; }
+.head { position: absolute; top: 150px; left: 0; right: 0; text-align: center; }
+.kicker { display: inline-flex; align-items: center; gap: 10px; padding: 8px 28px 10px; border-radius: 999px; border: 2px solid rgba(139,124,246,.5); background: rgba(139,124,246,.1); color: #C3B8FF; font-size: 30px; font-weight: 700; }
+.kicker.new { border-color: rgba(247,197,72,.65); background: rgba(247,197,72,.12); color: var(--gold-hi); }
+.kicker.new::before { content: 'NEW'; font-family: 'Manrope'; font-weight: 800; font-size: 20px; letter-spacing: .1em; color: #1A1206; background: var(--gold); border-radius: 8px; padding: 2px 10px 3px; }
+.title { margin: 14px 0 0; font-size: 104px; font-weight: 900; line-height: 1.22; white-space: nowrap;
+  background: linear-gradient(180deg, #FFFFFF 35%, #D2CDEB 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.title .g { background: var(--vgrad); -webkit-background-clip: text; background-clip: text; }
+.title .gold { background: var(--ggrad); -webkit-background-clip: text; background-clip: text; }
+.sub { margin-top: 4px; font-size: 40px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.chip { position: absolute; left: 50%; transform: translateX(-50%); padding: 10px 30px 12px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 29px; color: #D6D4E8; white-space: nowrap; }
+
+/* 1 · hook */
+#s1 .q { position: absolute; top: 500px; left: 0; right: 0; text-align: center; }
+#s1 .q div { font-size: 112px; font-weight: 900; line-height: 1.35; white-space: nowrap; }
+#s1 .q span { display: inline-block; }
+#s1 .q .l2 { color: #FFB4B4; }
+#s1 .wordmark { position: absolute; top: 545px; left: 0; right: 0; text-align: center; font-size: 200px; font-weight: 900; line-height: 1.2;
+  background: linear-gradient(180deg, var(--gold-hi) 10%, var(--gold) 50%, var(--gold-2) 90%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 12px 40px rgba(247,197,72,.25)); }
+#s1 .latin { position: absolute; top: 800px; left: 0; right: 0; text-align: center; font-family: 'Manrope'; font-weight: 700; font-size: 38px; letter-spacing: .55em; padding-left: .55em; color: #D8D6EA; }
+#s1 .hook { position: absolute; top: 880px; left: 0; right: 0; text-align: center; }
+#s1 .hook div { font-size: 64px; font-weight: 800; line-height: 1.45; white-space: nowrap; }
+
+/* 2 · Android app */
+.phone { position: absolute; left: 330px; top: 450px; width: 420px; height: 760px; border-radius: 72px; background: #0C0B18;
+  border: 3px solid rgba(255,255,255,.2); box-shadow: 0 60px 140px rgba(0,0,0,.6), 0 0 90px rgba(61,220,132,.16), inset 0 0 0 10px #17152A; }
+.phone .scr { position: absolute; inset: 16px; border-radius: 58px; overflow: hidden; background: linear-gradient(180deg, #1C1838, #0E0C1F); }
+.phone .cam { position: absolute; top: 18px; left: 50%; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #000; box-shadow: 0 0 0 3px #222; z-index: 3; }
+.phone .status { position: absolute; top: 22px; left: 34px; right: 34px; display: flex; justify-content: space-between; font-family: 'Manrope'; font-weight: 700; font-size: 20px; color: #CFCDE4; direction: ltr; }
+.home { position: absolute; inset: 0; }
+.apps { position: absolute; top: 100px; left: 34px; right: 34px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px 26px; }
+.apps i { display: block; height: 104px; border-radius: 30px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.06); }
+.tile { position: absolute; left: 50%; top: 380px; width: 150px; height: 150px; margin-left: -75px; }
+.tile .ic { position: absolute; inset: 14px; border-radius: 34px; display: grid; place-items: center; font-family: 'Manrope'; font-weight: 800; font-size: 50px; color: #8A5608;
+  background: radial-gradient(circle at 34% 28%, #FFF5CF 0%, #F9CF5B 30%, #DDA02A 70%, #A66C12 100%); box-shadow: 0 16px 40px rgba(247,197,72,.35), inset 0 0 0 4px rgba(255,238,178,.55); }
+.tile svg.ring { position: absolute; inset: 0; width: 150px; height: 150px; transform: rotate(-90deg); }
+.tile svg.ring circle { fill: none; stroke-width: 6; }
+.tile .rip { position: absolute; inset: 14px; border-radius: 34px; border: 4px solid #fff; opacity: 0; }
+.tile .prog { filter: drop-shadow(0 0 6px rgba(61,220,132,.8)); }
+.tile .name { position: absolute; top: 160px; left: -40px; right: -40px; text-align: center; font-size: 30px; font-weight: 800; }
+.inst { position: absolute; top: 590px; left: 50%; transform: translateX(-50%); height: 60px; min-width: 260px; }
+.inst span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 30px; font-size: 26px; font-weight: 700; white-space: nowrap; padding: 0 26px; }
+.inst .a { background: rgba(255,255,255,.08); color: #D6D4E8; }
+.inst .b { background: rgba(61,220,132,.18); color: #7CF0B3; border: 1px solid rgba(61,220,132,.4); opacity: 0; }
+.app { position: absolute; inset: 0; background: linear-gradient(180deg, #221C46, #100D22); padding: 70px 26px 0; clip-path: circle(0px at 50% 455px); }
+.app .top { display: flex; align-items: center; gap: 14px; font-size: 36px; font-weight: 900; }
+.app .top i { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 34% 28%, #FFF5CF, #F9CF5B 30%, #DDA02A 70%, #A66C12); }
+.app .hi { margin: 18px 0 16px; font-size: 26px; color: var(--muted); }
+.app .due { border-radius: 32px; padding: 24px 26px; background: linear-gradient(150deg, #8C7CF7, #D98BEE); box-shadow: 0 24px 50px rgba(160,120,255,.35); }
+.app .due b { display: block; font-size: 34px; font-weight: 900; }
+.app .due p { margin: 4px 0 14px; font-size: 23px; opacity: .9; }
+.app .due span { display: inline-block; padding: 8px 22px 10px; border-radius: 18px; background: rgba(15,8,35,.35); font-size: 23px; font-weight: 800; }
+.app .row { display: flex; align-items: center; gap: 14px; margin-top: 16px; height: 76px; padding: 0 22px; border-radius: 24px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.07); font-size: 25px; font-weight: 700; }
+.app .row .ok { width: 38px; height: 38px; flex: none; border-radius: 50%; border: 3px solid rgba(255,255,255,.25); display: grid; place-items: center; }
+.app .row .ok .icon { width: 22px; height: 22px; color: #0E2A1B; opacity: 0; }
+.badge { position: absolute; display: flex; align-items: center; gap: 14px; padding: 16px 28px 18px; border-radius: 28px; background: rgba(20,18,40,.72); border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 24px 60px rgba(0,0,0,.45); font-size: 30px; font-weight: 800; white-space: nowrap; backdrop-filter: blur(14px); }
+.badge .icon { width: 40px; height: 40px; }
+#b1 { left: 40px; top: 620px; color: var(--android); }
+#b1 b { font-family: 'Manrope'; font-weight: 800; }
+#b2 { right: 40px; top: 1000px; color: #E9E6FA; }
+#b2 .icon { color: var(--gold); }
+
+/* 3 · instant card-to-card */
+.bankP { position: absolute; left: 180px; top: 455px; width: 720px; height: 400px; perspective: 1500px; }
+.bank { position: absolute; inset: 0; border-radius: 42px; overflow: hidden; padding: 44px 50px; direction: ltr;
+  background: linear-gradient(135deg, #5B47E0 0%, #9A6BF0 45%, #E07FD8 85%); box-shadow: 0 50px 110px rgba(110,80,240,.45), inset 0 1px 0 rgba(255,255,255,.35); }
+.bank::after { content: ''; position: absolute; right: -120px; top: -160px; width: 460px; height: 460px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); }
+.bank .chipc { width: 92px; height: 70px; border-radius: 14px; background: linear-gradient(135deg, #FFE9A8, #E2A93A 55%, #B9821F); box-shadow: inset 0 0 0 2px rgba(120,80,10,.35); }
+.bank .wifi { position: absolute; right: 50px; top: 48px; width: 56px; height: 56px; color: rgba(255,255,255,.85); }
+.bank .num { margin-top: 40px; font-family: 'Manrope'; font-weight: 700; font-size: 52px; letter-spacing: .08em; white-space: nowrap; text-shadow: 0 2px 6px rgba(40,10,80,.35); }
+.bank .bot { position: absolute; left: 50px; right: 50px; bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end; }
+.bank .bot small { display: block; font-size: 20px; opacity: .8; font-family: 'Vazirmatn'; }
+.bank .bot b { font-size: 40px; font-weight: 900; font-family: 'Vazirmatn'; direction: rtl; unicode-bidi: isolate; }
+.bank .bot .brand { font-family: 'Manrope'; font-weight: 800; font-size: 28px; letter-spacing: .3em; opacity: .9; }
+.caret { display: inline-block; width: 4px; height: .9em; background: currentColor; margin-left: 4px; vertical-align: -0.08em; }
+.bolt { position: absolute; left: 480px; top: 838px; width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; z-index: 2;
+  background: radial-gradient(circle at 35% 30%, #FFF2C2, #F7C548 45%, #D88C1E); box-shadow: 0 0 0 10px rgba(247,197,72,.18), 0 0 70px rgba(247,197,72,.6); color: #3A2400; }
+.bolt .icon { width: 60px; height: 60px; } .bolt .icon svg { fill: #3A2400; stroke-width: 1.5; }
+.done { position: absolute; left: 110px; top: 915px; width: 860px; height: 270px; border-radius: 42px; display: flex; align-items: center; gap: 36px; padding: 0 54px;
+  background: linear-gradient(180deg, rgba(52,211,153,.13), rgba(52,211,153,.04)); border: 2px solid rgba(52,211,153,.4); box-shadow: 0 40px 100px rgba(0,0,0,.45); }
+.done .ck { width: 140px; height: 140px; flex: none; border-radius: 50%; background: var(--green); display: grid; place-items: center; color: #06281A; box-shadow: 0 0 60px rgba(52,211,153,.5); }
+.done .ck .icon { width: 84px; height: 84px; } .done .ck svg { stroke-width: 3; }
+.done b { display: block; font-size: 52px; font-weight: 900; line-height: 1.35; }
+.done p { margin: 0; font-size: 33px; color: #BDF5DA; font-weight: 600; }
+.done .ring { position: absolute; inset: -2px; border-radius: 42px; border: 3px solid var(--green); box-shadow: 0 0 70px rgba(52,211,153,.45); opacity: 0; }
+
+/* 4 · everything else */
+.tiles { position: absolute; left: 70px; top: 450px; width: 940px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.ft { position: relative; height: 146px; display: flex; align-items: center; gap: 22px; padding: 0 26px; border-radius: 30px; background: var(--card); border: 2px solid rgba(255,255,255,.08); }
+.ft .ib { width: 82px; height: 82px; flex: none; border-radius: 24px; display: grid; place-items: center; color: #fff; background: linear-gradient(145deg, #9D8CFF, #7A63F0 55%, #C77FE6); box-shadow: 0 12px 30px rgba(139,124,246,.3); }
+.ft .ib .icon { width: 44px; height: 44px; }
+.ft h3 { margin: 0; font-size: 35px; font-weight: 800; line-height: 1.3; white-space: nowrap; }
+.ft p { margin: 0; font-size: 24px; color: var(--muted); white-space: nowrap; }
+.ft.hot { border-color: rgba(247,197,72,.45); background: rgba(247,197,72,.07); }
+.ft.hot .ib { background: linear-gradient(145deg, #FFE9A8, #F7C548 50%, #E0902A); color: #3A2400; box-shadow: 0 12px 30px rgba(247,197,72,.3); }
+.ft .tx { min-width: 0; flex: 1; }
+#s4 .chip { top: 1130px; }
+
+/* 5 · call to action */
+#s5 .title { position: absolute; top: 560px; left: 0; right: 0; text-align: center; margin: 0; font-size: 124px; }
+#s5 .sub { position: absolute; top: 725px; left: 0; right: 0; text-align: center; font-size: 36px; }
+.price { position: absolute; top: 805px; left: 50%; transform: translateX(-50%); padding: 16px 40px 20px; border-radius: 999px; white-space: nowrap; font-size: 40px; font-weight: 800;
+  background: rgba(247,197,72,.1); border: 2px solid rgba(247,197,72,.55); color: #FFF3CF; box-shadow: 0 0 60px rgba(247,197,72,.18); }
+.price b { font-weight: 900; color: var(--gold); }
+.recap { position: absolute; top: 930px; left: 60px; right: 60px; display: flex; justify-content: center; gap: 16px; }
+.recap span { padding: 12px 24px 14px; border-radius: 22px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 27px; font-weight: 700; white-space: nowrap; }
+.urlbar { position: absolute; left: 110px; top: 1035px; width: 860px; height: 136px; border-radius: 68px; display: flex; align-items: center; justify-content: center; gap: 22px; direction: ltr; overflow: hidden;
+  background: linear-gradient(90deg, #7F6CF5, #A97CF5 50%, #DA80E2); box-shadow: 0 30px 90px rgba(150,110,255,.45), inset 0 1px 0 rgba(255,255,255,.35); }
+.urlbar .u { font-family: 'Manrope'; font-weight: 800; font-size: 66px; color: #fff; }
+.urlbar .icon { width: 56px; height: 56px; color: #fff; }
+.urlbar .shim { position: absolute; top: -40%; bottom: -40%; width: 160px; left: -240px; transform: skewX(-20deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); }
+.tap { position: absolute; top: 1190px; left: 0; right: 0; text-align: center; font-size: 30px; color: var(--muted); font-weight: 600; }
+
+#sweep { position: absolute; top: -400px; left: -700px; width: 380px; height: 2800px; transform: rotate(18deg); opacity: 0; mix-blend-mode: screen; filter: blur(30px);
+  background: linear-gradient(90deg, transparent, rgba(200,170,255,.25) 40%, rgba(255,255,255,.5) 50%, rgba(200,170,255,.25) 60%, transparent); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="1080" height="1920"></canvas>
+  <div id="rays"></div><div id="coinGlow"></div><div class="shock" id="shock1"></div><div class="shock" id="shock2"></div>
+  <section class="scene" id="s1"></section>
+  <section class="scene" id="s2"></section>
+  <section class="scene" id="s3"></section>
+  <section class="scene" id="s4"></section>
+  <section class="scene" id="s5"></section>
+  <div id="coinWrap"><div class="coin"></div></div>
+  <div id="bug"><i class="slot"></i><span class="fa">تالر</span><span class="en">THALER</span></div>
+  <div id="footer">www.thaler.ir</div>
+  <div id="sweep"></div>
+  <div id="grain"></div>
+  <div id="vignette"></div>
+</div>
+<script src="vendor/gsap.min.js"></script>
+<script>
+(() => {
+// ---------------------------------------------------------------- copy (prices are the site's real 6-month plan: 3,599,000 T / 180 days)
+const AD = {
+  q: ['دیروز خوندی،', 'امروز یادت رفت؟'],
+  hook: ['آلمانی رو یاد بگیر،', 'نه اینکه <g>دوباره فراموش کنی.</g>'],
+  app: { kicker: 'تازه منتشر شد', title: 'اپ <g>اندروید</g> تالر', sub: 'آلمانی، همیشه توی جیبت', installing: 'در حال نصب…', installed: 'نصب شد ✓',
+    due: ['وقت مرور است', '۱۳۱ واژه در آستانه‌ی فراموشی', 'شروع تمرین 🚀'], rows: ['مرور لغات امروز', 'تمرین شنیداری', 'درس گرامر'],
+    b1: 'Android', b2: 'هر جا، هر وقت' },
+  pay: { kicker: 'جدید', title: 'کارت به کارت <span class="gold">لحظه‌ای</span>', sub: 'واریز کن؛ اشتراکت همون لحظه فعال میشه',
+    num: '6037  ••••  ••••  4821', amountLabel: 'مبلغ', amount: '۳٬۵۹۹٬۰۰۰ تومان', ok: 'پرداخت تأیید شد', okSub: 'اشتراک ۶ ماهه فعال شد · بدون معطلی' },
+  feats: { kicker: 'هر چیزی که برای آلمانی لازم داری', title: 'همه‌چیز در <g>تالر</g>', sub: 'از A1 تا C1 — مخصوص فارسی‌زبان‌ها',
+    items: [
+      ['layers', 'لایتنر هوشمند', 'الگوریتم FSRS'], ['book', 'بانک لغات', '۱۰۰٬۰۰۰ واژه'],
+      ['bot', 'مکالمه با AI', 'حرف بزن، اصلاح شو'], ['pen', 'تصحیح نوشتن', 'خطا + قاعده به فارسی'],
+      ['cap', 'آزمون آزمایشی', 'Goethe · ÖSD · telc'], ['music', 'موزیک و پادکست', 'گوش بده، همزمان بخوان'],
+      ['phone', 'اپ اندروید', 'تازه منتشر شد', 1], ['send', 'ربات تلگرام و بله', 'دیکشنری در چت', 0],
+    ],
+    chip: 'گرامر قدم‌به‌قدم · تلفظ و شادوئینگ · لیگ و جایزه‌ی ماهانه' },
+  cta: { title: '<g>رایگان</g> شروع کن', sub: 'نسخه‌ی رایگان همیشه فعال · بدون نیاز به کارت بانکی',
+    price: 'پلن ۶ ماهه: روزی <b>کمتر از ۲۰ هزار</b> تومان', recap: ['📱 اپ اندروید', '⚡ کارت به کارت لحظه‌ای', '🤖 ربات تلگرام و بله'],
+    url: 'www.thaler.ir', tap: 'همین الان روی لینک بزن 👆' },
+};
+
+const W = 1080, H = 1350, FPS = 30, DURATION = 20;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const ICONS = {
+  layers: '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+  book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  bot: '<path d="M12 6V2H8"/><path d="M15 11v2"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M9 11v2"/>',
+  pen: '<path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+  cap: '<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>',
+  music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  phone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+  send: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.112z"/><path d="m21.854 2.147-10.94 10.939"/>',
+  zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  wifi: '<path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.86a10 10 0 0 1 14 0"/>',
+  pointer: '<path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/>',
+};
+const icon = n => `<span class="icon"><svg viewBox="0 0 24 24">${ICONS[n].replace(/<(path|circle|rect)/g, '<$1 pathLength="1"')}</svg></span>`;
+const rich = s => s.replace(/<g>/g, '<span class="g">').replace(/<\/g>/g, '</span>');
+const head = (s, cls = '') => `<div class="head"><div class="kicker ${cls}">${s.kicker}</div><h2 class="title">${rich(s.title)}</h2><div class="sub">${s.sub}</div></div>`;
+
+// ---------------------------------------------------------------- DOM
+let coin = ''; for (let i = 0; i < 13; i++) coin += `<div class="edge" style="transform:translateZ(${(i - 6) * 1.05}px)"></div>`;
+$('.coin').innerHTML = coin + '<div class="face back"><span class="glyph">ت</span></div><div class="face front"><span class="glyph">DE</span><i class="shine"></i></div>';
+
+$('#s1').innerHTML = `<div class="q">${AD.q.map((l, i) => `<div class="l${i + 1}">${l.split(' ').map(w => `<span>${w}</span>`).join(' ')}</div>`).join('')}</div>
+  <div class="wordmark">تالر</div><div class="latin">THALER</div><div class="hook">${AD.hook.map(l => `<div>${rich(l)}</div>`).join('')}</div>`;
+
+const A = AD.app;
+$('#s2').innerHTML = head(A, 'new') + `<div class="phone"><i class="cam"></i><div class="scr">
+    <div class="status"><span>9:41</span><span>5G ▪▪▪ 100%</span></div>
+    <div class="home"><div class="apps">${'<i></i>'.repeat(6)}</div>
+      <div class="tile"><svg class="ring" viewBox="0 0 150 150"><circle cx="75" cy="75" r="71" stroke="rgba(255,255,255,.12)"/><circle class="prog" cx="75" cy="75" r="71" stroke="#3DDC84" pathLength="1" stroke-linecap="round"/></svg>
+        <div class="ic">DE</div><i class="rip"></i><div class="name">تالر</div></div>
+      <div class="inst"><span class="a">${A.installing}</span><span class="b">${A.installed}</span></div></div>
+    <div class="app"><div class="top"><i></i>تالر</div><div class="hi">سلام! 👋 امروز ۱۵ دقیقه کافیه</div>
+      <div class="due"><b>${A.due[0]}</b><p>${A.due[1]}</p><span>${A.due[2]}</span></div>
+      ${A.rows.map(r => `<div class="row"><span class="ok">${icon('check')}</span>${r}</div>`).join('')}</div>
+  </div></div>
+  <div class="badge" id="b1">${icon('phone')}<b>${A.b1}</b></div><div class="badge" id="b2">${icon('zap')}${A.b2}</div>`;
+
+const P = AD.pay;
+$('#s3').innerHTML = head(P, 'new') + `<div class="bankP"><div class="bank"><div class="chipc"></div><span class="wifi">${icon('wifi')}</span>
+    <div class="num"><span class="typed"></span><i class="caret"></i></div>
+    <div class="bot"><div class="amt"><small>${P.amountLabel}</small><b>${P.amount}</b></div><div class="brand">THALER</div></div></div></div>
+  <div class="bolt">${icon('zap')}</div>
+  <div class="done"><i class="ring"></i><div class="ck">${icon('check')}</div><div><b>${P.ok}</b><p>${P.okSub}</p></div></div>`;
+
+const F = AD.feats;
+$('#s4').innerHTML = head(F) + `<div class="tiles">${F.items.map(([ic, t, d, hot]) => `<div class="ft${hot === 1 ? ' hot' : ''}"><div class="ib">${icon(ic)}</div><div class="tx"><h3>${t}</h3><p>${d}</p></div></div>`).join('')}</div>
+  <div class="chip">${F.chip}</div>`;
+
+const K = AD.cta;
+$('#s5').innerHTML = `<h2 class="title">${rich(K.title)}</h2><div class="sub">${K.sub}</div><div class="price">${K.price}</div>
+  <div class="recap">${K.recap.map(r => `<span>${r}</span>`).join('')}</div>
+  <div class="urlbar"><i class="shim"></i>${icon('pointer')}<span class="u">${K.url}</span></div><div class="tap">${K.tap}</div>`;
+
+function fitText() {
+  const width = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; };
+  const fit = (el, max) => { let fs = parseFloat(getComputedStyle(el).fontSize); while (width(el) > max && fs > 16) el.style.fontSize = (--fs) + 'px'; };
+  $$('.title, .sub, #s1 .q div, #s1 .hook div, .chip, .price').forEach(el => fit(el, 980));
+  $$('.ft h3, .ft p').forEach(el => fit(el, el.parentElement.clientWidth));
+  const rc = $('.recap'); let fs = 27; while (rc.scrollWidth > rc.clientWidth + 1 && fs > 16) { fs--; $$('span', rc).forEach(s => (s.style.fontSize = fs + 'px')); }
+}
+
+// ---------------------------------------------------------------- background
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = rng(20251031);
+const dust = Array.from({ length: 110 }, () => ({ x: R() * W, y: R() * H, r: .8 + R() * 2.6, v: 8 + R() * 38, ph: R() * 6.28, f: .6 + R() * 1.8, gold: R() < .45 }));
+const burst = Array.from({ length: 90 }, () => { const a = R() * Math.PI * 2, s = 380 + R() * 900; return { vx: Math.cos(a) * s, vy: Math.sin(a) * s, r: 1.5 + R() * 4, life: .9 + R() * 1.2 }; });
+const PAL = [
+  [0, [230, 90, 110], [120, 90, 240], [200, 110, 230]],
+  [2, [247, 197, 72], [120, 90, 240], [200, 110, 230]],
+  [4, [61, 220, 132], [100, 100, 240], [40, 150, 170]],
+  [8, [247, 197, 72], [150, 110, 250], [52, 211, 153]],
+  [12, [139, 124, 246], [220, 120, 230], [70, 80, 220]],
+  [16, [247, 197, 72], [139, 124, 246], [220, 120, 230]],
+];
+const smooth = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+function palette(t) {
+  let i = 0; while (i < PAL.length - 1 && t >= PAL[i + 1][0]) i++;
+  const cur = PAL[i], prev = PAL[Math.max(0, i - 1)], k = i === 0 ? 1 : smooth(t - cur[0]);
+  return [1, 2, 3].map(j => cur[j].map((v, c) => Math.round(prev[j][c] + (v - prev[j][c]) * k)));
+}
+const ctx = $('#bg').getContext('2d');
+function drawBg(t) {
+  ctx.clearRect(0, 0, W, H);
+  const [a, b, c] = palette(t);
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [x, y, r, col, al] of [
+    [540 + 320 * Math.sin(t * .23), 370 + 180 * Math.cos(t * .31), 820, a, .26],
+    [300 + 260 * Math.cos(t * .19 + 1), 880 + 220 * Math.sin(t * .27), 760, b, .24],
+    [820 + 200 * Math.sin(t * .29 + 2), 1150 + 160 * Math.cos(t * .21), 700, c, .18]]) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${col},${al})`); g.addColorStop(.45, `rgba(${col},${al * .35})`); g.addColorStop(1, `rgba(${col},0)`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  for (const p of dust) {
+    const y = ((p.y - p.v * t) % H + H) % H, x = p.x + 14 * Math.sin(t * .5 + p.ph), al = .18 + .32 * (.5 + .5 * Math.sin(t * p.f + p.ph));
+    ctx.fillStyle = p.gold ? `rgba(255,214,120,${al})` : `rgba(210,200,255,${al * .8})`;
+    ctx.beginPath(); ctx.arc(x, y, p.r, 0, 6.283); ctx.fill();
+  }
+  for (const t0 of [2, 16]) { // spark bursts when the coin lands
+    const bt = t - t0; if (bt <= 0 || bt > 2.2) continue;
+    for (const p of burst) {
+      if (bt > p.life) continue;
+      const k = 1 - Math.exp(-bt * 2.6), x = 540 + p.vx * k / 2.6, y = 380 + p.vy * k / 2.6 + 90 * bt * bt;
+      ctx.fillStyle = `rgba(255,${200 + (p.r * 10 | 0)},140,${(1 - bt / p.life) * .9})`;
+      ctx.beginPath(); ctx.arc(x, y, p.r, 0, 6.283); ctx.fill();
+    }
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+(() => {
+  const g = document.createElement('canvas'); g.width = g.height = 256;
+  const gc = g.getContext('2d'), img = gc.createImageData(256, 256), r = rng(7);
+  for (let i = 0; i < img.data.length; i += 4) { const v = r() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  gc.putImageData(img, 0, 0); $('#grain').style.background = `url(${g.toDataURL()})`;
+})();
+
+// ---------------------------------------------------------------- timeline
+gsap.ticker.lagSmoothing(0);
+const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+const titleIn = (el, t0, d = .8) => tl.fromTo(el, { clipPath: 'inset(-30% 0% -30% 100%)', y: 36, filter: 'blur(14px)', opacity: 0 },
+  { clipPath: 'inset(-30% 0% -30% 0%)', y: 0, filter: 'blur(0px)', opacity: 1, duration: d, ease: 'expo.out' }, t0);
+const rise = (el, t0, o = {}) => tl.fromTo(el, { y: o.y ?? 40, opacity: 0, filter: 'blur(8px)', scale: o.s ?? 1 },
+  { y: 0, opacity: 1, filter: 'blur(0px)', scale: 1, duration: o.d ?? .6, ease: o.ease ?? 'power3.out', stagger: o.stagger ?? 0 }, t0);
+const leave = (el, t0) => tl.to(el, { x: -150, scale: .97, opacity: 0, filter: 'blur(12px)', duration: .42, ease: 'power2.in' }, t0);
+const pop = (el, t0, o = {}) => tl.fromTo(el, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: o.d ?? .5, ease: 'back.out(2.2)', stagger: o.stagger ?? 0 }, t0);
+const draw = (els, t0, d = .7, stagger = 0) => tl.fromTo(els, { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: 'power2.inOut', stagger }, t0);
+const sweep = t0 => tl.fromTo('#sweep', { x: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: .12 }, { opacity: 0, duration: .38 }], x: 2100, duration: .5, ease: 'power1.inOut', immediateRender: false }, t0);
+const head3 = (sel, t0) => { rise(`${sel} .kicker`, t0 + .05, { y: 24, s: .9 }); titleIn(`${sel} .title`, t0 + .12); rise(`${sel} .head .sub`, t0 + .3, { y: 24 }); };
+const shock = t0 => {
+  tl.fromTo('#shock1', { scale: .9, opacity: .95 }, { scale: 2.6, opacity: 0, duration: 1, ease: 'expo.out', immediateRender: false }, t0);
+  tl.fromTo('#shock2', { scale: .9, opacity: .6 }, { scale: 3.4, opacity: 0, duration: 1.3, ease: 'expo.out', immediateRender: false }, t0 + .1);
+  tl.fromTo('#rays', { opacity: 0, scale: .6 }, { opacity: .85, scale: 1, duration: .8, ease: 'expo.out', immediateRender: false }, t0);
+  tl.fromTo('#coinGlow', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .8, ease: 'expo.out', immediateRender: false }, t0);
+  tl.fromTo('.coin .shine', { left: '-60%' }, { left: '130%', duration: .9, ease: 'power2.inOut', immediateRender: false }, t0 + .25);
+};
+
+function build() {
+  const slot = $('#bug .slot').getBoundingClientRect();
+  const bugX = slot.left + slot.width / 2 - 540, bugY = 92 - 380, bugS = 78 / 300;
+
+  // 1 · hook (visible from frame 0 so the thumbnail reads), words "forgotten", then the coin lands on the beat at 2 s
+  tl.fromTo('#s1 .q .l1', { scale: 1.06 }, { scale: 1, duration: 1.2, ease: 'power2.out' }, 0);
+  tl.fromTo('#s1 .q .l2', { scale: 1 }, { keyframes: [{ scale: 1.08, duration: .12 }, { scale: 1, duration: .4, ease: 'back.out(3)' }] }, .35);
+  $$('#s1 .q span').forEach((w, i) => tl.to(w, { y: -60 - 50 * (i % 3), x: (i % 2 ? 1 : -1) * (30 + 20 * i), rotation: (i % 2 ? 8 : -8), opacity: 0, filter: 'blur(18px)', duration: .55, ease: 'power2.in' }, 1.25 + i * .07));
+  tl.fromTo('#coinWrap', { scale: 0, y: -260, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: .55, ease: 'power3.in' }, 1.45);
+  tl.fromTo('.coin', { rotationY: -1080 }, { rotationY: 0, duration: 1.15, ease: 'power2.out' }, 1.45);
+  shock(2.0);
+  tl.fromTo('#coinWrap', { scale: 1 }, { keyframes: [{ scale: 1.1, duration: .08 }, { scale: 1, duration: .3, ease: 'back.out(3)' }], immediateRender: false }, 2.0);
+  titleIn('#s1 .wordmark', 2.08, .7);
+  rise('#s1 .latin', 2.3, { y: 20 });
+  rise('#s1 .hook div', 2.45, { y: 30, stagger: .14 });
+  tl.to(['#rays', '#coinGlow'], { opacity: 0, duration: .5 }, 3.4);
+  leave('#s1 .wordmark, #s1 .latin, #s1 .hook', 3.55);
+  tl.to('#coinWrap', { x: bugX, y: bugY, scale: bugS, duration: .6, ease: 'power3.inOut' }, 3.4);
+  tl.fromTo('#bug, #footer', { opacity: 0 }, { opacity: 1, duration: .4 }, 3.75);
+
+  // 2 · Android app
+  sweep(3.85); head3('#s2', 4.0);
+  tl.fromTo('#s2 .phone', { y: 260, rotationX: 22, opacity: 0, transformPerspective: 1600 }, { y: 0, rotationX: 0, opacity: 1, duration: .9, ease: 'expo.out' }, 4.15);
+  rise('#s2 .apps i', 4.45, { y: 20, s: .8, stagger: .03, d: .4 });
+  pop('#s2 .tile .ic', 4.6);
+  rise('#s2 .tile .name, #s2 .inst', 4.7, { y: 14 });
+  tl.to('#s2 .inst .a', { opacity: 0, duration: .15 }, 5.85);
+  tl.fromTo('#s2 .inst .b', { opacity: 0, scale: .8 }, { opacity: 1, scale: 1, duration: .35, ease: 'back.out(3)' }, 5.85);
+  tl.to('#s2 .tile svg', { opacity: 0, duration: .25 }, 5.95);
+  rise('#b1', 4.9, { y: 30, s: .9 }); rise('#b2', 5.15, { y: 30, s: .9 });
+  tl.fromTo('#s2 .tile .ic', { scale: 1 }, { keyframes: [{ scale: .88, duration: .1 }, { scale: 1, duration: .2 }], immediateRender: false }, 6.0);
+  tl.fromTo('#s2 .rip', { opacity: .9, scale: 1 }, { opacity: 0, scale: 1.6, duration: .5, ease: 'power2.out', immediateRender: false }, 6.05);
+  tl.fromTo('#s2 .app', { clipPath: 'circle(0px at 50% 455px)' }, { clipPath: 'circle(1000px at 50% 455px)', duration: .6, ease: 'power2.in' }, 6.15);
+  rise('#s2 .app .top, #s2 .app .hi, #s2 .app .due, #s2 .app .row', 6.45, { y: 30, stagger: .07, d: .45 });
+  $$('#s2 .row .ok').forEach((el, i) => {
+    tl.to(el, { background: '#34D399', borderColor: '#34D399', duration: .2 }, 6.95 + i * .2);
+    tl.fromTo($('.icon', el), { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, duration: .3, ease: 'back.out(3)' }, 6.95 + i * .2);
+  });
+  tl.to('#b1, #b2', { y: -16, duration: 2.4, ease: 'sine.inOut' }, 5.5);
+  leave('#s2', 7.6);
+
+  // 3 · instant card-to-card
+  sweep(7.85); head3('#s3', 8.0);
+  tl.fromTo('#s3 .bank', { y: 160, rotationX: 30, rotationY: -18, opacity: 0 }, { y: 0, rotationX: 0, rotationY: 0, opacity: 1, duration: .9, ease: 'expo.out' }, 8.15);
+  tl.fromTo('#s3 .bank', { rotationY: 0 }, { rotationY: 6, rotationX: -4, duration: 3, ease: 'sine.inOut', immediateRender: false }, 9.05);
+  rise('#s3 .amt', 9.3, { y: 20 });
+  pop('#s3 .bolt', 9.7, { d: .45 });
+  tl.fromTo('#s3 .bolt', { boxShadow: '0 0 0 0px rgba(247,197,72,.5), 0 0 70px rgba(247,197,72,.6)' }, { boxShadow: '0 0 0 60px rgba(247,197,72,0), 0 0 70px rgba(247,197,72,.6)', duration: .7, immediateRender: false }, 9.85);
+  tl.fromTo('#s3 .done', { y: 80, opacity: 0, scale: .94 }, { y: 0, opacity: 1, scale: 1, duration: .6, ease: 'expo.out' }, 10.0);
+  pop('#s3 .ck', 10.1, { d: .45 });
+  draw('#s3 .ck [pathLength]', 10.2, .35);
+  rise('#s3 .done b', 10.3, { y: 20 }); rise('#s3 .done p', 10.45, { y: 20 });
+  tl.fromTo('#s3 .done .ring', { opacity: 0 }, { keyframes: [{ opacity: 1, duration: .2 }, { opacity: .35, duration: .9 }] }, 10.45);
+  leave('#s3', 11.6);
+
+  // 4 · everything else
+  sweep(11.85); head3('#s4', 12.0);
+  rise('#s4 .ft', 12.35, { y: 50, s: .92, stagger: .07, d: .5 });
+  draw($$('#s4 .ft [pathLength]'), 12.45, .7, .03);
+  rise('#s4 .chip', 13.1, { y: 20 });
+  $$('#s4 .ft').forEach((el, i) => tl.fromTo(el, { borderColor: 'rgba(255,255,255,.08)' },
+    { keyframes: [{ borderColor: 'rgba(180,140,255,.9)', boxShadow: '0 0 40px rgba(160,130,255,.35)', duration: .15 }, { borderColor: el.classList.contains('hot') ? 'rgba(247,197,72,.45)' : 'rgba(255,255,255,.08)', boxShadow: '0 0 0px rgba(0,0,0,0)', duration: .5 }], immediateRender: false }, 13.4 + i * .14));
+  leave('#s4', 15.5);
+
+  // 5 · call to action: the coin leaves the brand bar and lands in the middle on the 16 s downbeat
+  tl.to('#bug, #footer', { opacity: 0, duration: .3 }, 15.4);
+  tl.to('#coinWrap', { x: 0, y: 0, scale: 1, duration: .6, ease: 'power3.in' }, 15.4);
+  tl.fromTo('.coin', { rotationY: 0 }, { rotationY: 720, duration: .9, ease: 'power2.out', immediateRender: false }, 15.4);
+  shock(16.0);
+  tl.fromTo('#coinWrap', { scale: 1 }, { keyframes: [{ scale: 1.1, duration: .08 }, { scale: 1, duration: .3, ease: 'back.out(3)' }], immediateRender: false }, 16.0);
+  tl.to('#rays', { opacity: .45, duration: 1 }, 17.0);
+  titleIn('#s5 .title', 16.15);
+  rise('#s5 .sub', 16.4, { y: 24 });
+  pop('#s5 .price', 16.65);
+  rise('#s5 .recap span', 16.9, { y: 30, stagger: .1 });
+  tl.fromTo('#s5 .urlbar', { y: 80, opacity: 0, scale: .9 }, { y: 0, opacity: 1, scale: 1, duration: .6, ease: 'back.out(1.8)' }, 17.3);
+  draw('#s5 .urlbar [pathLength]', 17.45, .6);
+  rise('#s5 .tap', 17.7, { y: 16 });
+  [17.9, 18.9].forEach(t0 => tl.fromTo('#s5 .urlbar .shim', { left: -240 }, { left: 1100, duration: .8, ease: 'power2.inOut', immediateRender: false }, t0));
+  tl.to({}, { duration: .01 }, DURATION);
+}
+
+// per-frame extras GSAP doesn't cover: card-number typing, rays spin, coin float, url pulse
+let typedEl, caret, prog;
+const NUM = AD.pay.num;
+function extras(t) {
+  const p = Math.max(0, Math.min(1, (t - 8.55) / .7));
+  typedEl.textContent = NUM.slice(0, Math.round(p * NUM.length));
+  caret.style.opacity = (p > 0 && p < 1) || (t < 9.6 && Math.floor(t * 2.4) % 2 === 0) ? 1 : 0;
+  const ip = Math.max(0, Math.min(1, (t - 4.9) / .95)), ie = ip < .5 ? 2 * ip * ip : 1 - (-2 * ip + 2) ** 2 / 2;
+  prog.setAttribute('stroke-dasharray', `${ie} 1`);
+  $('#rays').style.rotate = `${t * 7}deg`;
+  const f = Math.max(0, Math.min(1, t - 16.8));
+  $('.coin').style.translate = `0 ${f * 10 * Math.sin((t - 16.8) * 2.2)}px`;
+  const u = Math.max(0, t - 17.9);
+  $('#s5 .urlbar').style.scale = u > 0 ? String(1 + .025 * Math.max(0, Math.sin(u * Math.PI * 2 / 1.0)) ** 2) : '';
+}
+
+window.__seek = t => { tl.seek(t, false); drawBg(t); extras(t); };
+window.__meta = { fps: FPS, duration: DURATION, width: W, height: H };
+Promise.all([document.fonts.load('900 100px Vazirmatn'), document.fonts.load('500 40px Vazirmatn'), document.fonts.load('700 40px Manrope')])
+  .then(() => document.fonts.ready)
+  .then(() => {
+    fitText();
+    prog = $('#s2 .prog'); typedEl = $('#s3 .typed'); caret = $('#s3 .caret');
+    build();
+    window.__seek(0);
+    window.__ready = true;
+  });
+
+const q = new URLSearchParams(location.search);
+if (q.has('play') || q.has('t')) {
+  const start = +(q.get('t') || 0), t0 = performance.now();
+  const tick = () => { if (!window.__ready) return requestAnimationFrame(tick); const t = q.has('play') ? (start + (performance.now() - t0) / 1000) % DURATION : start; window.__seek(t); if (q.has('play')) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+})();
+</script>
+</body>
+</html>
